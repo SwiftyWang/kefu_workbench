@@ -8,6 +8,8 @@ export 'dart:io';
 export 'package:flutter/foundation.dart';
 
 export 'configs.dart';
+export 'page_context.dart';
 export 'widgets/index.dart';
 export 'utils//index.dart';
 export 'models/index.dart';
+export 'provider/themes.dart';

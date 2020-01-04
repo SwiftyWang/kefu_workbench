@@ -10,8 +10,9 @@ class Avatar extends StatelessWidget{
   Widget build(BuildContext context) {
     if(imgUrl == null) return Container();
     return Button(
-      width: size == null ? ToPx.size(135) : size,
-      height:  size == null ? ToPx.size(135) : size,
+      useIosStyle: true,
+      width: size == null ? ToPx.size(60) : size,
+      height:  size == null ? ToPx.size(60) : size,
       color: Colors.transparent,
       disabledColor: Colors.transparent,
       onPressed: onPressed,

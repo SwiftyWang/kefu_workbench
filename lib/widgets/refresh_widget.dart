@@ -49,7 +49,7 @@ class RefreshWidget extends StatelessWidget{
     return Container(
       width: double.infinity,
       height: double.infinity,
-      padding: EdgeInsets.symmetric(vertical: ToPx.size(20)),
+      padding: EdgeInsets.symmetric(vertical: ToPx.size(10)),
       decoration: BoxDecoration(
         color: bgColor,
       ),
@@ -60,14 +60,14 @@ class RefreshWidget extends StatelessWidget{
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
             refreshState == RefreshIndicatorMode.done ?
-              Icon(Icons.done,color: iconColor ,size: ToPx.size(50),) :
+              Icon(Icons.done,color: iconColor ,size: ToPx.size(30),) :
             refreshState == RefreshIndicatorMode.drag ?
-            Icon(Icons.arrow_downward,color:iconColor,size: ToPx.size(50),) :
+            Icon(Icons.arrow_downward,color:iconColor,size: ToPx.size(30),) :
             loadingIcon(),
             Text(
               refreshState == RefreshIndicatorMode.done
                   ? " $doneText" : refreshState == RefreshIndicatorMode.drag ?  " $dragText" : " $refreshText",
-              style: TextStyle(fontSize: ToPx.size(39), color: textColor),
+              style: TextStyle(fontSize: ToPx.size(26), color: textColor),
             )
           ],
         )
