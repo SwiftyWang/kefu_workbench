@@ -27,9 +27,12 @@ class Themes with ChangeNotifier {
         indicatorColor: Color(0xff0cb8fd), // 选中颜色
         buttonColor: Color(0xff0cb8fd), // 按钮颜色
         disabledColor: Color(0xffcccccc), // 禁用颜色
-        primaryColorLight: Color(0xfffc4919), // 比较亮的颜色
+        primaryColorLight: Color(0xffffffff), // 比较亮的颜色
         scaffoldBackgroundColor: Color(0xffF3F3F3),
         backgroundColor: Color(0xffF3F3F3),
+        popupMenuTheme: PopupMenuThemeData(
+          color: Color(0xff3e444a)
+        ),
         textTheme: TextTheme(
           // 文本主题
           title: TextStyle(

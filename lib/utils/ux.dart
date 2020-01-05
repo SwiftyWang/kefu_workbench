@@ -40,7 +40,7 @@ class UX {
       gravity: position == ToastPosition.center ? ToastGravity.CENTER : position == ToastPosition.top ? ToastGravity.TOP : ToastGravity.BOTTOM,
       timeInSecForIos: 2,
       backgroundColor: Color.fromRGBO(0, 0, 0, 0.8),
-      fontSize: ToPx.size(42)
+      fontSize: ToPx.size(28)
     );
   }
 
