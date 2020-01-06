@@ -1,15 +1,16 @@
-
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:kefu_workbench/resources/localizations.dart';
 import 'package:kefu_workbench/routes.dart';
 import 'package:provider/provider.dart';
 
 import 'core_flutter.dart';
+import 'provider/global.dart';
 
 Widget createApp() {
   return MultiProvider(
       providers: [
-        ChangeNotifierProvider(create: (_) => Themes()),
+        ChangeNotifierProvider(create: (_) => GlobalProvide()),
+        ChangeNotifierProvider(create: (_) => ThemeProvide()),
       ],
       child: Builder(builder: (context) {
         return _MyApp();
@@ -22,10 +23,10 @@ class _MyApp extends StatelessWidget {
     return MaterialApp(
       title: Configs.APP_NAME,
       debugShowCheckedModeBanner: false,
-      theme: Themes.getInstance().getCurrentTheme(),
+      theme: ThemeProvide.getInstance().getCurrentTheme(),
       home: Builder(builder: (context) {
         ToPx().init(context);
-        return Routers.buildPage("/home", arguments: {"index": "index"});
+        return Routers.buildPage("/home", arguments: {"data": "not arguments"});
       }),
       onGenerateRoute: (RouteSettings settings) {
         // 是否是全屏modal

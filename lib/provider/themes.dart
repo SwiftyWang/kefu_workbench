@@ -2,16 +2,16 @@ import 'package:flutter/material.dart';
 
 enum ThemeType { first, second }
 
-class Themes with ChangeNotifier {
+class ThemeProvide with ChangeNotifier {
   // 实例
-  static Themes instance;
+  static ThemeProvide instance;
 
   // 单例
-  static Themes getInstance() {
+  static ThemeProvide getInstance() {
     if (instance != null) {
       return instance;
     }
-    instance = Themes();
+    instance = ThemeProvide();
     return instance;
   }
 
@@ -28,6 +28,7 @@ class Themes with ChangeNotifier {
         buttonColor: Color(0xff0cb8fd), // 按钮颜色
         disabledColor: Color(0xffcccccc), // 禁用颜色
         primaryColorLight: Color(0xffffffff), // 比较亮的颜色
+        primaryColorDark: Color(0xff333333), // 比较暗的颜色
         scaffoldBackgroundColor: Color(0xffF3F3F3),
         backgroundColor: Color(0xffF3F3F3),
         popupMenuTheme: PopupMenuThemeData(

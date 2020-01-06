@@ -1,240 +1,37 @@
 {
-  "id": "1202224",
-  "name": "玩车头条APP",
+  "id": "1598621",
+  "name": "客服APP",
   "font_family": "iconfont",
-  "css_prefix_text": "icon",
-  "description": "玩车头条APP",
+  "css_prefix_text": "icon-",
+  "description": "",
   "glyphs": [
     {
-      "icon_id": "1003075",
-      "name": "message",
-      "font_class": "message",
-      "unicode": "e65f",
-      "unicode_decimal": 58975
-    },
-    {
-      "icon_id": "3024420",
-      "name": "localtion_circle",
-      "font_class": "localtion_circle",
+      "icon_id": "611345",
+      "name": "密码",
+      "font_class": "icon2",
       "unicode": "e62a",
       "unicode_decimal": 58922
     },
     {
-      "icon_id": "4638891",
-      "name": "人工服务",
-      "font_class": "service",
-      "unicode": "e88d",
-      "unicode_decimal": 59533
-    },
-    {
-      "icon_id": "4640997",
-      "name": "汽车",
-      "font_class": "qiche",
-      "unicode": "e654",
-      "unicode_decimal": 58964
-    },
-    {
-      "icon_id": "5114435",
-      "name": "search close",
-      "font_class": "close",
-      "unicode": "e601",
-      "unicode_decimal": 58881
-    },
-    {
-      "icon_id": "5829722",
-      "name": "个人中心",
-      "font_class": "gerenzhongxin",
-      "unicode": "e608",
-      "unicode_decimal": 58888
-    },
-    {
-      "icon_id": "6302545",
-      "name": "vip-填充",
-      "font_class": "vip-tianchong",
-      "unicode": "e67d",
-      "unicode_decimal": 59005
-    },
-    {
-      "icon_id": "7008914",
-      "name": "createtask_fill",
-      "font_class": "createtask_fill",
-      "unicode": "e6ee",
-      "unicode_decimal": 59118
-    },
-    {
-      "icon_id": "7008946",
-      "name": "homepage_fill",
-      "font_class": "homepage_fill",
-      "unicode": "e702",
-      "unicode_decimal": 59138
-    },
-    {
-      "icon_id": "7008978",
-      "name": "people_fill",
-      "font_class": "people_fill",
-      "unicode": "e715",
-      "unicode_decimal": 59157
-    },
-    {
-      "icon_id": "7514781",
-      "name": "scan",
-      "font_class": "scan",
-      "unicode": "e6e3",
-      "unicode_decimal": 59107
-    },
-    {
-      "icon_id": "7634983",
-      "name": "message",
-      "font_class": "message1",
-      "unicode": "e634",
-      "unicode_decimal": 58932
-    },
-    {
-      "icon_id": "7673094",
-      "name": "home",
-      "font_class": "home",
-      "unicode": "e60b",
-      "unicode_decimal": 58891
-    },
-    {
-      "icon_id": "7977458",
-      "name": "Back",
-      "font_class": "Back",
-      "unicode": "e600",
-      "unicode_decimal": 58880
-    },
-    {
-      "icon_id": "8317801",
-      "name": "Awesome 2",
-      "font_class": "Awesome",
-      "unicode": "e6f1",
-      "unicode_decimal": 59121
-    },
-    {
-      "icon_id": "8317804",
-      "name": "Awesome",
-      "font_class": "Awesome1",
-      "unicode": "e6f2",
-      "unicode_decimal": 59122
-    },
-    {
-      "icon_id": "9863449",
-      "name": "5在线客服",
+      "icon_id": "1212307",
+      "name": "在线客服",
       "font_class": "zaixiankefu",
-      "unicode": "e628",
-      "unicode_decimal": 58920
+      "unicode": "e674",
+      "unicode_decimal": 58996
     },
     {
-      "icon_id": "11292880",
-      "name": "VIP会员",
-      "font_class": "VIPhuiyuan",
-      "unicode": "e602",
-      "unicode_decimal": 58882
+      "icon_id": "2325917",
+      "name": "客服",
+      "font_class": "kefu",
+      "unicode": "e637",
+      "unicode_decimal": 58935
     },
     {
-      "icon_id": "11292891",
-      "name": "车主服务",
-      "font_class": "chezhufuwu",
-      "unicode": "e603",
-      "unicode_decimal": 58883
-    },
-    {
-      "icon_id": "11292892",
-      "name": "全部订单",
-      "font_class": "quanbudingdan",
-      "unicode": "e604",
-      "unicode_decimal": 58884
-    },
-    {
-      "icon_id": "11292893",
-      "name": "已完成",
-      "font_class": "yiwancheng",
-      "unicode": "e605",
-      "unicode_decimal": 58885
-    },
-    {
-      "icon_id": "11292894",
-      "name": "办理中",
-      "font_class": "banlizhong",
-      "unicode": "e606",
-      "unicode_decimal": 58886
-    },
-    {
-      "icon_id": "11292895",
-      "name": "已退单",
-      "font_class": "yituidan",
-      "unicode": "e607",
-      "unicode_decimal": 58887
-    },
-    {
-      "icon_id": "11292999",
-      "name": "消息",
-      "font_class": "xiaoxi",
-      "unicode": "e609",
-      "unicode_decimal": 58889
-    },
-    {
-      "icon_id": "11293093",
-      "name": "拨打电话",
-      "font_class": "bodadianhua",
-      "unicode": "e60a",
-      "unicode_decimal": 58890
-    },
-    {
-      "icon_id": "11293572",
-      "name": "编辑",
-      "font_class": "bianji",
-      "unicode": "e60c",
-      "unicode_decimal": 58892
-    },
-    {
-      "icon_id": "11293694",
-      "name": "question",
-      "font_class": "question",
+      "icon_id": "10281814",
+      "name": "账号",
+      "font_class": "zhanghao",
       "unicode": "e60d",
       "unicode_decimal": 58893
-    },
-    {
-      "icon_id": "11295453",
-      "name": "月卡季卡年卡",
-      "font_class": "yuekajikanianka",
-      "unicode": "e60e",
-      "unicode_decimal": 58894
-    },
-    {
-      "icon_id": "11295593",
-      "name": "定位",
-      "font_class": "dingwei",
-      "unicode": "e60f",
-      "unicode_decimal": 58895
-    },
-    {
-      "icon_id": "11295644",
-      "name": "添加",
-      "font_class": "tianjia",
-      "unicode": "e610",
-      "unicode_decimal": 58896
-    },
-    {
-      "icon_id": "11297028",
-      "name": "添加-2",
-      "font_class": "tianjia-",
-      "unicode": "e611",
-      "unicode_decimal": 58897
-    },
-    {
-      "icon_id": "11297032",
-      "name": "关闭",
-      "font_class": "guanbi",
-      "unicode": "e612",
-      "unicode_decimal": 58898
-    },
-    {
-      "icon_id": "11297627",
-      "name": "玩车头条",
-      "font_class": "wanchetoutiao",
-      "unicode": "e613",
-      "unicode_decimal": 58899
     }
   ]
 }

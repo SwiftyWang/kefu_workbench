@@ -79,8 +79,10 @@ class _InputState extends State<Input>{
   FocusNode focusNode;
   bool isShowClear = false;
   double maxHeight = double.infinity;
-  double minHeight = ToPx.size(100);
+  double minHeight = ToPx.size(90);
   bool isInputEmpty = false;
+  bool isShowVisibility = false;
+  bool obscureText = false;
 
   @override
   void initState() {
@@ -88,6 +90,8 @@ class _InputState extends State<Input>{
 
     if(widget.height != null) minHeight = widget.height;
     if(widget.maxHeight != null && widget.maxHeight > minHeight) maxHeight = widget.maxHeight;
+    obscureText = widget.obscureText;
+    if(widget.obscureText) isShowVisibility = true;
     setState(() {});
 
     // 判断外部是否给控制器
@@ -127,6 +131,10 @@ class _InputState extends State<Input>{
         controller.text = controller.value.text.toUpperCase();
       }
       controller.text = controller.value.text.trim();
+      if(!focusNode.hasFocus){
+        isShowClear = false;
+        setState(() {});
+      }
     });
     
     if(controller.value.text.length > 0){
@@ -179,7 +187,7 @@ class _InputState extends State<Input>{
                     Offstage(
                       offstage: isInputEmpty,
                       child: SizedBox(
-                        height: ToPx.size(120),
+                        height: ToPx.size(90),
                         child: Align(
                         alignment: widget.textAlign == TextAlign.center ?
                          Alignment.center : widget.textAlign == TextAlign.right || widget.textAlign == TextAlign.end ?
@@ -210,7 +218,7 @@ class _InputState extends State<Input>{
                       cursorRadius: Radius.circular(ToPx.size(3)),
                       cursorWidth: ToPx.size(5),
                       style: themeData.textTheme.body1,
-                      obscureText: widget.obscureText,
+                      obscureText: obscureText,
                       keyboardType: widget.keyboardType,
                       maxLines: widget.maxLines,
                       minLines: widget.minLines,
@@ -224,7 +232,10 @@ class _InputState extends State<Input>{
               ),
               Align(
                   alignment: Alignment.centerRight,
-                  child: Offstage(
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: <Widget>[
+                      Offstage(
                     offstage: !widget.showClear,
                     child: Offstage(
                       offstage: !isShowClear,
@@ -237,12 +248,30 @@ class _InputState extends State<Input>{
                         useIosStyle: true,
                         disabledColor:  Colors.transparent,
                         color: Colors.transparent,
-                        width: ToPx.size(80),
-                        child: Icon(Icons.cancel, size: ToPx.size(50), color: Color(0xffcccccc),),
+                        width: ToPx.size(45),
+                        child: Icon(Icons.cancel, size: ToPx.size(35), color: Color(0xffcccccc),),
                       ),
                     ),
+                  ),
+                  Offstage(
+                    offstage: !isShowVisibility,
+                    child: Button(
+                        onPressed: (){
+                            setState(() {
+                              obscureText = !obscureText;
+                            });
+                        },
+                        alignment: Alignment.centerRight,
+                        useIosStyle: true,
+                        disabledColor:  Colors.transparent,
+                        color: Colors.transparent,
+                        width: ToPx.size(45),
+                        child: Icon(obscureText ? Icons.visibility : Icons.visibility_off, size: ToPx.size(35), color: Color(0xffcccccc),),
+                      ),
                   )
-              )
+                    ],
+                  )
+              ),
             ],
           ),
         ),

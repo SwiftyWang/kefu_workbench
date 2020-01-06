@@ -13,3 +13,4 @@ export 'widgets/index.dart';
 export 'utils//index.dart';
 export 'models/index.dart';
 export 'provider/themes.dart';
+export 'services/services.dart';

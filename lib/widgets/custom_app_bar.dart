@@ -14,7 +14,7 @@ PreferredSize customAppBar({
     preferredSize: Size(double.infinity, size ?? ToPx.size(90)),
     child: AppBar(
       automaticallyImplyLeading: isShowLeading,
-      backgroundColor: backgroundColor ?? Themes.getInstance().getCurrentTheme().primaryColor,
+      backgroundColor: backgroundColor ?? ThemeProvide.getInstance().getCurrentTheme().primaryColor,
       elevation: elevation,
       centerTitle: true,
       title: title,
@@ -27,7 +27,7 @@ PreferredSize customAppBar({
 }
 
 class CustomBackButton extends StatelessWidget{
-  CustomBackButton({this.color = Colors.black54});
+  CustomBackButton({this.color = Colors.white});
   final Color color;
   @override
   Widget build(BuildContext context) {
