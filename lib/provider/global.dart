@@ -26,6 +26,9 @@ class MessageHandle {
 
 /// GlobalProvide
 class GlobalProvide with ChangeNotifier {
+
+  /// root context
+  BuildContext rooContext;
   
   /// ImService
   ImService imService = ImService.getInstance();
@@ -102,6 +105,11 @@ class GlobalProvide with ChangeNotifier {
   int get toAccount =>
       isService && serviceUser != null ? serviceUser.id : robot.id;
 
+  /// set rooContext
+  void setRooContext(BuildContext context){
+    rooContext = context;
+  }
+
   // 单列 获取对象
   static GlobalProvide getInstance() {
     if (instance == null) {
@@ -140,8 +148,8 @@ class GlobalProvide with ChangeNotifier {
 
   /// APP应用级别退出登录
   /// 重置一些默认初始化
-  void applicationLogout(){
-    AuthService.getInstance().logout();
+  void applicationLogout() async{
+    await AuthService.getInstance().logout();
     setServiceUser(null);
     prefs.remove("serviceUser");
     prefs.remove("Authorization");
@@ -152,6 +160,7 @@ class GlobalProvide with ChangeNotifier {
   /// 设置serviceUser
   void setServiceUser(ServiceUserModel user){
     serviceUser = user;
+    notifyListeners();
   }
 
   /// 实例化 FlutterMImc

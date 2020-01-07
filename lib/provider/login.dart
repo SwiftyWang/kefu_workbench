@@ -42,7 +42,7 @@ class LoginProvide with ChangeNotifier {
       GlobalProvide.getInstance().prefs.setString("Authorization", user.token);
       UX.showToast("登录成功~");
       GlobalProvide.getInstance().init();
-      Navigator.pushNamedAndRemoveUntil(context, '/home', ModalRoute.withName('/'));
+      Navigator.pushNamedAndRemoveUntil(context, "/home", ModalRoute.withName('/'), arguments: {"isAnimate": false});
     }else{
       UX.showToast(response.data["message"], position: ToastPosition.top);
     }

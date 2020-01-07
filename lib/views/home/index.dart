@@ -4,6 +4,8 @@ import 'package:kefu_workbench/provider/global.dart';
 import 'package:kefu_workbench/provider/home.dart';
 import 'package:provider/provider.dart';
 
+import 'widget/drawer_menu.dart';
+
 // 点击两次返回退出
 int lastExitTime = 0;
 Future<bool> onBackPressed() async {
@@ -31,7 +33,8 @@ class _HomePageState extends State<HomePage> {
   @override
   void initState() {
     super.initState();
-    if(mounted){
+    if (mounted) {
+      GlobalProvide.getInstance().setRooContext(context);
       homeProvide.getConcats(context, isFullLoading: true);
     }
   }
@@ -45,7 +48,7 @@ class _HomePageState extends State<HomePage> {
     return PageContext(builder: (context) {
       ThemeData themeData = Theme.of(context);
 
-      Widget _listItem() {
+      Widget _listItem(ConcatModel concat) {
         return Dismissible(
           dragStartBehavior: DragStartBehavior.down,
           confirmDismiss: (DismissDirection direction) async {
@@ -79,11 +82,11 @@ class _HomePageState extends State<HomePage> {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: <Widget>[
                     Text(
-                      "访客165165",
+                      "${concat.nickname}",
                       style: themeData.textTheme.title,
                     ),
                     Text(
-                      "下午 12:00",
+                      "${Utils.epocFormat(concat?.contactCreateAt)}",
                       style: themeData.textTheme.caption,
                     ),
                   ],
@@ -95,31 +98,53 @@ class _HomePageState extends State<HomePage> {
                       Center(
                         child: Avatar(
                           size: ToPx.size(90),
-                          imgUrl: "http://qiniu.cmp520.com/avatar_default.png",
+                          imgUrl:
+                              "${concat.avatar.isEmpty ? 'http://qiniu.cmp520.com/avatar_default.png' : concat.avatar}",
                         ),
                       ),
-                      Align(
-                        alignment: Alignment.topRight,
-                        child: Container(
-                          margin: EdgeInsets.only(top: ToPx.size(5)),
-                          child: Center(
-                            child: Text(
-                              "1",
-                              style: themeData.textTheme.caption.copyWith(
-                                  color: Colors.white, fontSize: ToPx.size(20)),
+                      Offstage(
+                        offstage: concat.read == 0,
+                        child: Align(
+                          alignment: Alignment.topRight,
+                          child: Container(
+                            margin: EdgeInsets.only(top: ToPx.size(5)),
+                            child: Center(
+                              child: Text(
+                                "${concat.read}",
+                                style: themeData.textTheme.caption.copyWith(
+                                    color: Colors.white,
+                                    fontSize: ToPx.size(20)),
+                              ),
                             ),
+                            width: ToPx.size(35),
+                            height: ToPx.size(35),
+                            decoration: BoxDecoration(
+                                color: Colors.red, shape: BoxShape.circle),
                           ),
-                          width: ToPx.size(35),
-                          height: ToPx.size(35),
-                          decoration: BoxDecoration(
-                              color: Colors.red, shape: BoxShape.circle),
                         ),
                       )
                     ],
                   ),
                 ),
                 subtitle: Text(
-                  "有什么办法水电费是水电费没水电费水电费",
+                  concat.lastMessageType == "text"
+                      ? concat.lastMessage
+                      : concat.lastMessageType == "photo"
+                          ? "图片文件"
+                          : concat.lastMessageType == "video"
+                              ? "视频文件"
+                              : concat.lastMessageType == "end"
+                                  ? "会话结束"
+                                  : concat.lastMessageType == "timeout"
+                                      ? "会话超时，结束对话"
+                                      : concat.lastMessageType == "transfer"
+                                          ? "客服转接..."
+                                          : concat.lastMessageType == "system"
+                                              ? "系统提示..."
+                                              : concat.lastMessageType ==
+                                                      "cancel"
+                                                  ? "撤回了消息"
+                                                  : "未知消息内容~",
                   style: themeData.textTheme.body2,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
@@ -137,6 +162,7 @@ class _HomePageState extends State<HomePage> {
       return ChangeNotifierProvider<HomeProvide>.value(
           value: homeProvide,
           child: Builder(builder: (context) {
+            GlobalProvide globalState = GlobalProvide.getInstance();
             HomeProvide homeState = Provider.of<HomeProvide>(context);
             return WillPopScope(
               onWillPop: onBackPressed,
@@ -159,13 +185,12 @@ class _HomePageState extends State<HomePage> {
                                 ),
                               ),
                               Align(
-                                alignment: Alignment.centerRight,
-                                child: Avatar(
-                                  size: ToPx.size(70),
-                                  imgUrl:
-                                      "http://qiniu.cmp520.com/avatar_default.png",
-                                ),
-                              )
+                                  alignment: Alignment.centerRight,
+                                  child: Avatar(
+                                    size: ToPx.size(70),
+                                    imgUrl:
+                                        "${globalState?.serviceUser?.avatar ?? 'http://qiniu.cmp520.com/avatar_default.png'}",
+                                  ))
                             ],
                           ),
                         );
@@ -221,31 +246,72 @@ class _HomePageState extends State<HomePage> {
                         ],
                       )
                     ],
-                    title: Text(
-                      "工作台",
-                      style: themeData.textTheme.display1,
+                    title: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: <Widget>[
+                        Text(
+                          "工作台",
+                          style: themeData.textTheme.display1,
+                        ),
+                        Offstage(
+                          offstage: homeState.concatReadCount == 0,
+                          child: Align(
+                            alignment: Alignment.topRight,
+                            child: Container(
+                              margin: EdgeInsets.only(top: ToPx.size(5)),
+                              child: Center(
+                                child: Text(
+                                  "${homeState.concatReadCount}",
+                                  style: themeData.textTheme.caption.copyWith(
+                                      color: Colors.white,
+                                      fontSize: ToPx.size(20)),
+                                ),
+                              ),
+                              width: ToPx.size(35),
+                              height: ToPx.size(35),
+                              decoration: BoxDecoration(
+                                  color: Colors.red, shape: BoxShape.circle),
+                            ),
+                          ),
+                        )
+                      ],
                     )),
-                body: 
-                homeState.isFullLoading ?
-                Center(
-                  child: loadingIcon(size: ToPx.size(50)),
-                ) :
-                CustomScrollView(
-                  scrollDirection: Axis.vertical,
-                  physics: BouncingScrollPhysics(),
-                  slivers: <Widget>[
-                    sliverRefreshControl(
-                      onRefresh: () async {
-                        await Future.delayed(Duration(milliseconds: 5000));
-                        return true;
-                      },
+                body: homeState.isFullLoading
+                    ? Center(
+                        child: loadingIcon(size: ToPx.size(50)),
+                      )
+                    : 
+                    RefreshIndicator(
+                      color: themeData.primaryColorLight,
+                      backgroundColor: themeData.primaryColor,
+                      onRefresh: () => homeState.onRefresh(context),
+                      child: CustomScrollView(
+                        scrollDirection: Axis.vertical,
+                        physics: AlwaysScrollableScrollPhysics(),
+                        slivers: <Widget>[
+                          SliverToBoxAdapter(
+                            child: Offstage(
+                              offstage: homeProvide.concats.length > 0 ||
+                                  homeProvide.isFullLoading,
+                              child: SizedBox(
+                                height: ToPx.size(350),
+                                child: Center(
+                                  child: Text(
+                                    "暂无聊天记录~",
+                                    style: themeData.textTheme.title,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                          SliverList(
+                              delegate:
+                                  SliverChildBuilderDelegate((context, index) {
+                            return _listItem(homeProvide.concats[index]);
+                          }, childCount: homeProvide.concats.length)),
+                        ],
+                      )
                     ),
-                    SliverList(
-                        delegate: SliverChildBuilderDelegate((context, index) {
-                      return _listItem();
-                    }))
-                  ],
-                ),
                 drawer: Drawer(
                   child: DrawerMenu(),
                 ),
@@ -256,161 +322,3 @@ class _HomePageState extends State<HomePage> {
   }
 }
 
-class DrawerMenu extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    ThemeData themeData = Theme.of(context);
-    HomeProvide homeState = Provider.of<HomeProvide>(context);
-    GlobalProvide globalState = Provider.of<GlobalProvide>(context);
-    Widget _listTile(
-        {IconData icon,
-        String title,
-        VoidCallback onTap,
-        Color selectedColor = Colors.white}) {
-      return Button(
-        onPressed: onTap,
-        withAlpha: 200,
-        padding: EdgeInsets.symmetric(horizontal: ToPx.size(40)),
-        height: ToPx.size(100),
-        color: themeData.primaryColor,
-        radius: 0.0,
-        child: Row(
-          children: <Widget>[
-            Expanded(
-              child: Row(
-                children: <Widget>[
-                  Icon(icon, color: themeData.primaryColorLight),
-                  Padding(
-                    padding: EdgeInsets.only(left: ToPx.size(50)),
-                    child: Text(
-                      title,
-                      style: themeData.textTheme.title.copyWith(
-                          color: themeData.primaryColorLight,
-                          fontWeight: FontWeight.w500),
-                    ),
-                  )
-                ],
-              ),
-            ),
-            Icon(Icons.chevron_right,
-                color: themeData.primaryColorLight.withAlpha(30))
-          ],
-        ),
-      );
-    }
-
-    return Container(
-      color: themeData.primaryColor,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: <Widget>[
-          Container(
-            color: themeData.primaryColorDark,
-            width: double.infinity,
-            height: ToPx.size(260),
-            padding: EdgeInsets.only(
-                top: ToPx.size(80), left: ToPx.size(20), right: ToPx.size(20)),
-            child: Stack(
-              children: <Widget>[
-                Center(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: <Widget>[
-                      Avatar(
-                        size: ToPx.size(100),
-                        imgUrl: "http://qiniu.cmp520.com/avatar_default.png",
-                      ),
-                      Padding(
-                        padding: EdgeInsets.only(top: ToPx.size(20)),
-                        child: Text(
-                          "Keith",
-                          style: themeData.textTheme.title
-                              .copyWith(color: themeData.primaryColorLight),
-                        ),
-                      )
-                    ],
-                  ),
-                ),
-                Align(
-                    alignment: Alignment.bottomRight,
-                    child: Button(
-                      useIosStyle: true,
-                      width: ToPx.size(100),
-                      onPressed: () {},
-                      color: Colors.transparent,
-                      child: Text(
-                        "编辑资料",
-                        style: themeData.textTheme.caption,
-                      ),
-                    ))
-              ],
-            ),
-          ),
-          Divider(
-            height: 1.0,
-            color: Colors.black12,
-          ),
-          Column(
-            children: <Widget>[
-              _listTile(
-                  icon: Icons.home,
-                  title: "工作台",
-                  onTap: () => Navigator.pop(context)),
-              _listTile(
-                  icon: Icons.library_books,
-                  title: "知识库",
-                  onTap: () => Navigator.pop(context)),
-              _listTile(
-                  icon: Icons.android,
-                  title: "机器人",
-                  onTap: () => Navigator.pop(context)),
-              _listTile(
-                  icon: Icons.supervised_user_circle,
-                  title: "客服管理",
-                  onTap: () => Navigator.pop(context)),
-              _listTile(
-                  icon: Icons.supervisor_account,
-                  title: "用户管理",
-                  onTap: () => Navigator.pop(context)),
-              _listTile(
-                  icon: Icons.featured_play_list,
-                  title: "服务记录",
-                  onTap: () => Navigator.pop(context)),
-              _listTile(
-                  icon: Icons.assignment,
-                  title: "快捷回复语",
-                  onTap: () => Navigator.pop(context)),
-              _listTile(
-                  icon: Icons.settings,
-                  title: "系统设置",
-                  onTap: () => Navigator.pop(context)),
-            ],
-          ),
-          Expanded(
-            child: SizedBox(
-              width: double.infinity,
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.end,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: <Widget>[
-                  Button(
-                    margin: EdgeInsets.only(bottom: ToPx.size(50)),
-                    color: Colors.grey,
-                    width: ToPx.size(180),
-                    height: ToPx.size(60),
-                    onPressed: () => homeState.logout(context),
-                    child: Text(
-                      "退出登录",
-                      style: themeData.textTheme.title
-                          .copyWith(color: themeData.primaryColorLight),
-                    ),
-                  )
-                ],
-              ),
-            ),
-          )
-        ],
-      ),
-    );
-  }
-}

@@ -1,4 +1,5 @@
 import 'package:dio/dio.dart';
+import 'package:kefu_workbench/provider/global.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../configs.dart';
@@ -18,7 +19,12 @@ class BaseServices{
 
   // 全局服务器错误返回信息
   Response error(DioError e, String url){
-    printf("$url =====服务器错误返回信息=====$e====${e.response.data}");
+    printf("$url =====服务器错误返回信息=====$e====${e.response.data['code']}");
+    if(e.response.data != null && e.response.data['code']?.toString() == "401"){
+      GlobalProvide.getInstance().applicationLogout();
+      
+      Navigator.pushNamedAndRemoveUntil(GlobalProvide.getInstance().rooContext, "/login", ModalRoute.withName('/'), arguments: {"isAnimate": false});
+    }
     return Response(data: e.response.data);
   }
 
