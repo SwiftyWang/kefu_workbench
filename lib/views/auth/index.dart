@@ -21,13 +21,11 @@ class _LoginPageState extends State<LoginPage> {
       String account = prefs.getString("account");
       loginProvide.accountCtr = TextEditingController(text: account);
       String password = prefs.getString("password");
-      if(password != null){
+      if (password != null) {
         loginProvide.setIsSavePassword(true);
       }
-      loginProvide.paswordCtr = TextEditingController(text: password ?? "");
-      setState(() {
-        
-      });
+      loginProvide.passwordCtr = TextEditingController(text: password ?? "");
+      setState(() {});
     }
   }
 
@@ -54,134 +52,127 @@ class _LoginPageState extends State<LoginPage> {
                       "用户登录",
                       style: themeData.textTheme.display1,
                     )),
-                body: WillPopScope(
-                    onWillPop: () async => false,
-                    child: CustomScrollView(
-                      slivers: <Widget>[
-                        SliverPadding(
-                          padding:
-                              EdgeInsets.symmetric(horizontal: ToPx.size(60)),
-                          sliver: SliverToBoxAdapter(
-                            child: Column(
-                              children: <Widget>[
-                                Padding(
-                                  padding: EdgeInsets.only(top: ToPx.size(100)),
-                                  child: Icon(
-                                    IconData(0xe674, fontFamily: 'IconFont'),
-                                    color: Colors.white,
-                                    size: ToPx.size(150),
+                body: CustomScrollView(
+                  slivers: <Widget>[
+                    SliverPadding(
+                      padding: EdgeInsets.symmetric(horizontal: ToPx.size(60)),
+                      sliver: SliverToBoxAdapter(
+                        child: Column(
+                          children: <Widget>[
+                            Padding(
+                              padding: EdgeInsets.only(top: ToPx.size(100)),
+                              child: Icon(
+                                IconData(0xe674, fontFamily: 'IconFont'),
+                                color: Colors.white,
+                                size: ToPx.size(150),
+                              ),
+                            ),
+                            Container(
+                              margin: EdgeInsets.only(top: ToPx.size(100)),
+                              padding: EdgeInsets.symmetric(
+                                  horizontal: ToPx.size(20)),
+                              height: ToPx.size(90),
+                              decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  borderRadius: BorderRadius.all(
+                                      Radius.circular(ToPx.size(10)))),
+                              child: Row(
+                                children: <Widget>[
+                                  Icon(
+                                    IconData(0xe60d, fontFamily: 'IconFont'),
+                                    color: Colors.grey[400],
+                                    size: ToPx.size(35),
                                   ),
-                                ),
-                                Container(
-                                  margin: EdgeInsets.only(top: ToPx.size(100)),
-                                  padding: EdgeInsets.symmetric(
-                                      horizontal: ToPx.size(20)),
-                                  height: ToPx.size(90),
-                                  decoration: BoxDecoration(
-                                      color: Colors.white,
-                                      borderRadius: BorderRadius.all(
-                                          Radius.circular(ToPx.size(10)))),
-                                  child: Row(
-                                    children: <Widget>[
-                                      Icon(
-                                        IconData(0xe60d,
-                                            fontFamily: 'IconFont'),
-                                        color: Colors.grey[400],
-                                        size: ToPx.size(35),
-                                      ),
-                                      Expanded(
-                                        child: Input(
-                                          controller: loginState.accountCtr,
-                                          showClear: true,
-                                          padding: EdgeInsets.only(
-                                              left: ToPx.size(20)),
-                                          border: Border.all(
-                                              width: 0.0,
-                                              color: Colors.transparent),
-                                          placeholder: "请输入客服账号~",
-                                        ),
-                                      )
-                                    ],
+                                  Expanded(
+                                    child: Input(
+                                      controller: loginState.accountCtr,
+                                      showClear: true,
+                                      padding:
+                                          EdgeInsets.only(left: ToPx.size(20)),
+                                      border: Border.all(
+                                          width: 0.0,
+                                          color: Colors.transparent),
+                                      placeholder: "请输入客服账号~",
+                                    ),
+                                  )
+                                ],
+                              ),
+                            ),
+                            Container(
+                              margin: EdgeInsets.only(top: ToPx.size(20)),
+                              padding: EdgeInsets.symmetric(
+                                  horizontal: ToPx.size(20)),
+                              height: ToPx.size(90),
+                              decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  borderRadius: BorderRadius.all(
+                                      Radius.circular(ToPx.size(10)))),
+                              child: Row(
+                                children: <Widget>[
+                                  Icon(
+                                    IconData(0xe62a, fontFamily: 'IconFont'),
+                                    color: Colors.grey[400],
+                                    size: ToPx.size(35),
                                   ),
-                                ),
-                                Container(
-                                  margin: EdgeInsets.only(top: ToPx.size(20)),
-                                  padding: EdgeInsets.symmetric(
-                                      horizontal: ToPx.size(20)),
-                                  height: ToPx.size(90),
-                                  decoration: BoxDecoration(
-                                      color: Colors.white,
-                                      borderRadius: BorderRadius.all(
-                                          Radius.circular(ToPx.size(10)))),
-                                  child: Row(
-                                    children: <Widget>[
-                                      Icon(
-                                        IconData(0xe62a,
-                                            fontFamily: 'IconFont'),
-                                        color: Colors.grey[400],
-                                        size: ToPx.size(35),
-                                      ),
-                                      Expanded(
-                                        child: Input(
-                                          obscureText: true,
-                                          controller: loginState.paswordCtr,
-                                          showClear: true,
-                                          padding: EdgeInsets.only(
-                                              left: ToPx.size(20)),
-                                          border: Border.all(
-                                              width: 0.0,
-                                              color: Colors.transparent),
-                                          placeholder: "请输入密码~",
-                                        ),
-                                      )
-                                    ],
+                                  Expanded(
+                                    child: Input(
+                                      obscureText: true,
+                                      controller: loginState.passwordCtr,
+                                      showClear: true,
+                                      padding:
+                                          EdgeInsets.only(left: ToPx.size(20)),
+                                      border: Border.all(
+                                          width: 0.0,
+                                          color: Colors.transparent),
+                                      placeholder: "请输入密码~",
+                                    ),
+                                  )
+                                ],
+                              ),
+                            ),
+                            Padding(
+                              padding:
+                                  EdgeInsets.symmetric(vertical: ToPx.size(10)),
+                              child: Row(
+                                children: <Widget>[
+                                  Text(
+                                    "保存登录密码",
+                                    style: themeData.textTheme.caption,
                                   ),
-                                ),
-                                Padding(
-                                  padding: EdgeInsets.symmetric(
-                                      vertical: ToPx.size(10)),
-                                  child: Row(
-                                    children: <Widget>[
-                                      Text(
-                                        "保存登录密码",
-                                        style: themeData.textTheme.caption,
-                                      ),
-                                      Platform.isAndroid
-                                          ? Switch(
+                                  Platform.isAndroid
+                                      ? Switch(
+                                          value: loginState.isSavePassword,
+                                          onChanged: (bool isSwitch) {
+                                            loginState
+                                                .setIsSavePassword(isSwitch);
+                                          },
+                                          activeColor: Colors.black)
+                                      : Transform.scale(
+                                          scale: .7,
+                                          child: CupertinoSwitch(
                                               value: loginState.isSavePassword,
                                               onChanged: (bool isSwitch) {
                                                 loginState.setIsSavePassword(
                                                     isSwitch);
                                               },
-                                              activeColor: Colors.black)
-                                          : Transform.scale(
-                                              scale: .7,
-                                              child: CupertinoSwitch(
-                                                  value:
-                                                      loginState.isSavePassword,
-                                                  onChanged: (bool isSwitch) {
-                                                    loginState
-                                                        .setIsSavePassword(
-                                                            isSwitch);
-                                                  },
-                                                  activeColor: Colors.black)),
-                                    ],
-                                  ),
-                                ),
-                                Button(
-                                  withAlpha: 230,
-                                  margin: EdgeInsets.only(top: ToPx.size(80)),
-                                  height: ToPx.size(90),
-                                  color: Colors.black,
-                                  onPressed: () => loginState.login(),
-                                  child: Text("登录"),
-                                )
-                              ],
+                                              activeColor: Colors.black)),
+                                ],
+                              ),
                             ),
-                          ),
-                        )
-                      ],
-                    )),
+                            Button(
+                              withAlpha: 230,
+                              margin: EdgeInsets.only(top: ToPx.size(80)),
+                              height: ToPx.size(90),
+                              color: Colors.black,
+                              onPressed: () => loginState.login(context),
+                              child: Text("登录"),
+                            )
+                          ],
+                        ),
+                      ),
+                    )
+                  ],
+                ),
               );
             });
           },

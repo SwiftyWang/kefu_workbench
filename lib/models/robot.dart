@@ -1,4 +1,4 @@
-class Robot {
+class RobotModel {
   int id;
   String nickname;
   String avatar;
@@ -15,7 +15,7 @@ class Robot {
   int updateAt;
   int createAt;
 
-  Robot(
+  RobotModel(
       {this.id,
       this.nickname,
       this.avatar,
@@ -32,7 +32,7 @@ class Robot {
       this.updateAt,
       this.createAt});
 
-  Robot.fromJson(Map<String, dynamic> json) {
+  RobotModel.fromJson(Map<String, dynamic> json) {
     id = json['id'];
     nickname = json['nickname'];
     avatar = json['avatar'];

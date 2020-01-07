@@ -1,6 +1,6 @@
 import 'dart:convert';
 
-class ImMessage {
+class ImMessageModel {
   String bizType;
   String version;
   dynamic payload;
@@ -16,7 +16,7 @@ class ImMessage {
   String nickname;
   bool isShowDate = false;
 
-  ImMessage(
+  ImMessageModel(
       {this.bizType,
       this.key,
       this.isShowDate = false,
@@ -32,7 +32,7 @@ class ImMessage {
       this.read,
       this.transferAccount});
 
-  ImMessage.fromJson(Map<String, dynamic> json) {
+  ImMessageModel.fromJson(Map<String, dynamic> json) {
     this.bizType = json['biz_type'];
     this.version = json['version'];
     this.isShowCancel = json['is_show_cancel'] ?? false;

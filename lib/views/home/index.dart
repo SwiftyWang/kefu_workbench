@@ -1,6 +1,7 @@
 import 'package:flutter/gestures.dart';
 import 'package:kefu_workbench/core_flutter.dart';
 import 'package:kefu_workbench/provider/global.dart';
+import 'package:kefu_workbench/provider/home.dart';
 import 'package:provider/provider.dart';
 
 // 点击两次返回退出
@@ -25,14 +26,15 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-
+  HomeProvide homeProvide = HomeProvide();
 
   @override
   void initState() {
     super.initState();
+    if(mounted){
+      homeProvide.getConcats(context, isFullLoading: true);
+    }
   }
-
-
 
   void openDrawer(context) {
     Scaffold.of(context).openDrawer();
@@ -41,7 +43,6 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(_) {
     return PageContext(builder: (context) {
-
       ThemeData themeData = Theme.of(context);
 
       Widget _listItem() {
@@ -93,9 +94,9 @@ class _HomePageState extends State<HomePage> {
                     children: <Widget>[
                       Center(
                         child: Avatar(
-                        size: ToPx.size(90),
-                        imgUrl: "http://qiniu.cmp520.com/avatar_default.png",
-                      ),
+                          size: ToPx.size(90),
+                          imgUrl: "http://qiniu.cmp520.com/avatar_default.png",
+                        ),
                       ),
                       Align(
                         alignment: Alignment.topRight,
@@ -133,111 +134,124 @@ class _HomePageState extends State<HomePage> {
         );
       }
 
-      return WillPopScope(
-        onWillPop: onBackPressed,
-        child: Scaffold(
-          backgroundColor: Colors.white,
-          appBar: customAppBar(
-              leading: Builder(
-                builder: (context) {
-                  return GestureDetector(
-                    onTap: () => openDrawer(context),
-                    child: Stack(
-                      children: <Widget>[
-                        Positioned(
-                          left: ToPx.size(-20),
-                          top: ToPx.size(25),
-                          child: Icon(
-                            Icons.menu,
-                            size: ToPx.size(45),
-                            color: Colors.white.withAlpha(100),
+      return ChangeNotifierProvider<HomeProvide>.value(
+          value: homeProvide,
+          child: Builder(builder: (context) {
+            HomeProvide homeState = Provider.of<HomeProvide>(context);
+            return WillPopScope(
+              onWillPop: onBackPressed,
+              child: Scaffold(
+                backgroundColor: Colors.white,
+                appBar: customAppBar(
+                    leading: Builder(
+                      builder: (context) {
+                        return GestureDetector(
+                          onTap: () => openDrawer(context),
+                          child: Stack(
+                            children: <Widget>[
+                              Positioned(
+                                left: ToPx.size(-20),
+                                top: ToPx.size(25),
+                                child: Icon(
+                                  Icons.menu,
+                                  size: ToPx.size(45),
+                                  color: Colors.white.withAlpha(100),
+                                ),
+                              ),
+                              Align(
+                                alignment: Alignment.centerRight,
+                                child: Avatar(
+                                  size: ToPx.size(70),
+                                  imgUrl:
+                                      "http://qiniu.cmp520.com/avatar_default.png",
+                                ),
+                              )
+                            ],
                           ),
+                        );
+                      },
+                    ),
+                    actions: [
+                      PopupMenuButton<LineType>(
+                        onSelected: (LineType result) {},
+                        child: Align(
+                          child: Container(
+                              width: ToPx.size(80),
+                              height: ToPx.size(40),
+                              child: Row(
+                                children: <Widget>[
+                                  Container(
+                                    width: ToPx.size(10),
+                                    height: ToPx.size(10),
+                                    decoration: BoxDecoration(
+                                        shape: BoxShape.circle,
+                                        color: Colors.green),
+                                  ),
+                                  Text(
+                                    " 在线",
+                                    style: themeData.textTheme.caption.copyWith(
+                                        fontSize: ToPx.size(22),
+                                        color: Colors.green),
+                                  ),
+                                ],
+                              )),
                         ),
-                        Align(
-                          alignment: Alignment.centerRight,
-                          child: Avatar(
-                            size: ToPx.size(70),
-                            imgUrl:
-                                "http://qiniu.cmp520.com/avatar_default.png",
+                        itemBuilder: (BuildContext context) =>
+                            <PopupMenuEntry<LineType>>[
+                          PopupMenuItem<LineType>(
+                            value: LineType.online,
+                            child: Text(
+                              '我要上线',
+                              style: themeData.textTheme.title
+                                  .copyWith(color: themeData.primaryColorLight),
+                            ),
                           ),
-                        )
-                      ],
+                          PopupMenuItem<LineType>(
+                            value: LineType.offline,
+                            child: Text('我要下线',
+                                style: themeData.textTheme.title.copyWith(
+                                    color: themeData.primaryColorLight)),
+                          ),
+                          PopupMenuItem<LineType>(
+                            value: LineType.leave,
+                            child: Text('我要离开',
+                                style: themeData.textTheme.title.copyWith(
+                                    color: themeData.primaryColorLight)),
+                          ),
+                        ],
+                      )
+                    ],
+                    title: Text(
+                      "工作台",
+                      style: themeData.textTheme.display1,
+                    )),
+                body: 
+                homeState.isFullLoading ?
+                Center(
+                  child: loadingIcon(size: ToPx.size(50)),
+                ) :
+                CustomScrollView(
+                  scrollDirection: Axis.vertical,
+                  physics: BouncingScrollPhysics(),
+                  slivers: <Widget>[
+                    sliverRefreshControl(
+                      onRefresh: () async {
+                        await Future.delayed(Duration(milliseconds: 5000));
+                        return true;
+                      },
                     ),
-                  );
-                },
-              ),
-              actions: [
-                PopupMenuButton<LineType>(
-                  onSelected: (LineType result) {},
-                  child: Align(
-                    child: Container(
-                        width: ToPx.size(80),
-                        height: ToPx.size(40),
-                        child: Row(
-                          children: <Widget>[
-                            Container(
-                              width: ToPx.size(10),
-                              height: ToPx.size(10),
-                              decoration: BoxDecoration(
-                                  shape: BoxShape.circle, color: Colors.green),
-                            ),
-                            Text(
-                              " 在线",
-                              style: themeData.textTheme.caption.copyWith(
-                                  fontSize: ToPx.size(22), color: Colors.green),
-                            ),
-                          ],
-                        )),
-                  ),
-                  itemBuilder: (BuildContext context) =>
-                      <PopupMenuEntry<LineType>>[
-                    PopupMenuItem<LineType>(
-                      value: LineType.online,
-                      child: Text(
-                        '我要上线',
-                        style: themeData.textTheme.title
-                            .copyWith(color: themeData.primaryColorLight),
-                      ),
-                    ),
-                    PopupMenuItem<LineType>(
-                      value: LineType.offline,
-                      child: Text('我要下线',
-                          style: themeData.textTheme.title
-                              .copyWith(color: themeData.primaryColorLight)),
-                    ),
-                    PopupMenuItem<LineType>(
-                      value: LineType.leave,
-                      child: Text('我要离开',
-                          style: themeData.textTheme.title
-                              .copyWith(color: themeData.primaryColorLight)),
-                    ),
+                    SliverList(
+                        delegate: SliverChildBuilderDelegate((context, index) {
+                      return _listItem();
+                    }))
                   ],
-                )
-              ],
-              title: Text(
-                "工作台",
-                style: themeData.textTheme.display1,
-              )),
-          body: CustomScrollView(
-            scrollDirection: Axis.vertical,
-            physics: BouncingScrollPhysics(),
-            slivers: <Widget>[
-              sliverRefreshControl(
-                onRefresh: () async {
-                  await Future.delayed(Duration(milliseconds: 5000));
-                  return true;
-                },
+                ),
+                drawer: Drawer(
+                  child: DrawerMenu(),
+                ),
               ),
-              SliverList(delegate: SliverChildBuilderDelegate((context, index) {
-                return _listItem();
-              }))
-            ],
-          ),
-          drawer: Drawer(
-            child: DrawerMenu(),
-          ),
-        ),
-      );
+            );
+          }));
     });
   }
 }
@@ -246,7 +260,8 @@ class DrawerMenu extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     ThemeData themeData = Theme.of(context);
-
+    HomeProvide homeState = Provider.of<HomeProvide>(context);
+    GlobalProvide globalState = Provider.of<GlobalProvide>(context);
     Widget _listTile(
         {IconData icon,
         String title,
@@ -299,33 +314,35 @@ class DrawerMenu extends StatelessWidget {
               children: <Widget>[
                 Center(
                   child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: <Widget>[
-                    Avatar(
-                      size: ToPx.size(100),
-                      imgUrl: "http://qiniu.cmp520.com/avatar_default.png",
-                    ),
-                    Padding(
-                      padding: EdgeInsets.only(top: ToPx.size(20)),
-                      child: Text(
-                        "Keith",
-                        style: themeData.textTheme.title
-                            .copyWith(color: themeData.primaryColorLight),
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: <Widget>[
+                      Avatar(
+                        size: ToPx.size(100),
+                        imgUrl: "http://qiniu.cmp520.com/avatar_default.png",
                       ),
-                    )
-                  ],
-                ),
+                      Padding(
+                        padding: EdgeInsets.only(top: ToPx.size(20)),
+                        child: Text(
+                          "Keith",
+                          style: themeData.textTheme.title
+                              .copyWith(color: themeData.primaryColorLight),
+                        ),
+                      )
+                    ],
+                  ),
                 ),
                 Align(
-                  alignment: Alignment.bottomRight,
-                  child: Button(
-                    useIosStyle: true,
-                    width: ToPx.size(100),
-                    onPressed: (){},
-                    color: Colors.transparent,
-                    child: Text("编辑资料", style: themeData.textTheme.caption,),
-                  )
-                )
+                    alignment: Alignment.bottomRight,
+                    child: Button(
+                      useIosStyle: true,
+                      width: ToPx.size(100),
+                      onPressed: () {},
+                      color: Colors.transparent,
+                      child: Text(
+                        "编辑资料",
+                        style: themeData.textTheme.caption,
+                      ),
+                    ))
               ],
             ),
           ),
@@ -362,7 +379,7 @@ class DrawerMenu extends StatelessWidget {
               _listTile(
                   icon: Icons.assignment,
                   title: "快捷回复语",
-                  onTap: () => Navigator.pop(context)), 
+                  onTap: () => Navigator.pop(context)),
               _listTile(
                   icon: Icons.settings,
                   title: "系统设置",
@@ -381,7 +398,7 @@ class DrawerMenu extends StatelessWidget {
                     color: Colors.grey,
                     width: ToPx.size(180),
                     height: ToPx.size(60),
-                    onPressed: ()  => Navigator.popAndPushNamed(context, "/login", arguments: {"modal": true}),
+                    onPressed: () => homeState.logout(context),
                     child: Text(
                       "退出登录",
                       style: themeData.textTheme.title

@@ -1,4 +1,4 @@
-class ImTokenInfo {
+class ImTokenInfoModel {
   String appId;
   String appPackage;
   String appAccount;
@@ -10,7 +10,7 @@ class ImTokenInfo {
   int miChid;
   int regionBucket;
 
-  ImTokenInfo(
+  ImTokenInfoModel(
       {this.appId,
       this.appPackage,
       this.appAccount,
@@ -22,7 +22,7 @@ class ImTokenInfo {
       this.miChid,
       this.regionBucket});
 
-  ImTokenInfo.fromJson(Map<String, dynamic> json) {
+  ImTokenInfoModel.fromJson(Map<String, dynamic> json) {
     this.appId = json['appId'];
     this.appPackage = json['appPackage'];
     this.appAccount = json['appAccount'];

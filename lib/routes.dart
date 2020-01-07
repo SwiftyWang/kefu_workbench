@@ -7,7 +7,7 @@ import 'views/home/index.dart';
 class Routers {
   static Widget buildPage(String path, {Object arguments}) {
 
-    bool isLogin = GlobalProvide.getInstance().checkIsForAuthorization();
+    bool isLogin = GlobalProvide.getInstance().isLogin;
 
     if(!isLogin) return LoginPage(arguments: arguments);
 

@@ -50,16 +50,15 @@ class ImService extends BaseServices {
     }
   }
 
-  // 获取上传配置信息
-  Future<Response> getUploadSecret() async {
+  // 获取聊天列表
+  Future<Response> getConcats() async {
     try {
-      Response response = await http.get(API_UPLOAD_SECRET);
+      Response response = await http.get(API_CONTACTS);
       return response;
     } on DioError catch (e) {
-      return error(e, API_UPLOAD_SECRET);
+      return error(e, API_CONTACTS);
     }
   }
-
 
 
 

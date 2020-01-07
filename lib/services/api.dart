@@ -1,6 +1,15 @@
 /// 七牛文件上传
 const String API_QINIU_UPLOAD_FILE = "https://upload.qiniup.com";
 
+/// 用户登录
+const String API_LOGIN = "/auth/login";
+
+/// 退出登录
+const String API_LOGOUT = "/auth/logout";
+
+/// 获取会话列表
+const String API_CONTACTS = "/contact/list";
+
 /// 注册IM账号
 const String API_REGISTER = "/public/register";
 

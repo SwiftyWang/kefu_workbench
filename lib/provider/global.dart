@@ -4,6 +4,7 @@ import 'dart:convert';
 import 'package:dio/dio.dart';
 import 'package:flutter_mimc/flutter_mimc.dart';
 import 'package:kefu_workbench/services/api.dart';
+import 'package:kefu_workbench/services/public_service.dart';
 
 import '../core_flutter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -14,11 +15,11 @@ import 'package:shared_preferences/shared_preferences.dart';
 class MessageHandle {
   MessageHandle({this.sendMessage, this.localMessage});
   MIMCMessage sendMessage;
-  ImMessage localMessage;
+  ImMessageModel localMessage;
   MessageHandle clone() {
     return MessageHandle(
       sendMessage: MIMCMessage.fromJson(sendMessage.toJson()),
-      localMessage: ImMessage.fromJson(localMessage.toJson()),
+      localMessage: ImMessageModel.fromJson(localMessage.toJson()),
     );
   }
 }
@@ -26,29 +27,32 @@ class MessageHandle {
 /// GlobalProvide
 class GlobalProvide with ChangeNotifier {
   
-  /// im service
+  /// ImService
   ImService imService = ImService.getInstance();
+
+  /// PublicService
+  PublicService publicService = PublicService.getInstance();
 
   /// GlobalProvide实例
   static GlobalProvide instance;
 
   /// 客服信息
-  ServiceUser serviceUser;
+  ServiceUserModel serviceUser;
 
   /// IM 用户对象
-  ImUser imUser;
+  ImUserModel imUser;
 
   /// IM 签名对象
-  ImTokenInfo imTokenInfo;
+  ImTokenInfoModel imTokenInfo;
 
   /// 缓存对象
   SharedPreferences prefs;
 
   /// 机器人对象
-  Robot robot;
+  RobotModel robot;
 
   /// 上传配置对象
-  UploadSecret uploadSecret;
+  UploadSecretModel uploadSecret;
 
   /// IM 插件对象
   FlutterMIMC flutterMImc;
@@ -57,7 +61,7 @@ class GlobalProvide with ChangeNotifier {
   bool isService = false;
 
   /// 聊天记录
-  List<Map<String, List<ImMessage>>> messagesRecords = [];
+  List<Map<String, List<ImMessageModel>>> messagesRecords = [];
 
   /// 显示对方输入中...
   bool isPong = false;
@@ -108,26 +112,46 @@ class GlobalProvide with ChangeNotifier {
 
   /// 初始化
   /// return bool
-  Future<bool> init() async {
+  Future<void> init() async {
     await _prefsInstance();
     await _getUploadSecret();
-    if(checkIsForAuthorization()){
-      await _registerImAccount();
-      await _flutterMImcInstance();
+    if(isLogin){
+      // await _registerImAccount();
+      // await _flutterMImcInstance();
+    }
+  }
+
+  /// is login
+  bool get isLogin{
+    String authorization = prefs.getString("Authorization");
+    String serviceUserString = prefs.getString("serviceUser");
+    if(serviceUserString != null){
+      ServiceUserModel user = ServiceUserModel.fromJson(json.decode(serviceUserString));
+      setServiceUser(user);
+    }
+    if(authorization != null && serviceUser != null){
+      printf("用户已登录~");
       return true;
     }else{
+      printf("未登录~");
       return false;
     }
   }
 
-  /// check for Authorization
-  bool checkIsForAuthorization(){
-    String authorization = prefs.getString("Authorization");
-    if(authorization != null && serviceUser != null){
-      return true;
-    }else{
-      return false;
-    }
+  /// APP应用级别退出登录
+  /// 重置一些默认初始化
+  void applicationLogout(){
+    AuthService.getInstance().logout();
+    setServiceUser(null);
+    prefs.remove("serviceUser");
+    prefs.remove("Authorization");
+  }
+
+
+
+  /// 设置serviceUser
+  void setServiceUser(ServiceUserModel user){
+    serviceUser = user;
   }
 
   /// 实例化 FlutterMImc
@@ -147,8 +171,8 @@ class GlobalProvide with ChangeNotifier {
       Response response = await imService.registerImAccount(accountId: serviceUser.id);
       if (response.data["code"] == 200) {
         imTokenInfo =
-            ImTokenInfo.fromJson(response.data["data"]["token"]["data"]);
-        imUser = ImUser.fromJson(response.data["data"]["user"]);
+            ImTokenInfoModel.fromJson(response.data["data"]["token"]["data"]);
+        imUser = ImUserModel.fromJson(response.data["data"]["user"]);
       } else {
         // 1秒重
         debugPrint(response.data["error"]);
@@ -191,9 +215,9 @@ class GlobalProvide with ChangeNotifier {
 
   /// 获取上传文件配置
   Future<void> _getUploadSecret() async {
-    Response response = await imService.getUploadSecret();
+    Response response = await publicService.getUploadSecret();
     if (response.data["code"] == 200) {
-      uploadSecret = UploadSecret.fromJson(response.data["data"]);
+      uploadSecret = UploadSecretModel.fromJson(response.data["data"]);
     } else {
       await Future.delayed(Duration(milliseconds: 1000));
       _getUploadSecret();
@@ -229,7 +253,7 @@ class GlobalProvide with ChangeNotifier {
     message.payload = base64Encode(utf8.encode(json.encode(payloadMap)));
     return MessageHandle(
         sendMessage: message,
-        localMessage: ImMessage.fromJson(payloadMap)..isShowCancel = true);
+        localMessage: ImMessageModel.fromJson(payloadMap)..isShowCancel = true);
   }
 
   /// 发送消息
@@ -258,12 +282,12 @@ class GlobalProvide with ChangeNotifier {
         type == "welcome" ||
         type == "handshake") return;
     cloneMsgHandle.sendMessage.toAccount = robot.id.toString();
-    cloneMsgHandle.sendMessage.payload = ImMessage(
+    cloneMsgHandle.sendMessage.payload = ImMessageModel(
       bizType: "into",
       payload: cloneMsgHandle.localMessage.toBase64(),
     ).toBase64();
     flutterMImc.sendMessage(cloneMsgHandle.sendMessage);
-    ImMessage newMsg = _handlerMessage(cloneMsgHandle.localMessage);
+    ImMessageModel newMsg = _handlerMessage(cloneMsgHandle.localMessage);
     // if (type != "photo") messagesRecord.add(newMsg);
     notifyListeners();
     await Future.delayed(Duration(milliseconds: 10000));
@@ -272,14 +296,14 @@ class GlobalProvide with ChangeNotifier {
   }
 
   // 更新某个消息
-  void updateMessage(ImMessage msg) {
+  void updateMessage(ImMessageModel msg) {
     // int index = messagesRecord.indexWhere((i) => i.key == msg.key);
     // messagesRecord[index] = msg;
     notifyListeners();
   }
 
   /// 删除消息
-  void deleteMessage(ImMessage msg) {
+  void deleteMessage(ImMessageModel msg) {
     // if (msg == null) return;
     // int index = messagesRecord.indexWhere(
     //     (i) => i.key == msg.key && i.fromAccount == msg.fromAccount);
@@ -288,7 +312,7 @@ class GlobalProvide with ChangeNotifier {
   }
 
   // 处理头像昵称
-  ImMessage _handlerMessage(ImMessage msg) {
+  ImMessageModel _handlerMessage(ImMessageModel msg) {
     const String defaultAvatar = 'http://qiniu.cmp520.com/avatar_degault_3.png';
     msg.avatar = defaultAvatar;
     // 消息是我发的
@@ -307,8 +331,8 @@ class GlobalProvide with ChangeNotifier {
         String _localServiceUserStr =
             prefs.getString("service_user_" + msg.fromAccount.toString());
         if (_localServiceUserStr != null) {
-          ServiceUser _localServiceUser =
-              ServiceUser.fromJson(json.decode(_localServiceUserStr));
+          ServiceUserModel _localServiceUser =
+              ServiceUserModel.fromJson(json.decode(_localServiceUserStr));
           msg.nickname = _localServiceUser.nickname ?? "客服";
           msg.avatar = _localServiceUser.avatar != null &&
                   _localServiceUser.avatar.isNotEmpty
@@ -323,7 +347,7 @@ class GlobalProvide with ChangeNotifier {
           String _localRobotStr =
               prefs.getString("robot_" + msg.fromAccount.toString());
           if (_localRobotStr != null) {
-            Robot _localRobot = Robot.fromJson(json.decode(_localRobotStr));
+            RobotModel _localRobot = RobotModel.fromJson(json.decode(_localRobotStr));
             msg.nickname = _localRobot.nickname ?? "机器人";
             msg.avatar =
                 _localRobot.avatar != null && _localRobot.avatar.isNotEmpty
@@ -361,7 +385,7 @@ class GlobalProvide with ChangeNotifier {
       _subHandleMessage = flutterMImc
           .addEventListenerHandleMessage()
           .listen((MIMCMessage msg) async {
-        ImMessage message = ImMessage.fromJson(
+        ImMessageModel message = ImMessageModel.fromJson(
             json.decode(utf8.decode(base64Decode(msg.payload))));
         debugPrint("收到消息======${message.toJson()}");
         // 保存最后服务时间
@@ -383,7 +407,7 @@ class GlobalProvide with ChangeNotifier {
 
         switch (message.bizType) {
           case "transfer":
-            serviceUser = ServiceUser.fromJson(json.decode(message.payload));
+            serviceUser = ServiceUserModel.fromJson(json.decode(message.payload));
             prefs.setString("service_user_${serviceUser.id}", message.payload);
             prefs.setString(
                 "currentServiceUser_${imUser?.id}", message.payload);
@@ -430,7 +454,7 @@ class GlobalProvide with ChangeNotifier {
         if (message.bizType == 'search_knowledge' || message.bizType == "pong")
           return;
 
-        ImMessage newMsg = _handlerMessage(message);
+        ImMessageModel newMsg = _handlerMessage(message);
         // messagesRecord.add(newMsg);
         notifyListeners();
       });
@@ -483,7 +507,7 @@ class GlobalProvide with ChangeNotifier {
         msgHandle.localMessage.isShowCancel = true;
         msgHandle.localMessage.payload = img;
         notifyListeners();
-        ImMessage sendMsg = ImMessage.fromJson(json
+        ImMessageModel sendMsg = ImMessageModel.fromJson(json
             .decode(utf8.decode(base64Decode(msgHandle.sendMessage.payload))));
         sendMsg.payload = img;
         msgHandle.sendMessage.payload =
@@ -580,7 +604,7 @@ class GlobalProvide with ChangeNotifier {
             toAccount: toAccount,
             msgType: "system",
             content: "您已超过5分钟未回复消息，系统3分钟后将结束对话");
-        ImMessage _msg = _handlerMessage(msgHandle.localMessage);
+        ImMessageModel _msg = _handlerMessage(msgHandle.localMessage);
        // messagesRecord.add(_msg);
         isCheckIsloogTimeNotCallBackCompute = false;
         notifyListeners();
@@ -607,7 +631,7 @@ class GlobalProvide with ChangeNotifier {
             toAccount: toAccount, msgType: "text", content: loogTimeWaitText);
         msgHandle.localMessage.fromAccount = robot.id;
         msgHandle.localMessage.isShowCancel = false;
-        ImMessage _msg = _handlerMessage(msgHandle.localMessage);
+        ImMessageModel _msg = _handlerMessage(msgHandle.localMessage);
         // messagesRecord.add(_msg);
         isServciceLastMessageTimeNotCallBackCompute = false;
         notifyListeners();

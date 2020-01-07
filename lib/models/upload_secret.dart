@@ -1,11 +1,11 @@
-class UploadSecret {
+class UploadSecretModel {
   String secret;
   String host;
   int mode;
 
-  UploadSecret({this.secret, this.host, this.mode});
+  UploadSecretModel({this.secret, this.host, this.mode});
 
-  UploadSecret.fromJson(Map<String, dynamic> json) {
+  UploadSecretModel.fromJson(Map<String, dynamic> json) {
     this.secret = json['secret'];
     this.host = json['host'];
     this.mode = json['mode'];
