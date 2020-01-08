@@ -24,6 +24,17 @@ class PublicService extends BaseServices {
     }
   }
 
+   // 获取一个在线机器人
+  Future<Response> getOnlineRobot() async {
+    try {
+      Response response = await http.get(API_GET_ROBOT);
+      return response;
+    } on DioError catch (e) {
+      return error(e, API_GET_ROBOT);
+    }
+  }
+
+
 
 
 

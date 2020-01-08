@@ -16,7 +16,7 @@ const String API_REGISTER = "/public/register";
 /// 上报最后活动时间 /uid
 const String API_ACTIVITY = "/public/activity";
 
-/// 获取机器人      /platform
+/// 获取机器人  /platform
 const String API_GET_ROBOT = "/public/robot/1";
 
 /// 获取未读消息    /uid

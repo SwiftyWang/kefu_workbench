@@ -17,6 +17,7 @@ class ImService extends BaseServices {
   // 注册IM
   Future<Response> registerImAccount({int accountId}) async {
     try {
+      print("accountIdaccountIdaccountId$accountId");
       Response response = await http
           .post(API_REGISTER, data: {"type": 1, "account_id": accountId});
       return response;

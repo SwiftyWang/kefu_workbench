@@ -187,7 +187,7 @@ class _HomePageState extends State<HomePage> {
                               Align(
                                   alignment: Alignment.centerRight,
                                   child: Avatar(
-                                    size: ToPx.size(70),
+                                    size: ToPx.size(60),
                                     imgUrl:
                                         "${globalState?.serviceUser?.avatar ?? 'http://qiniu.cmp520.com/avatar_default.png'}",
                                   ))

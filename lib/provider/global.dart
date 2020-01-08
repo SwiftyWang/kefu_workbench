@@ -2,6 +2,7 @@
 import 'dart:convert';
 
 import 'package:dio/dio.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_mimc/flutter_mimc.dart';
 import 'package:kefu_workbench/services/api.dart';
 import 'package:kefu_workbench/services/public_service.dart';
@@ -81,13 +82,6 @@ class GlobalProvide with ChangeNotifier {
   /// 检索回来的知识库信息列表
   List<KnowledgeModel> handshakeKeywordList = [];
 
-  // 滚动条控制器
-  ScrollController scrollController = ScrollController();
-
-  /// 小米消息云配置
-  static String mImcAppID = Configs.MIMC_APP_ID;
-  static String mImcAppKey = Configs.MIMC_APP_KEY;
-  static String mImcAppSecret = Configs.MIMC_APP_SECRET;
 
   /// 是否自动登录
   static bool isAutoLogin;
@@ -123,9 +117,10 @@ class GlobalProvide with ChangeNotifier {
   Future<void> init() async {
     await _prefsInstance();
     await _getUploadSecret();
+    await _getOnlineRobot();
     if(isLogin){
       await _registerImAccount();
-      // await _flutterMImcInstance();
+      await _flutterMImcInstance();
     }
   }
 
@@ -166,27 +161,40 @@ class GlobalProvide with ChangeNotifier {
   /// 实例化 FlutterMImc
   Future<void> _flutterMImcInstance() async {
     if(flutterMImc != null) return;
-    flutterMImc = FlutterMIMC.init(
-          debug: Configs.DEBUG,
-          appId: mImcAppID,
-          appKey: mImcAppKey,
-          appSecret: mImcAppSecret,
-          appAccount: imUser.id.toString());
+    try{
+      printf("jsonEncode(imTokenInfo.toJson())=====${jsonEncode(imTokenInfo?.toJson())}");
+      flutterMImc = FlutterMIMC.stringTokenInit(jsonEncode(imTokenInfo.toJson()), debug: true);
+    } catch(_) {
+      printf("11111");
+    }
   }
 
   /// 注册IM账号
   Future<void> _registerImAccount() async {
     try {
-      Response response = await imService.registerImAccount(accountId: 0);
+      Response response = await imService.registerImAccount(accountId: serviceUser.id);
       if (response.data["code"] == 200) {
-        imTokenInfo =
-            ImTokenInfoModel.fromJson(response.data["data"]["token"]["data"]);
-        // imUser = ImUserModel.fromJson(response.data["data"]["user"]);
+        imTokenInfo =ImTokenInfoModel.fromJson(response.data["data"]["token"]["data"]);
       } else {
         // 1秒重
-        debugPrint(response.data["error"]);
         await Future.delayed(Duration(milliseconds: 1000));
-        // _registerImAccount();
+        _registerImAccount();
+      }
+    } catch (e) {
+      debugPrint(e);
+    }
+  }
+
+  /// 获取一个在线机器人
+  Future<void> _getOnlineRobot() async {
+    try {
+      Response response = await publicService.getOnlineRobot();
+      if (response.data["code"] == 200) {
+        robot = RobotModel.fromJson(response.data["data"]);
+      } else {
+        // 1秒重
+        await Future.delayed(Duration(milliseconds: 1000));
+        _registerImAccount();
       }
     } catch (e) {
       debugPrint(e);
@@ -276,12 +284,6 @@ class GlobalProvide with ChangeNotifier {
     }
 
     flutterMImc.sendMessage(msgHandle.sendMessage);
-
-    // 重新设定客服是否超时没回复
-    prefs.setInt("adminLastCallBackMessageTime_$toAccount",
-        DateTime.now().millisecondsSinceEpoch);
-    isServciceLastMessageTimeNotCallBackCompute = true;
-    isCheckIsloogTimeNotCallBackCompute = false;
 
     /// 消息入库（远程）
     MessageHandle cloneMsgHandle = msgHandle.clone();
@@ -396,30 +398,12 @@ class GlobalProvide with ChangeNotifier {
           .listen((MIMCMessage msg) async {
         ImMessageModel message = ImMessageModel.fromJson(
             json.decode(utf8.decode(base64Decode(msg.payload))));
-        debugPrint("收到消息======${message.toJson()}");
-        // 保存最后服务时间
-        if (isService) {
-          prefs.setInt("serviceLastTime${imUser.id}",
-              DateTime.now().millisecondsSinceEpoch);
-        }
-        // 计算客服用户最后回复时间
-        if (isService &&
-            (message.bizType == "text" ||
-                message.bizType == "transfer" ||
-                message.bizType == "photo" ||
-                message.bizType == 'cancel')) {
-          isCheckIsloogTimeNotCallBackCompute = true;
-          prefs.setInt("userLastCallBackMessageTime_${imUser.id}",
-              DateTime.now().millisecondsSinceEpoch);
-          isServciceLastMessageTimeNotCallBackCompute = false;
-        }
+
 
         switch (message.bizType) {
           case "transfer":
             serviceUser = ServiceUserModel.fromJson(json.decode(message.payload));
             prefs.setString("service_user_${serviceUser.id}", message.payload);
-            prefs.setString(
-                "currentServiceUser_${imUser?.id}", message.payload);
             isService = true;
             MessageHandle msgHandle = createMessage(
                 toAccount: toAccount, msgType: "handshake", content: "与客服握握手鸭");
@@ -429,7 +413,6 @@ class GlobalProvide with ChangeNotifier {
           case "timeout":
             serviceUser = null;
             isService = false;
-            prefs.remove("currentServiceUser_${imUser?.id}");
             notifyListeners();
             break;
           case "pong":
@@ -584,86 +567,11 @@ class GlobalProvide with ChangeNotifier {
     notifyListeners();
   }
 
-  // 判断是否被踢出对话
-  void _checkIsOutSession() async {
-    int serviceLastTime = prefs.getInt("serviceLastTime${imUser.id}");
-    if (serviceLastTime != null) {
-      if (DateTime.now().millisecondsSinceEpoch >
-          serviceLastTime + tomeOutTime) {
-        isService = false;
-        serviceUser = null;
-        prefs.remove("currentServiceUser_${imUser?.id}");
-        notifyListeners();
-      }
-    }
-    await Future.delayed(Duration(milliseconds: 60000));
-    _checkIsOutSession();
-  }
-
-  // 计算用户是否长时间未回复弹出给出提示
-  bool isCheckIsloogTimeNotCallBackCompute = false;
-  void _onCheckIsloogTimeNotCallBack() async {
-    if (isCheckIsloogTimeNotCallBackCompute) {
-      int nowTimer = DateTime.now().millisecondsSinceEpoch;
-      int lastCallBackMessageTime =
-          prefs.getInt("userLastCallBackMessageTime_${imUser.id}") ?? nowTimer;
-      if (isService &&
-          (nowTimer - lastCallBackMessageTime) >= (1000 * 60) * 5) {
-        MessageHandle msgHandle = createMessage(
-            toAccount: toAccount,
-            msgType: "system",
-            content: "您已超过5分钟未回复消息，系统3分钟后将结束对话");
-        ImMessageModel _msg = _handlerMessage(msgHandle.localMessage);
-       // messagesRecord.add(_msg);
-        isCheckIsloogTimeNotCallBackCompute = false;
-        notifyListeners();
-        debugPrint("您已超过5分钟未回复消息，系统3分钟后将结束对话");
-        toScrollEnd();
-      }
-    }
-    await Future.delayed(Duration(milliseconds: 5000));
-    _onCheckIsloogTimeNotCallBack();
-  }
-
-  // 计算客服最后回复时间(超过2分钟没回复给出提示)
-  bool isServciceLastMessageTimeNotCallBackCompute = false;
-  void _onServciceLastMessageTimeNotCallBack() async {
-    if (isServciceLastMessageTimeNotCallBackCompute) {
-      String loogTimeWaitText = robot.loogTimeWaitText;
-      int nowTimer = DateTime.now().millisecondsSinceEpoch;
-      int lastCallBackMessageTime =
-          prefs.getInt("adminLastCallBackMessageTime_$toAccount") ?? nowTimer;
-      if (isService &&
-          loogTimeWaitText.isNotEmpty &&
-          (nowTimer - lastCallBackMessageTime) >= (1000 * 60) * 2) {
-        MessageHandle msgHandle = createMessage(
-            toAccount: toAccount, msgType: "text", content: loogTimeWaitText);
-        msgHandle.localMessage.fromAccount = robot.id;
-        msgHandle.localMessage.isShowCancel = false;
-        ImMessageModel _msg = _handlerMessage(msgHandle.localMessage);
-        // messagesRecord.add(_msg);
-        isServciceLastMessageTimeNotCallBackCompute = false;
-        notifyListeners();
-        toScrollEnd();
-      }
-    }
-
-    await Future.delayed(Duration(milliseconds: 5000));
-    _onServciceLastMessageTimeNotCallBack();
-  }
-
-  /// 滚动条至底部
-  void toScrollEnd() async {
-    // if (window == 0) return;
-    await Future.delayed(Duration(milliseconds: 100));
-    scrollController?.jumpTo(0);
-  }
 
   @override
   void dispose() {
     _subStatus?.cancel();
     _subHandleMessage?.cancel();
-    scrollController?.dispose();
     super.dispose();
   }
 }
