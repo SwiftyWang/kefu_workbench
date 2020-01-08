@@ -6,7 +6,7 @@ class Configs {
   static const APP_NAME = "WAN客服系统";
 
   /// 测试环境api
-  static const String API_HOST_DEV = "http://kf.aissz.com:666/v1";
+  static const String API_HOST_DEV = "http://192.168.50.52:8080/v1";
 
   /// 生产环境api
   static const String API_HOST_RELEASE = "http://kf.aissz.com:666/v1";

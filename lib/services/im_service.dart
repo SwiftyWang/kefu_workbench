@@ -59,7 +59,4 @@ class ImService extends BaseServices {
       return error(e, API_CONTACTS);
     }
   }
-
-
-
 }

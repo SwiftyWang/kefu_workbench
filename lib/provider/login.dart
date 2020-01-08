@@ -27,15 +27,16 @@ class LoginProvide with ChangeNotifier {
     } else {
       GlobalProvide.getInstance().prefs.remove("password");
     }
-    if(account.isEmpty){
+    if(account.isEmpty || account == ""){
       UX.showToast("请输入用户名~");
+      return;
     }
-    if(password.isEmpty){
+    if(password.isEmpty || password == ""){
       UX.showToast("请输入密码~");
+       return;
     }
     Response response = await authService.login(username: account, password: password);
     if(response.statusCode == 200){
-      printf(response.data['data']);
       ServiceUserModel user = ServiceUserModel.fromJson(response.data['data']);
       GlobalProvide.getInstance().setServiceUser(user);
       GlobalProvide.getInstance().prefs.setString("serviceUser", json.encode(response.data['data']));

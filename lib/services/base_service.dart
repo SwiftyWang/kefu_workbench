@@ -19,7 +19,7 @@ class BaseServices{
 
   // 全局服务器错误返回信息
   Response error(DioError e, String url){
-    printf("$url =====服务器错误返回信息=====$e====${e.response.data['code']}");
+    printf("$url =====服务器错误返回信息=====$e====${e.response.data}");
     if(e.response.data != null && e.response.data['code']?.toString() == "401"){
       GlobalProvide.getInstance().applicationLogout();
       
@@ -33,9 +33,6 @@ class BaseServices{
      dio.options.baseUrl = Configs.HOST;
      dio.options.connectTimeout = 60000;
      dio.options.receiveTimeout = 60000;
-     dio.options.headers = {
-
-      };
      dio.interceptors.add(InterceptorsWrapper(
       onRequest:(RequestOptions options) async{
         SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -44,9 +41,7 @@ class BaseServices{
         printf('request body=${options.data}');
         printf('Authorization=$authorization');
         if(authorization != null){
-          options.headers = {
-            "Authorization": authorization
-          };
+          options.headers['Authorization'] = authorization;
         }
         // 判断网络是否可用
         if(!await checkNetWork()){

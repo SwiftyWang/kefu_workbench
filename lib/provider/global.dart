@@ -124,7 +124,7 @@ class GlobalProvide with ChangeNotifier {
     await _prefsInstance();
     await _getUploadSecret();
     if(isLogin){
-      // await _registerImAccount();
+      await _registerImAccount();
       // await _flutterMImcInstance();
     }
   }
@@ -177,16 +177,16 @@ class GlobalProvide with ChangeNotifier {
   /// 注册IM账号
   Future<void> _registerImAccount() async {
     try {
-      Response response = await imService.registerImAccount(accountId: serviceUser.id);
+      Response response = await imService.registerImAccount(accountId: 0);
       if (response.data["code"] == 200) {
         imTokenInfo =
             ImTokenInfoModel.fromJson(response.data["data"]["token"]["data"]);
-        imUser = ImUserModel.fromJson(response.data["data"]["user"]);
+        // imUser = ImUserModel.fromJson(response.data["data"]["user"]);
       } else {
         // 1秒重
         debugPrint(response.data["error"]);
         await Future.delayed(Duration(milliseconds: 1000));
-        _registerImAccount();
+        // _registerImAccount();
       }
     } catch (e) {
       debugPrint(e);
