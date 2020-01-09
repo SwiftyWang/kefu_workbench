@@ -5,7 +5,6 @@ import 'package:dio/dio.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_mimc/flutter_mimc.dart';
 import 'package:kefu_workbench/services/api.dart';
-import 'package:kefu_workbench/services/public_service.dart';
 
 import '../core_flutter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -34,6 +33,9 @@ class GlobalProvide with ChangeNotifier {
   /// ImService
   ImService imService = ImService.getInstance();
 
+  /// AdminService
+  AdminService adminService = AdminService.getInstance();
+
   /// PublicService
   PublicService publicService = PublicService.getInstance();
 
@@ -45,6 +47,9 @@ class GlobalProvide with ChangeNotifier {
 
   /// IM 用户对象
   ImUserModel imUser;
+
+  /// 当前服务谁
+  ConcatModel currentConcat;
 
   /// IM 签名对象
   ImTokenInfoModel imTokenInfo;
@@ -61,9 +66,6 @@ class GlobalProvide with ChangeNotifier {
   /// IM 插件对象
   FlutterMIMC flutterMImc;
 
-  /// 是否是人工
-  bool isService = false;
-
   /// 聊天记录
   List<Map<String, List<ImMessageModel>>> messagesRecords = [];
 
@@ -79,10 +81,6 @@ class GlobalProvide with ChangeNotifier {
   /// 被踢出最长时间
   int tomeOutTime = 60 * 1000 * 8;
 
-  /// 检索回来的知识库信息列表
-  List<KnowledgeModel> handshakeKeywordList = [];
-
-
   /// 是否自动登录
   static bool isAutoLogin;
 
@@ -95,9 +93,8 @@ class GlobalProvide with ChangeNotifier {
   /// API 接口
   static String apiHost;
 
-  /// 消息接收方账号 机器人 或 客服
-  int get toAccount =>
-      isService && serviceUser != null ? serviceUser.id : robot.id;
+  /// 当前用户ID
+  int toAccount;
 
   /// set rooContext
   void setRooContext(BuildContext context){
@@ -119,8 +116,10 @@ class GlobalProvide with ChangeNotifier {
     await _getUploadSecret();
     await _getOnlineRobot();
     if(isLogin){
+      await _getMe();
       await _registerImAccount();
       await _flutterMImcInstance();
+      await _addMimcEvent();
     }
   }
 
@@ -146,11 +145,23 @@ class GlobalProvide with ChangeNotifier {
   void applicationLogout() async{
     await AuthService.getInstance().logout();
     setServiceUser(null);
+    updateUserOnlineStatus(online: 0);
     prefs.remove("serviceUser");
     prefs.remove("Authorization");
   }
 
+  /// 获取个人信息
+  Future<void> _getMe() async {
+     Response response = await adminService.getMe();
+      if (response.data["code"] == 200) {
+        serviceUser = ServiceUserModel.fromJson(response.data['data']);
+        setServiceUser(serviceUser);
+      } else {
+        UX.showToast(response.data['message']);
+      }
 
+
+  }
 
   /// 设置serviceUser
   void setServiceUser(ServiceUserModel user){
@@ -162,10 +173,13 @@ class GlobalProvide with ChangeNotifier {
   Future<void> _flutterMImcInstance() async {
     if(flutterMImc != null) return;
     try{
-      printf("jsonEncode(imTokenInfo.toJson())=====${jsonEncode(imTokenInfo?.toJson())}");
-      flutterMImc = FlutterMIMC.stringTokenInit(jsonEncode(imTokenInfo.toJson()), debug: true);
+      String tokenString = '{"code": 200, "message": "success", "data": ${jsonEncode(imTokenInfo.toJson())}}';
+      flutterMImc = FlutterMIMC.stringTokenInit(tokenString, debug: true);
     } catch(_) {
-      printf("11111");
+      printf("实例化失败");
+      // 1秒重
+      await Future.delayed(Duration(milliseconds: 1000));
+      _flutterMImcInstance();
     }
   }
 
@@ -201,17 +215,45 @@ class GlobalProvide with ChangeNotifier {
     }
   }
 
-
   /// 实例化 SharedPreferences
   Future<void> _prefsInstance() async {
     if(prefs != null) return;
     prefs = await SharedPreferences.getInstance();
   }
 
-  /// 设置检索知识库信息列表
-  void setHandshakeKeywordList(List<KnowledgeModel> data) {
-    handshakeKeywordList = data;
+  /// 设置当前服务谁
+  setCurrentConcat(ConcatModel concat){
+    currentConcat = concat;
+    toAccount = currentConcat.fromAccount;
+    printf(concat.toJson());
     notifyListeners();
+  }
+
+  /// 更新客服上线状态
+  void updateUserOnlineStatus({int online}) async{
+    Response response = await adminService.updateUserOnlineStatus(status: online);
+    if (response.data["code"] == 200) {
+        _getMe();
+        if(online == 0){
+          UX.showToast("当前状态为离线");
+        }else if(online == 1){
+          UX.showToast("当前状态为在线");
+        }else{
+          UX.showToast("当前状态为离开");
+        }
+      } else {
+        UX.showToast("${response.data["message"]}");
+      }
+  }
+
+  /// 设置上下线
+  void setOnline({int online}){
+    if(serviceUser.online == online) return;
+    UX.alert(rooContext,
+     content: "您确定" + (online == 0 ? "下线" : online == 1 ? "上线": "设置繁忙") +"吗！",
+     onConfirm: (){
+       updateUserOnlineStatus(online: online);
+    });
   }
 
   /// 获取服务器消息列表
@@ -377,19 +419,13 @@ class GlobalProvide with ChangeNotifier {
   /// mimc事件监听
   StreamSubscription _subStatus;
   StreamSubscription _subHandleMessage;
-  void _addMimcEvent() {
+  Future<void> _addMimcEvent() async {
     try {
       /// 状态发生改变
       _subStatus = flutterMImc
           .addEventListenerStatusChanged()
           .listen((bool isLogin) async {
         debugPrint("状态发生改变===$isLogin");
-        // 发送握手消息
-        if (isLogin && !isService) {
-          MessageHandle messageHandle = createMessage(
-              toAccount: toAccount, msgType: "handshake", content: "我要对机器人问好");
-          sendMessage(messageHandle);
-        }
       });
 
       /// 消息监听
@@ -401,10 +437,9 @@ class GlobalProvide with ChangeNotifier {
 
 
         switch (message.bizType) {
-          case "transfer":
+          case "handshake":
             serviceUser = ServiceUserModel.fromJson(json.decode(message.payload));
             prefs.setString("service_user_${serviceUser.id}", message.payload);
-            isService = true;
             MessageHandle msgHandle = createMessage(
                 toAccount: toAccount, msgType: "handshake", content: "与客服握握手鸭");
             sendMessage(msgHandle);
@@ -412,7 +447,6 @@ class GlobalProvide with ChangeNotifier {
           case "end":
           case "timeout":
             serviceUser = null;
-            isService = false;
             notifyListeners();
             break;
           case "pong":
@@ -426,15 +460,6 @@ class GlobalProvide with ChangeNotifier {
           case "cancel":
             message.key = int.parse(message.payload);
             deleteMessage(message);
-            break;
-          case "search_knowledge":
-            handshakeKeywordList = [];
-            if (message.payload != "") {
-              handshakeKeywordList = ((json.decode(message.payload) as List)
-                  .map((i) => KnowledgeModel.fromJson(i))
-                  .toList());
-            }
-            notifyListeners();
             break;
         }
 
@@ -557,7 +582,7 @@ class GlobalProvide with ChangeNotifier {
   // 消息内容变,ping, pong
   bool isSendPong = false;
   void inputOnChanged(String value) async {
-    if (!isService || isSendPong) return;
+    if (isSendPong) return;
     isSendPong = true;
     MessageHandle _msgHandle =
         createMessage(toAccount: toAccount, msgType: "pong", content: value);

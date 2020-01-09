@@ -10,6 +10,12 @@ const String API_LOGOUT = "/auth/logout";
 /// 获取会话列表
 const String API_CONTACTS = "/contact/list";
 
+/// 获取个人信息
+const String API_GET_ME = "/admin/me";
+
+/// 更新客服上线状态
+const String API_UPDATE_ONLINE_STATUS = "/admin/online/";
+
 /// 注册IM账号
 const String API_REGISTER = "/public/register";
 

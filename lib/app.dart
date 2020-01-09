@@ -12,9 +12,10 @@ Widget createApp() {
         ChangeNotifierProvider(create: (_) => GlobalProvide()),
         ChangeNotifierProvider(create: (_) => ThemeProvide()),
       ],
-      child: Builder(builder: (context) {
+      child: Consumer<GlobalProvide>(builder: (context, _, __) {
         return _MyApp();
-      }));
+      })
+    );
 }
 
 class _MyApp extends StatelessWidget {

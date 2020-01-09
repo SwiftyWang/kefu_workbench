@@ -5,6 +5,8 @@ import '../core_flutter.dart';
 
 class HomeProvide with ChangeNotifier {
 
+  GlobalProvide globalState = GlobalProvide.getInstance();
+
   /// 是否显示loading
   bool isFullLoading = false;
 
@@ -18,6 +20,11 @@ class HomeProvide with ChangeNotifier {
       count = count + concats[i].read;
     }
     return count;
+  }
+
+  /// 选中用户
+  void selectConcat(ConcatModel concat){
+    GlobalProvide.getInstance().setCurrentConcat(concat);
   }
 
   /// 刷新
