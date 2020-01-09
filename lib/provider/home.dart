@@ -5,7 +5,10 @@ import '../core_flutter.dart';
 
 class HomeProvide with ChangeNotifier {
 
-  GlobalProvide globalState = GlobalProvide.getInstance();
+
+  HomeProvide(){
+    getConcats(isFullLoading: true);
+  }
 
   /// 是否显示loading
   bool isFullLoading = false;
@@ -28,8 +31,8 @@ class HomeProvide with ChangeNotifier {
   }
 
   /// 刷新
-  Future<bool> onRefresh(BuildContext context) async{
-    await getConcats(context);
+  Future<bool> onRefresh() async{
+    await getConcats();
     UX.showToast("刷新成功~", position: ToastPosition.top);
     return true;
   }
@@ -47,13 +50,13 @@ class HomeProvide with ChangeNotifier {
   void logout(BuildContext context) {
     UX.alert(context, content: "您确定退出登录吗？", onConfirm: () {
       Navigator.pushNamedAndRemoveUntil(context, "/login", ModalRoute.withName('/'), arguments: {"isAnimate": false});
-      UX.showToast("已成功退出登录~");
+      UX.showToast("已退出登录~");
       GlobalProvide.getInstance().applicationLogout();
     });
   }
 
   /// 获取聊天列表
-  Future<void> getConcats(BuildContext context, {bool isFullLoading = false}) async{
+  Future<void> getConcats({bool isFullLoading = false}) async{
      setFullLoading(isFullLoading);
      Response response = await imService.getConcats();
      if(response.statusCode == 200){

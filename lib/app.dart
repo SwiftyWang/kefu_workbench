@@ -12,9 +12,10 @@ Widget createApp() {
         ChangeNotifierProvider(create: (_) => GlobalProvide()),
         ChangeNotifierProvider(create: (_) => ThemeProvide()),
       ],
-      child: Consumer<GlobalProvide>(builder: (context, _, __) {
-        return _MyApp();
-      })
+      child: ChangeNotifierProvider(
+        create: (_) => GlobalProvide.getInstance(),
+        child: Builder(builder: (_) => _MyApp(),),
+      )
     );
 }
 
@@ -27,6 +28,7 @@ class _MyApp extends StatelessWidget {
       theme: ThemeProvide.getInstance().getCurrentTheme(),
       home: Builder(builder: (context) {
         ToPx().init(context);
+        GlobalProvide.getInstance().setRooContext(context);
         return Routers.buildPage("/home", arguments: {"data": "not arguments"});
       }),
       onGenerateRoute: (RouteSettings settings) {

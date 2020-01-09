@@ -75,7 +75,7 @@ class DrawerMenu extends StatelessWidget {
                           style: themeData.textTheme.title
                               .copyWith(color: themeData.primaryColorLight),
                         ),
-                      )
+                      ),
                     ],
                   ),
                 ),

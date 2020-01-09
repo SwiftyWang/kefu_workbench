@@ -22,7 +22,9 @@ class BaseServices{
     printf("$url =====服务器错误返回信息=====$e====${e.response.data}");
     if(e.response.data != null && e.response.data['code']?.toString() == "401"){
       GlobalProvide.getInstance().applicationLogout();
-      Navigator.pushNamedAndRemoveUntil(GlobalProvide.getInstance().rooContext, "/login", ModalRoute.withName('/'), arguments: {"isAnimate": false});
+      if(GlobalProvide.getInstance()?.rooContext != null){
+        Navigator.pushNamedAndRemoveUntil(GlobalProvide.getInstance()?.rooContext, "/login", ModalRoute.withName('/'), arguments: {"isAnimate": false});
+      }
     }
     return Response(data: e.response.data);
   }

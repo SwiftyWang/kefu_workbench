@@ -116,9 +116,9 @@ class GlobalProvide with ChangeNotifier {
     await _getUploadSecret();
     await _getOnlineRobot();
     if(isLogin){
-      await _getMe();
       await _registerImAccount();
       await _flutterMImcInstance();
+       await _getMe();
       await _addMimcEvent();
     }
   }
@@ -144,10 +144,9 @@ class GlobalProvide with ChangeNotifier {
   /// 重置一些默认初始化
   void applicationLogout() async{
     await AuthService.getInstance().logout();
-    setServiceUser(null);
-    updateUserOnlineStatus(online: 0);
     prefs.remove("serviceUser");
     prefs.remove("Authorization");
+    setServiceUser(null);
   }
 
   /// 获取个人信息
@@ -156,6 +155,9 @@ class GlobalProvide with ChangeNotifier {
       if (response.data["code"] == 200) {
         serviceUser = ServiceUserModel.fromJson(response.data['data']);
         setServiceUser(serviceUser);
+        if(serviceUser.online != 0){
+          flutterMImc?.login();
+        }
       } else {
         UX.showToast(response.data['message']);
       }
@@ -167,6 +169,8 @@ class GlobalProvide with ChangeNotifier {
   void setServiceUser(ServiceUserModel user){
     serviceUser = user;
     notifyListeners();
+    if(user == null) return;
+    prefs.setString("serviceUser", jsonEncode(user.toJson()));
   }
 
   /// 实例化 FlutterMImc
@@ -230,16 +234,19 @@ class GlobalProvide with ChangeNotifier {
   }
 
   /// 更新客服上线状态
-  void updateUserOnlineStatus({int online}) async{
+  Future<void> updateUserOnlineStatus({int online}) async{
     Response response = await adminService.updateUserOnlineStatus(status: online);
     if (response.data["code"] == 200) {
         _getMe();
         if(online == 0){
           UX.showToast("当前状态为离线");
+          flutterMImc.logout();
         }else if(online == 1){
           UX.showToast("当前状态为在线");
+          flutterMImc.login();
         }else{
           UX.showToast("当前状态为离开");
+          if(!await flutterMImc.isOnline()) flutterMImc.login();
         }
       } else {
         UX.showToast("${response.data["message"]}");
@@ -467,13 +474,9 @@ class GlobalProvide with ChangeNotifier {
         //   messageReadCount = messageReadCount + 1;
         // }
 
-        // 不处理的消息
-        if (message.bizType == 'search_knowledge' || message.bizType == "pong")
-          return;
-
-        ImMessageModel newMsg = _handlerMessage(message);
+        // ImMessageModel newMsg = _handlerMessage(message);
         // messagesRecord.add(newMsg);
-        notifyListeners();
+        // notifyListeners();
       });
     } catch (e) {
       debugPrint(e);
@@ -595,6 +598,7 @@ class GlobalProvide with ChangeNotifier {
 
   @override
   void dispose() {
+    printf("GlobalProvide被销毁了");
     _subStatus?.cancel();
     _subHandleMessage?.cancel();
     super.dispose();
