@@ -77,6 +77,9 @@ class GlobalProvide with ChangeNotifier {
     return messagesRecords[currentContact.fromAccount] ?? [];
   }
 
+  /// 是否显示loading
+  bool isChatFullLoading = false;
+
   /// 显示对方输入中...
   bool isPong = false;
   String advanceText = "";
@@ -220,26 +223,27 @@ class GlobalProvide with ChangeNotifier {
      getContacts();
     });
     notifyListeners();
+    GlobalProvide.getInstance().getMessageRecord(isFirstLoad: true);
   }
 
   /// 更新客服上线状态
   Future<void> updateUserOnlineStatus({int online}) async{
     Response response = await adminService.updateUserOnlineStatus(status: online);
     if (response.data["code"] == 200) {
-        _getMe();
-        if(online == 0){
-          UX.showToast("当前状态为离线");
-          flutterMImc.logout();
-        }else if(online == 1){
-          UX.showToast("当前状态为在线");
-          flutterMImc.login();
-        }else{
-          UX.showToast("当前状态为离开");
-          if(!await flutterMImc.isOnline()) flutterMImc.login();
-        }
-      } else {
-        UX.showToast("${response.data["message"]}");
+      _getMe();
+      if(online == 0){
+        UX.showToast("当前状态为离线");
+        flutterMImc.logout();
+      }else if(online == 1){
+        UX.showToast("当前状态为在线");
+        flutterMImc.login();
+      }else{
+        UX.showToast("当前状态为离开");
+        if(!await flutterMImc.isOnline()) flutterMImc.login();
       }
+    } else {
+      UX.showToast("${response.data["message"]}");
+    }
   }
 
   /// 设置上下线
@@ -253,9 +257,30 @@ class GlobalProvide with ChangeNotifier {
   }
 
   /// 获取服务器消息列表
-  Future<void> getMessageRecord({int timestamp, int pageSize = 20, int account}) async {
+  Future<void> getMessageRecord({int timestamp, int pageSize = 20, int account, bool isFirstLoad = false}) async {
     try {
-      Response response = await imService.getMessageRecord(timestamp: timestamp, pageSize: pageSize, account: account);
+      if(currentContact == null) return;
+      int timer = timestamp ?? DateTime.now().millisecondsSinceEpoch;
+      if(isFirstLoad && currentUserMessagesRecords.length <= 0){
+        isChatFullLoading = true;
+        notifyListeners();
+      }
+      if(currentUserMessagesRecords.length > 0 && !isFirstLoad){
+        timer = currentUserMessagesRecords[0].timestamp;
+      }
+      Response response = await imService.getMessageRecord(timestamp: timer, pageSize: pageSize, account: account ?? currentContact.fromAccount);
+      isChatFullLoading = false;
+      notifyListeners();
+      if (response.data["code"] == 200) {
+        // int total = response.data['data']['total'];
+        if(isFirstLoad) messagesRecords[currentContact.fromAccount] = [];
+        (response.data['data']['list'] as List).forEach((i){
+          pushLocalMessage(ImMessageModel.fromJson(i));
+        });
+      } else {
+        UX.showToast("${response.data["message"]}");
+      }
+
     } catch (e) {
       debugPrint(e);
     }
@@ -316,9 +341,8 @@ class GlobalProvide with ChangeNotifier {
   void sendMessage(MessageHandle msgHandle) async {
     //  发送失败提示
     if (!await flutterMImc.isOnline()) {
-      MessageHandle tipsMsg = createMessage(
-          toAccount: toAccount, msgType: "system", content: "您的网络异常，发送失败了~");
-      // messagesRecord.add(tipsMsg.localMessage);
+      MessageHandle tipsMsg = createMessage(toAccount: toAccount, msgType: "system", content: "您的网络异常，发送失败了~");
+      pushLocalMessage(tipsMsg.localMessage);
       return;
     }
 
@@ -337,18 +361,17 @@ class GlobalProvide with ChangeNotifier {
       payload: cloneMsgHandle.localMessage.toBase64(),
     ).toBase64();
     flutterMImc.sendMessage(cloneMsgHandle.sendMessage);
-    ImMessageModel newMsg = _handlerMessage(cloneMsgHandle.localMessage);
-    // if (type != "photo") messagesRecord.add(newMsg);
+    if (type != "photo") pushLocalMessage(cloneMsgHandle.localMessage);
     notifyListeners();
     await Future.delayed(Duration(milliseconds: 10000));
-    newMsg.isShowCancel = false;
+    cloneMsgHandle.localMessage.isShowCancel = false;
     notifyListeners();
   }
 
   // 更新某个消息
   void updateMessage(ImMessageModel msg) {
-    // int index = messagesRecord.indexWhere((i) => i.key == msg.key);
-    // messagesRecord[index] = msg;
+    int index = currentUserMessagesRecords.indexWhere((i) => i.key == msg.key);
+    currentUserMessagesRecords[index] = msg;
     notifyListeners();
   }
 
@@ -451,9 +474,7 @@ class GlobalProvide with ChangeNotifier {
             contacts = (json.decode(message.payload) as List).map((i) => ContactModel.fromJson(i)).toList();
             break;
           case "handshake":
-          printf("message.fromAccount===${message.fromAccount}");
-            MessageHandle msgHandle = createMessage(
-                toAccount: message.fromAccount, msgType: "text", content: serviceUser.autoReply);
+            MessageHandle msgHandle = createMessage(toAccount: message.fromAccount, msgType: "text", content: serviceUser.autoReply);
             sendMessage(msgHandle);
             break;
           case "text":
@@ -495,6 +516,7 @@ class GlobalProvide with ChangeNotifier {
     List<ImMessageModel> messages = messagesRecords[fromAccount] ?? [];
     messages.add(newMsg);
     messagesRecords[fromAccount] = messages;
+    notifyListeners();
   }
 
 
@@ -504,9 +526,8 @@ class GlobalProvide with ChangeNotifier {
     MessageHandle msgHandle;
     try {
       if (file == null) return;
-      msgHandle = createMessage(
-          toAccount: toAccount, msgType: "photo", content: file.path);
-      // messagesRecord.add(_handlerMessage(msgHandle.localMessage));
+      msgHandle = createMessage(toAccount: toAccount, msgType: "photo", content: file.path);
+      pushLocalMessage(msgHandle.localMessage);
       notifyListeners();
 
       String filePath = file.path;

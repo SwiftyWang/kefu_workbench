@@ -26,9 +26,9 @@ class PageContext extends StatelessWidget {
             // 重写字体大写
             textTheme: TextTheme(
               title:_themeData.textTheme.title.copyWith(fontSize: ToPx.size(30),),
-              body1: _themeData.textTheme.body1.copyWith(fontSize: ToPx.size(26),),
-              body2: _themeData.textTheme.body2.copyWith(fontSize: ToPx.size(26),),
-              caption: _themeData.textTheme.caption.copyWith(fontSize: ToPx.size(24),),
+              body1: _themeData.textTheme.body1.copyWith(fontSize: ToPx.size(28),),
+              body2: _themeData.textTheme.body2.copyWith(fontSize: ToPx.size(28),),
+              caption: _themeData.textTheme.caption.copyWith(fontSize: ToPx.size(26),),
               display1: _themeData.textTheme.display1.copyWith(fontSize: ToPx.size(34),),
             )
         ),

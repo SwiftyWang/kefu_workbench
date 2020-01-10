@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:kefu_workbench/models/index.dart';
+import 'package:kefu_workbench/utils//index.dart';
 
 class SystemMessage extends StatelessWidget {
   SystemMessage({this.message, this.isSelf});
@@ -7,18 +8,16 @@ class SystemMessage extends StatelessWidget {
   final bool isSelf;
   @override
   Widget build(BuildContext context) {
+    ThemeData themeData = Theme.of(context);
     return Padding(
-      padding: EdgeInsets.only(bottom: 15.0),
+      padding: EdgeInsets.only(bottom: ToPx.size(30)),
       child: Container(
-        height: 23.0,
+        height: ToPx.size(45),
         width: double.infinity,
-        padding: EdgeInsets.symmetric(horizontal: 10.0),
-        constraints: BoxConstraints(
-          minWidth: 200.0,
-        ),
+        padding: EdgeInsets.symmetric(horizontal: ToPx.size(20)),
         alignment: Alignment.center,
         child: DefaultTextStyle(
-            style: TextStyle(color: Colors.black38),
+            style: themeData.textTheme.caption,
             child: Builder(builder: (_) {
               switch (message.bizType) {
                 case "cancel":
@@ -26,7 +25,7 @@ class SystemMessage extends StatelessWidget {
                 case "end":
                   return Text(isSelf ? "你结束了会话" : "对方结束了会话");
                 case "timeout":
-                  return Text('用户长时间无应答，会话结束');
+                  return Text('用户长时间无响应，会话结束');
                 case "system":
                 case "transfer":
                   return Text('${message.payload}');

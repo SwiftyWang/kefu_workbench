@@ -108,7 +108,7 @@ class DrawerMenu extends StatelessWidget {
                     alignment: Alignment.bottomRight,
                     child: Button(
                       useIosStyle: true,
-                      width: ToPx.size(100),
+                      width: ToPx.size(120),
                       onPressed: () {},
                       color: Colors.transparent,
                       child: Text(
@@ -168,7 +168,7 @@ class DrawerMenu extends StatelessWidget {
                 children: <Widget>[
                   Button(
                     margin: EdgeInsets.only(bottom: ToPx.size(50)),
-                    color: Colors.grey,
+                    color: themeData.primaryColorDark,
                     width: ToPx.size(180),
                     height: ToPx.size(60),
                     onPressed: () => homeState.logout(context),
