@@ -8,7 +8,10 @@ class DrawerMenu extends StatelessWidget {
   Widget build(BuildContext context) {
     ThemeData themeData = Theme.of(context);
     HomeProvide homeState = Provider.of<HomeProvide>(context);
-    GlobalProvide globalState = GlobalProvide.getInstance();
+    GlobalProvide  globalState = Provider.of<GlobalProvide>(context);
+    Color lineColor = globalState?.serviceUser?.online == 1  ? Colors.green[400] :
+    globalState?.serviceUser?.online == 0 ? Colors.grey :
+    globalState?.serviceUser?.online == 2 ? Colors.amber : Colors.grey;
     Widget _listTile(
         {IconData icon,
         String title,
@@ -70,10 +73,32 @@ class DrawerMenu extends StatelessWidget {
                       ),
                       Padding(
                         padding: EdgeInsets.only(top: ToPx.size(20)),
-                        child: Text(
-                          "${globalState.serviceUser?.nickname ?? '未知昵称'}",
-                          style: themeData.textTheme.title
-                              .copyWith(color: themeData.primaryColorLight),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: <Widget>[
+                            Text(
+                              "${globalState.serviceUser?.nickname ?? '未知昵称'} ",
+                              style: themeData.textTheme.title
+                                  .copyWith(color: themeData.primaryColorLight),
+                            ),
+                            Container(
+                              width: ToPx.size(10),
+                              height: ToPx.size(10),
+                              decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              color: lineColor
+                            ),
+                            ),
+                            Text(
+                              globalState?.serviceUser?.online == 0 ? " 离线" :
+                              globalState?.serviceUser?.online == 1 ? " 在线" :
+                              globalState?.serviceUser?.online == 2 ? " 离开" : "未知",
+                              style: themeData.textTheme.caption.copyWith(
+                              fontSize: ToPx.size(22),
+                              color: lineColor
+                            ),
+                            ),
+                          ],
                         ),
                       ),
                     ],

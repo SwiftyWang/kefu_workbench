@@ -5,13 +5,12 @@ import 'package:provider/provider.dart';
 class LinePopupMenuButton extends StatelessWidget{
   @override
   Widget build(BuildContext context) {
-    return ChangeNotifierProvider<GlobalProvide>(
-      create: (_) => GlobalProvide.getInstance(),
-      child: Builder(builder: (context){
 
+    return Consumer<GlobalProvide>(
+      builder: (context, globalState, _){
         ThemeData themeData = Theme.of(context);
         GlobalProvide  globalState = Provider.of<GlobalProvide>(context);
-        Color lineColor = globalState?.serviceUser?.online == 1  ? Colors.green :
+        Color lineColor = globalState?.serviceUser?.online == 1  ? Colors.green[400] :
                     globalState?.serviceUser?.online == 0 ? Colors.grey :
                     globalState?.serviceUser?.online == 2 ? Colors.amber : Colors.grey;
         return PopupMenuButton<int>(
@@ -81,8 +80,9 @@ class LinePopupMenuButton extends StatelessWidget{
           }
           return menus;
         });
-
-      },),
+        
+      }
     );
+
   }
 }

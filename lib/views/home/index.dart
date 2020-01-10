@@ -1,10 +1,9 @@
-import 'package:flutter/gestures.dart';
 import 'package:kefu_workbench/core_flutter.dart';
 import 'package:kefu_workbench/provider/global.dart';
 import 'package:kefu_workbench/provider/home.dart';
 import 'package:provider/provider.dart';
 
-import 'widget/concat_widget.dart';
+import 'widget/contact_widget.dart';
 import 'widget/drawer_menu.dart';
 import 'widget/popup_menu_button.dart';
 
@@ -33,14 +32,12 @@ class HomePage extends StatelessWidget {
 
   @override
   Widget build(ctx) {
-
-    return ChangeNotifierProvider(
-      create: (_) => homeProvide,
-      child: Builder(builder: (_){
+    GlobalProvide.getInstance().setRooContext(ctx);
+    return Consumer<HomeProvide>(
+      builder: (context, homeState, _){
         return PageContext(builder: (context) {
           ThemeData themeData = Theme.of(context);
           HomeProvide homeState = Provider.of<HomeProvide>(context);
-          GlobalProvide globalState = GlobalProvide.getInstance();
           return WillPopScope(
               onWillPop: onBackPressed,
               child: Scaffold(
@@ -61,20 +58,24 @@ class HomePage extends StatelessWidget {
                                   color: Colors.white.withAlpha(100),
                                 ),
                               ),
-                              Align(
-                                  alignment: Alignment.centerRight,
-                                  child: Avatar(
-                                    size: ToPx.size(70),
-                                    imgUrl:
-                                        "${globalState?.serviceUser?.avatar ?? 'http://qiniu.cmp520.com/avatar_default.png'}",
-                                  ))
+                              Consumer<GlobalProvide>(
+                                builder: (context, globalState, _){
+                                  return Align(
+                                    alignment: Alignment.centerRight,
+                                    child: Avatar(
+                                      size: ToPx.size(70),
+                                      imgUrl: "${globalState?.serviceUser?.avatar ?? 'http://qiniu.cmp520.com/avatar_default.png'}",
+                                  ));
+                                },
+                              ),
+                              
                             ],
                           ),
                         );
                       },
                     ),
                     actions: [
-                      // LinePopupMenuButton()
+                      LinePopupMenuButton()
                     ],
                     title: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
@@ -84,14 +85,14 @@ class HomePage extends StatelessWidget {
                           style: themeData.textTheme.display1,
                         ),
                         Offstage(
-                          offstage: homeState.concatReadCount == 0,
+                          offstage: homeState.contactReadCount == 0,
                           child: Align(
                             alignment: Alignment.topRight,
                             child: Container(
                               margin: EdgeInsets.only(top: ToPx.size(5)),
                               child: Center(
                                 child: Text(
-                                  "${homeState.concatReadCount}",
+                                  "${homeState.contactReadCount}",
                                   style: themeData.textTheme.caption.copyWith(
                                       color: Colors.white,
                                       fontSize: ToPx.size(20)),
@@ -118,25 +119,31 @@ class HomePage extends StatelessWidget {
                           scrollDirection: Axis.vertical,
                           physics: AlwaysScrollableScrollPhysics(),
                           slivers: <Widget>[
-                            SliverToBoxAdapter(
-                              child: Offstage(
-                                offstage: homeState.concats.length > 0 || homeState.isFullLoading,
-                                child: SizedBox(
-                                  height: ToPx.size(200),
-                                  child: Center(
-                                    child: Text(
-                                      "暂无聊天记录~",
-                                      style: themeData.textTheme.body1,
+                            Consumer<GlobalProvide>(
+                              builder: (context, globalState, _){
+                                return SliverToBoxAdapter(
+                                  child: Offstage(
+                                    offstage: globalState.contacts.length > 0 || homeState.isFullLoading,
+                                    child: SizedBox(
+                                      height: ToPx.size(200),
+                                      child: Center(
+                                        child: Text(
+                                          "暂无聊天记录~",
+                                          style: themeData.textTheme.body1,
+                                        ),
+                                      ),
                                     ),
                                   ),
-                                ),
-                              ),
+                                );
+                              },
                             ),
-                            SliverList(
-                                delegate: SliverChildBuilderDelegate(
-                                    (context, index) {
-                              return ConcatWidget(homeState.concats[index]);
-                            }, childCount: homeState.concats.length)),
+                            Consumer<GlobalProvide>(
+                              builder: (context, globalState, _){
+                                return SliverList(delegate: SliverChildBuilderDelegate((context, index) {
+                                  return ContactWidget(globalState.contacts[index]);
+                                }, childCount: globalState.contacts.length));
+                              },
+                            ),
                           ],
                         )),
                 drawer: Drawer(
@@ -145,7 +152,6 @@ class HomePage extends StatelessWidget {
               ),
             );
         });
-      },)
-    );
+    });
   }
 }

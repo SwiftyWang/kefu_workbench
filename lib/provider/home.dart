@@ -1,38 +1,29 @@
-import 'package:dio/dio.dart';
 import 'package:kefu_workbench/provider/global.dart';
 
 import '../core_flutter.dart';
 
 class HomeProvide with ChangeNotifier {
 
-
-  HomeProvide(){
-    getConcats(isFullLoading: true);
-  }
-
   /// 是否显示loading
   bool isFullLoading = false;
 
-  /// 聊天列表数据
-  List<ConcatModel> concats = [];
-
   ///  所有未读消息
-  int get concatReadCount{
+  int get contactReadCount{
     int count = 0;
-    for(var i =0; i<concats.length; i++){
-      count = count + concats[i].read;
+    for(var i =0; i<GlobalProvide.getInstance().contacts.length; i++){
+      count = count + GlobalProvide.getInstance().contacts[i].read;
     }
     return count;
   }
 
   /// 选中用户
-  void selectConcat(ConcatModel concat){
-    GlobalProvide.getInstance().setCurrentConcat(concat);
+  void selectContact(ContactModel contact){
+    GlobalProvide.getInstance().setCurrentContact(contact);
   }
 
   /// 刷新
   Future<bool> onRefresh() async{
-    await getConcats();
+    await getContacts();
     UX.showToast("刷新成功~", position: ToastPosition.top);
     return true;
   }
@@ -56,15 +47,10 @@ class HomeProvide with ChangeNotifier {
   }
 
   /// 获取聊天列表
-  Future<void> getConcats({bool isFullLoading = false}) async{
-     setFullLoading(isFullLoading);
-     Response response = await imService.getConcats();
-     if(response.statusCode == 200){
-      concats = (response.data['data'] as List).map((i) => ConcatModel.fromJson(i)).toList();
-    }else{
-      UX.showToast(response.data["message"]);
-    }
-     setFullLoading(false);
+  Future<void> getContacts({bool isFullLoading = false}) async{
+    setFullLoading(isFullLoading);
+    await GlobalProvide.getInstance().getContacts();
+    setFullLoading(false);
   }
 
   

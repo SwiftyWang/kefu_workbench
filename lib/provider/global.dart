@@ -29,6 +29,10 @@ class GlobalProvide with ChangeNotifier {
 
   /// root context
   BuildContext rooContext;
+
+  /// 当前主题
+  ThemeProvide get themeProvide =>  ThemeProvide.getInstance();
+  ThemeData get getCurrentTheme => themeProvide.getCurrentTheme();
   
   /// ImService
   ImService imService = ImService.getInstance();
@@ -42,14 +46,14 @@ class GlobalProvide with ChangeNotifier {
   /// GlobalProvide实例
   static GlobalProvide instance;
 
+  /// 聊天列表数据
+  List<ContactModel> contacts = [];
+
   /// 客服信息
   ServiceUserModel serviceUser;
 
-  /// IM 用户对象
-  ImUserModel imUser;
-
   /// 当前服务谁
-  ConcatModel currentConcat;
+  ContactModel currentContact;
 
   /// IM 签名对象
   ImTokenInfoModel imTokenInfo;
@@ -71,27 +75,6 @@ class GlobalProvide with ChangeNotifier {
 
   /// 显示对方输入中...
   bool isPong = false;
-
-  /// 没有更多记录了
-  bool isScrollEnd = false;
-
-  /// 为消息总数
-  int messageReadCount = 0;
-
-  /// 被踢出最长时间
-  int tomeOutTime = 60 * 1000 * 8;
-
-  /// 是否自动登录
-  static bool isAutoLogin;
-
-  /// 延迟登录(毫秒)
-  static int delayLoginTime;
-
-  /// 业务平台ID
-  static int platformUserId;
-
-  /// API 接口
-  static String apiHost;
 
   /// 当前用户ID
   int toAccount;
@@ -118,8 +101,10 @@ class GlobalProvide with ChangeNotifier {
     if(isLogin){
       await _registerImAccount();
       await _flutterMImcInstance();
-       await _getMe();
       await _addMimcEvent();
+      await _getMe();
+      await getContacts();
+      await _upImLastActivity();
     }
   }
 
@@ -128,11 +113,9 @@ class GlobalProvide with ChangeNotifier {
     String authorization = prefs.getString("Authorization");
     String serviceUserString = prefs.getString("serviceUser");
     if(serviceUserString != null){
-      ServiceUserModel user = ServiceUserModel.fromJson(json.decode(serviceUserString));
-      setServiceUser(user);
+      serviceUser = ServiceUserModel.fromJson(json.decode(serviceUserString));
     }
     if(authorization != null && serviceUser != null){
-      printf("用户已登录~");
       return true;
     }else{
       printf("未登录~");
@@ -161,7 +144,6 @@ class GlobalProvide with ChangeNotifier {
       } else {
         UX.showToast(response.data['message']);
       }
-
 
   }
 
@@ -226,10 +208,9 @@ class GlobalProvide with ChangeNotifier {
   }
 
   /// 设置当前服务谁
-  setCurrentConcat(ConcatModel concat){
-    currentConcat = concat;
-    toAccount = currentConcat.fromAccount;
-    printf(concat.toJson());
+  setCurrentContact(ContactModel contact){
+    currentContact = contact;
+    toAccount = currentContact.fromAccount;
     notifyListeners();
   }
 
@@ -274,8 +255,9 @@ class GlobalProvide with ChangeNotifier {
 
   /// 上报IM最后活动时间
   Future<void> _upImLastActivity() async {
-    Timer.periodic(Duration(milliseconds: 20000), (_) {
-      if (imUser != null) imService.upImLastActivity();
+    Timer.periodic(Duration(milliseconds: 20000), (_timer) {
+      printf("上报IM最后活动时间");
+      if (serviceUser != null) publicService.upImLastActivity();
     });
   }
 
@@ -305,7 +287,7 @@ class GlobalProvide with ChangeNotifier {
     message.bizType = msgType;
     message.toAccount = toAccount.toString();
     Map<String, dynamic> payloadMap = {
-      "from_account": imUser.id,
+      "from_account": serviceUser.id ?? robot.id,
       "to_account": toAccount,
       "biz_type": msgType,
       "version": "0",
@@ -362,6 +344,17 @@ class GlobalProvide with ChangeNotifier {
     notifyListeners();
   }
 
+  /// 获取工作台聊天列表
+  Future<void> getContacts({bool isFullLoading = false}) async{
+     Response response = await imService.getContacts();
+     if(response.statusCode == 200){
+      contacts = (response.data['data'] as List).map((i) => ContactModel.fromJson(i)).toList();
+      notifyListeners();
+    }else{
+      UX.showToast(response.data["message"]);
+    }
+  }
+
   /// 删除消息
   void deleteMessage(ImMessageModel msg) {
     // if (msg == null) return;
@@ -376,7 +369,7 @@ class GlobalProvide with ChangeNotifier {
     const String defaultAvatar = 'http://qiniu.cmp520.com/avatar_degault_3.png';
     msg.avatar = defaultAvatar;
     // 消息是我发的
-    if (msg.fromAccount == imUser.id) {
+    if (msg.fromAccount == serviceUser.id) {
       /// 这里如果是接入业务平台可替换成用户头像和昵称
       /// if (uid == myUid)  msg.avatar = MyAvatar
       /// if (uid == myUid)  msg.nickname = MyNickname
@@ -427,28 +420,33 @@ class GlobalProvide with ChangeNotifier {
   StreamSubscription _subStatus;
   StreamSubscription _subHandleMessage;
   Future<void> _addMimcEvent() async {
+    _subStatus?.cancel();
+    _subHandleMessage?.cancel();
     try {
       /// 状态发生改变
       _subStatus = flutterMImc
-          .addEventListenerStatusChanged()
-          .listen((bool isLogin) async {
-        debugPrint("状态发生改变===$isLogin");
+          ?.addEventListenerStatusChanged()
+          ?.listen((bool login) async {
+        debugPrint("状态发生改变===$login");
       });
 
       /// 消息监听
       _subHandleMessage = flutterMImc
-          .addEventListenerHandleMessage()
-          .listen((MIMCMessage msg) async {
+          ?.addEventListenerHandleMessage()
+          ?.listen((MIMCMessage msg) async {
         ImMessageModel message = ImMessageModel.fromJson(
             json.decode(utf8.decode(base64Decode(msg.payload))));
 
-
+        printf("收到消息===${message.toJson()}");
         switch (message.bizType) {
+          case "contacts":
+            contacts = (json.decode(message.payload) as List).map((i) => ContactModel.fromJson(i)).toList();
+            notifyListeners();
+            break;
           case "handshake":
-            serviceUser = ServiceUserModel.fromJson(json.decode(message.payload));
-            prefs.setString("service_user_${serviceUser.id}", message.payload);
+          printf("message.fromAccount===${message.fromAccount}");
             MessageHandle msgHandle = createMessage(
-                toAccount: toAccount, msgType: "handshake", content: "与客服握握手鸭");
+                toAccount: message.fromAccount, msgType: "text", content: serviceUser.autoReply);
             sendMessage(msgHandle);
             break;
           case "end":
@@ -483,18 +481,6 @@ class GlobalProvide with ChangeNotifier {
     }
   }
 
-  /// 登录Im
-  Future<void> loginIm() async {
-    if (!isAutoLogin) return;
-    await Future.delayed(Duration(milliseconds: delayLoginTime));
-    if (!await flutterMImc?.isOnline()) {
-      debugPrint("登录中...");
-      flutterMImc?.login();
-      return;
-    }
-    await Future.delayed(Duration(milliseconds: 2000));
-    loginIm();
-  }
 
   /// 上传发送图片
   void sendPhoto(File file) async {

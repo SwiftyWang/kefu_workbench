@@ -3,9 +3,9 @@ import 'package:kefu_workbench/core_flutter.dart';
 import 'package:kefu_workbench/provider/home.dart';
 import 'package:provider/provider.dart';
 
-class ConcatWidget extends StatelessWidget{
-  ConcatWidget(this.concat);
-  final ConcatModel concat;
+class ContactWidget extends StatelessWidget{
+  ContactWidget(this.contact);
+  final ContactModel contact;
   @override
   Widget build(BuildContext context) {
      ThemeData themeData = Theme.of(context);
@@ -38,16 +38,16 @@ class ConcatWidget extends StatelessWidget{
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
             ListTile(
-              onTap: () => homeState.selectConcat(concat),
+              onTap: () => homeState.selectContact(contact),
               title: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: <Widget>[
                   Text(
-                    "${concat.nickname}",
+                    "${contact.nickname}",
                     style: themeData.textTheme.title,
                   ),
                   Text(
-                    "${Utils.epocFormat(concat?.contactCreateAt)}",
+                    "${Utils.epocFormat(contact?.contactCreateAt)}",
                     style: themeData.textTheme.caption,
                   ),
                 ],
@@ -60,18 +60,18 @@ class ConcatWidget extends StatelessWidget{
                       child: Avatar(
                         size: ToPx.size(90),
                         imgUrl:
-                            "${concat.avatar.isEmpty ? 'http://qiniu.cmp520.com/avatar_default.png' : concat.avatar}",
+                            "${contact.avatar.isEmpty ? 'http://qiniu.cmp520.com/avatar_default.png' : contact.avatar}",
                       ),
                     ),
                     Offstage(
-                      offstage: concat.read == 0,
+                      offstage: contact.read == 0,
                       child: Align(
                         alignment: Alignment.topRight,
                         child: Container(
                           margin: EdgeInsets.only(top: ToPx.size(5)),
                           child: Center(
                             child: Text(
-                              "${concat.read}",
+                              "${contact.read}",
                               style: themeData.textTheme.caption
                                   .copyWith(
                                       color: Colors.white,
@@ -85,28 +85,40 @@ class ConcatWidget extends StatelessWidget{
                               shape: BoxShape.circle),
                         ),
                       ),
+                    ),
+                    Align(
+                      alignment: Alignment.bottomRight,
+                      child: Container(
+                        margin: EdgeInsets.only(bottom: ToPx.size(15), right: ToPx.size(13)),
+                        width: ToPx.size(16),
+                        height: ToPx.size(16),
+                        decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: contact.online == 0 ? Colors.grey : Colors.green[400]
+                      ),
+                      ),
                     )
                   ],
                 ),
               ),
               subtitle: Text(
-                concat.lastMessageType == "text"
-                ? concat.lastMessage
-                : concat.lastMessageType == "photo"
+                contact.lastMessageType == "text"
+                ? contact.lastMessage
+                : contact.lastMessageType == "photo"
                 ? "图片文件"
-                : concat.lastMessageType == "video"
+                : contact.lastMessageType == "video"
                 ? "视频文件"
-                : concat.lastMessageType == "end"
+                : contact.lastMessageType == "end"
                 ? "会话结束"
-                : concat.lastMessageType == "timeout"
+                : contact.lastMessageType == "timeout"
                 ? "会话超时，结束对话"
-                : concat.lastMessageType ==
+                : contact.lastMessageType ==
                 "transfer"
                 ? "客服转接..."
-                : concat.lastMessageType ==
+                : contact.lastMessageType ==
                 "system"
                 ? "系统提示..."
-                : concat.lastMessageType ==
+                : contact.lastMessageType ==
                 "cancel"
                 ? "撤回了消息"
                 : "未知消息内容~",

@@ -34,6 +34,16 @@ class PublicService extends BaseServices {
     }
   }
 
+  // 一分钟上报一次我的活动
+  Future<Response> upImLastActivity() async {
+    try {
+      Response response = await http.get(API_RUN_LAST_ACTiIVITY);
+      return response;
+    } on DioError catch (e) {
+      return error(e, API_RUN_LAST_ACTiIVITY);
+    }
+  }
+
 
 
 

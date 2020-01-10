@@ -1,4 +1,4 @@
-class ConcatModel {
+class ContactModel {
   int id;
   int cid;
   int fromAccount;
@@ -20,7 +20,7 @@ class ConcatModel {
   int createAt;
   int contactCreateAt;
 
-  ConcatModel(
+  ContactModel(
       {this.id,
       this.cid,
       this.fromAccount,
@@ -42,7 +42,7 @@ class ConcatModel {
       this.createAt,
       this.contactCreateAt});
 
-  ConcatModel.fromJson(Map<String, dynamic> json) {
+  ContactModel.fromJson(Map<String, dynamic> json) {
     id = json['id'];
     cid = json['cid'];
     fromAccount = json['from_account'];
