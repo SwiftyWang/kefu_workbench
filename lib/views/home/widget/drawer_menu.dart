@@ -151,7 +151,7 @@ class DrawerMenu extends StatelessWidget {
                   onTap: () => Navigator.pop(context)),
               _listTile(
                   icon: Icons.assignment,
-                  title: "快捷回复语",
+                  title: "快捷语设置",
                   onTap: () => Navigator.pop(context)),
               _listTile(
                   icon: Icons.settings,

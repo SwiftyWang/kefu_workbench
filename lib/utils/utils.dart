@@ -7,22 +7,6 @@ typedef DownloadProgress(int sent,int total); // 下载进度
 
 class Utils{
 
-  // 保留小数点
-  static String toStringAsFixed(dynamic number, {int fixed = 2}){
-    if(number is String && RegExp(r'^\d+').hasMatch(number)){
-      return double.parse(number).toStringAsFixed(fixed);
-    }else if(number is double){
-      return number.toStringAsFixed(fixed);
-    }else if(number is int){
-      return number.floorToDouble().toStringAsFixed(fixed);
-    }
-    else{
-      return number;
-    }
-
-  }
-
-
   // 日期轉中文表示
   static String toChineseDate(date){
     if(date == null) return "";
@@ -119,27 +103,6 @@ class Utils{
       result= "${date.year}年${date.month < 10 ? "0" + date.month.toString() : date.month}月${date.day < 10 ? "0" + date.day.toString() + "日" : date.day} ${date.hour}:${date.minute < 10 ? "0" + date.minute.toString() : date.minute}";
     }
     return result;
-  }
-
-  // 进京证完成时间计算
-  static String getJJzCompleteDate(String startDate){
-    String completeDate = "";
-    DateTime now = DateTime.now();
-    DateTime activeTime = DateTime.tryParse(startDate);
-    bool isToDay = activeTime == DateTime(now.year, now.month,now.day);
-    int hours = now.hour;
-    if(isToDay && hours >= 8 && hours <= 17){
-      completeDate = "3小时内";
-    }
-    else if(isToDay && hours >= 0 && hours <= 8){
-      completeDate = "今天中午12点前";
-    }
-    else if(isToDay && hours >= 17){
-      completeDate = "明天中午12点前";
-    }else{
-      completeDate = "${activeTime.year}年${activeTime.month}月${activeTime.day}日 12:00 前";
-    }
-    return completeDate;
   }
 
   // 下载文件

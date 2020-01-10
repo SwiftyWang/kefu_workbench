@@ -13,7 +13,7 @@ class TemplatePage extends StatelessWidget {
             isShowLeading: false,
             title: Text(
               "TemplatePage title",
-              style: themeData.textTheme.title,
+              style: themeData.textTheme.display1,
             )),
         body: Text("TemplatePage"),
       );

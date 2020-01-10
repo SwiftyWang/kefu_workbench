@@ -27,6 +27,13 @@
       "unicode_decimal": 58935
     },
     {
+      "icon_id": "7977458",
+      "name": "Back",
+      "font_class": "Back",
+      "unicode": "e600",
+      "unicode_decimal": 58880
+    },
+    {
       "icon_id": "10281814",
       "name": "账号",
       "font_class": "zhanghao",

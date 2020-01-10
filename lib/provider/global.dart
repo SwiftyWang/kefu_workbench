@@ -2,7 +2,6 @@
 import 'dart:convert';
 
 import 'package:dio/dio.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_mimc/flutter_mimc.dart';
 import 'package:kefu_workbench/services/api.dart';
 
@@ -71,10 +70,16 @@ class GlobalProvide with ChangeNotifier {
   FlutterMIMC flutterMImc;
 
   /// 聊天记录
-  List<Map<String, List<ImMessageModel>>> messagesRecords = [];
+  Map<dynamic, List<ImMessageModel>> messagesRecords = {};
+
+  /// 当前聊天用户的消息记录
+  List<ImMessageModel> get currentUserMessagesRecords{
+    return messagesRecords[currentContact.fromAccount] ?? [];
+  }
 
   /// 显示对方输入中...
   bool isPong = false;
+  String advanceText = "";
 
   /// 当前用户ID
   int toAccount;
@@ -211,6 +216,9 @@ class GlobalProvide with ChangeNotifier {
   setCurrentContact(ContactModel contact){
     currentContact = contact;
     toAccount = currentContact.fromAccount;
+    Navigator.pushNamed(rooContext, "/chat", arguments: {}).then((_){
+     getContacts();
+    });
     notifyListeners();
   }
 
@@ -441,7 +449,6 @@ class GlobalProvide with ChangeNotifier {
         switch (message.bizType) {
           case "contacts":
             contacts = (json.decode(message.payload) as List).map((i) => ContactModel.fromJson(i)).toList();
-            notifyListeners();
             break;
           case "handshake":
           printf("message.fromAccount===${message.fromAccount}");
@@ -449,12 +456,15 @@ class GlobalProvide with ChangeNotifier {
                 toAccount: message.fromAccount, msgType: "text", content: serviceUser.autoReply);
             sendMessage(msgHandle);
             break;
+          case "text":
+            advanceText = "";
+            break;
           case "end":
           case "timeout":
-            serviceUser = null;
-            notifyListeners();
+            advanceText = "";
             break;
           case "pong":
+            advanceText = message.payload;
             if (isPong) return;
             isPong = true;
             notifyListeners();
@@ -467,18 +477,24 @@ class GlobalProvide with ChangeNotifier {
             deleteMessage(message);
             break;
         }
-
-        // if (window == 0 && message.bizType != 'pong') {
-        //   messageReadCount = messageReadCount + 1;
-        // }
-
-        // ImMessageModel newMsg = _handlerMessage(message);
-        // messagesRecord.add(newMsg);
-        // notifyListeners();
+        pushLocalMessage(message);
+        notifyListeners();
       });
     } catch (e) {
       debugPrint(e);
     }
+  }
+
+  /// 处理消息
+  void pushLocalMessage(ImMessageModel message){
+    if(message.bizType == 'pong' || message.bizType == "handshake" ||  message.bizType == "contacts"){
+      return;
+    }
+    ImMessageModel newMsg = _handlerMessage(message);
+    int fromAccount = newMsg.fromAccount;
+    List<ImMessageModel> messages = messagesRecords[fromAccount] ?? [];
+    messages.add(newMsg);
+    messagesRecords[fromAccount] = messages;
   }
 
 
