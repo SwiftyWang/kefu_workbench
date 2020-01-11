@@ -14,7 +14,7 @@ class EmoJiPanel extends StatelessWidget {
       offstage: !isShow,
       child: Container(
         width: double.infinity,
-        height: 250.0,
+        height: ToPx.size(500),
         color: Colors.white,
         child: GridView.builder(
             itemCount: emojis.length,

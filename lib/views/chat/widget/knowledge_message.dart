@@ -9,38 +9,33 @@ class KnowledgeMessage extends StatelessWidget {
   KnowledgeMessage({this.message, this.onSend});
   final ImMessageModel message;
   final SendKnowledgeMessage onSend;
-  bool get isSelf {
-    return true;
-  }
+
 
   List<KnowledgeModel> get knowledgeModelList =>
       ((json.decode(message.payload) as List)
           .map((i) => KnowledgeModel.fromJson(i))
-          .toList())
-        ..add(KnowledgeModel(title: "以上都不是？我要找人工"));
+          .toList());
 
   @override
   Widget build(BuildContext context) {
+     ThemeData themeData = Theme.of(context);
     Widget msgWidget() {
       return Container(
-        margin: EdgeInsets.only(bottom: 15.0),
+        margin: EdgeInsets.only(bottom: ToPx.size(30)),
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisAlignment: MainAxisAlignment.start,
+          mainAxisAlignment: MainAxisAlignment.end,
           children: <Widget>[
-            Avatar(
-              imgUrl: message.avatar,
-            ),
             Padding(
-              padding: EdgeInsets.only(left: 7.0),
+              padding: EdgeInsets.only(right: ToPx.size(15)),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: <Widget>[
                   Container(
-                    margin: EdgeInsets.only(top: 3.0),
-                    width: 290.0,
+                    margin: EdgeInsets.only(top: ToPx.size(8)),
+                    width: ToPx.size(550),
                     padding:
-                        EdgeInsets.symmetric(horizontal: 10.0, vertical: 5.0),
+                        EdgeInsets.symmetric(horizontal: ToPx.size(20), vertical: ToPx.size(10)),
                     decoration: BoxDecoration(
                         color: Colors.white,
                         boxShadow: [
@@ -59,41 +54,34 @@ class KnowledgeMessage extends StatelessWidget {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: <Widget>[
-                        Text("以下是您关心的相关问题？",
-                            style: TextStyle(
-                                color: Colors.black87.withAlpha(180),
-                                fontSize: 16.0)),
+                        Text("以下是您关心的相关问题？", style: themeData.textTheme.title),
                         Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children:
                               knowledgeModelList.map((KnowledgeModel item) {
-                            return GestureDetector(
-                              onTap: () => onSend(item),
-                              child: DefaultTextStyle(
-                                  style: TextStyle(
-                                      color: Colors.blue, fontSize: 15.0),
-                                  child: Padding(
-                                    padding:
-                                        EdgeInsets.symmetric(vertical: 2.0),
-                                    child: Row(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: <Widget>[
-                                        Padding(
-                                          padding: EdgeInsets.only(top: 3.0),
-                                          child: Text(
-                                            " • ",
-                                            style: TextStyle(
-                                                fontWeight: FontWeight.w600),
-                                          ),
+                            return DefaultTextStyle(
+                                style: themeData.textTheme.body1,
+                                child: Padding(
+                                  padding:
+                                      EdgeInsets.symmetric(vertical: 2.0),
+                                  child: Row(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: <Widget>[
+                                      Padding(
+                                        padding: EdgeInsets.only(top: 3.0),
+                                        child: Text(
+                                          " • ",
+                                          style: TextStyle(
+                                              fontWeight: FontWeight.w600),
                                         ),
-                                        Expanded(
-                                          child: Text("${item.title}"),
-                                        )
-                                      ],
-                                    ),
-                                  )),
-                            );
+                                      ),
+                                      Expanded(
+                                        child: Text("${item.title}"),
+                                      )
+                                    ],
+                                  ),
+                                ));
                           }).toList(),
                         ),
                       ],
@@ -101,6 +89,9 @@ class KnowledgeMessage extends StatelessWidget {
                   )
                 ],
               ),
+            ),
+            Avatar(
+              imgUrl: message.avatar,
             ),
           ],
         ),

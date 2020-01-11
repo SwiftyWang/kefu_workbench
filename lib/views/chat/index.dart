@@ -85,13 +85,12 @@ class ChatPageState extends State<ChatPage> {
                                           .timestamp) {
                                 _msg.isShowDate = true;
                               }
-
                               switch (_msg.bizType) {
                                 case "text":
                                 case "welcome":
                                   return TextMessage(
                                     message: _msg,
-                                    isSelf: _msg.fromAccount == globalState.serviceUser.id,
+                                    isSelf: _msg.fromAccount != globalState.currentContact.fromAccount,
                                     onCancel: () => {},
                                     onOperation: () => {},
                                   );

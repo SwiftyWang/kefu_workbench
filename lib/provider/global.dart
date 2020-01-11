@@ -138,6 +138,7 @@ class GlobalProvide with ChangeNotifier {
     prefs.remove("serviceUser");
     prefs.remove("Authorization");
     setServiceUser(null);
+    flutterMImc?.logout();
   }
 
   /// 获取个人信息
@@ -167,13 +168,10 @@ class GlobalProvide with ChangeNotifier {
   Future<void> _flutterMImcInstance() async {
     if(flutterMImc != null) return;
     try{
-      String tokenString = '{"code": 200, "message": "success", "data": ${jsonEncode(imTokenInfo.toJson())}}';
+      String tokenString = '{"code": 200, "message": "success", "data": ${jsonEncode(imTokenInfo?.toJson())}}';
       flutterMImc = FlutterMIMC.stringTokenInit(tokenString, debug: true);
     } catch(_) {
-      printf("实例化失败");
-      // 1秒重
-      await Future.delayed(Duration(milliseconds: 1000));
-      _flutterMImcInstance();
+      Navigator.pushNamedAndRemoveUntil(rooContext, "/login", ModalRoute.withName('/'), arguments: {"isAnimate": false});
     }
   }
 
@@ -272,10 +270,10 @@ class GlobalProvide with ChangeNotifier {
       isChatFullLoading = false;
       notifyListeners();
       if (response.data["code"] == 200) {
-        // int total = response.data['data']['total'];
+        int total = response.data['data']['total'];
         if(isFirstLoad) messagesRecords[currentContact.fromAccount] = [];
         (response.data['data']['list'] as List).forEach((i){
-          pushLocalMessage(ImMessageModel.fromJson(i));
+          pushLocalMessage(ImMessageModel.fromJson(i), currentContact.fromAccount);
         });
       } else {
         UX.showToast("${response.data["message"]}");
@@ -342,7 +340,7 @@ class GlobalProvide with ChangeNotifier {
     //  发送失败提示
     if (!await flutterMImc.isOnline()) {
       MessageHandle tipsMsg = createMessage(toAccount: toAccount, msgType: "system", content: "您的网络异常，发送失败了~");
-      pushLocalMessage(tipsMsg.localMessage);
+      pushLocalMessage(tipsMsg.localMessage, toAccount);
       return;
     }
 
@@ -361,7 +359,7 @@ class GlobalProvide with ChangeNotifier {
       payload: cloneMsgHandle.localMessage.toBase64(),
     ).toBase64();
     flutterMImc.sendMessage(cloneMsgHandle.sendMessage);
-    if (type != "photo") pushLocalMessage(cloneMsgHandle.localMessage);
+    if (type != "photo") pushLocalMessage(cloneMsgHandle.localMessage, toAccount);
     notifyListeners();
     await Future.delayed(Duration(milliseconds: 10000));
     cloneMsgHandle.localMessage.isShowCancel = false;
@@ -400,7 +398,8 @@ class GlobalProvide with ChangeNotifier {
     const String defaultAvatar = 'http://qiniu.cmp520.com/avatar_degault_3.png';
     msg.avatar = defaultAvatar;
     // 消息是我发的
-    if (msg.fromAccount == serviceUser.id) {
+    if (msg.fromAccount != serviceUser.id && msg.fromAccount != robot.id && msg.fromAccount > 5000) {
+      print("${msg.bizType} ====== ${msg.fromAccount}");
       /// 这里如果是接入业务平台可替换成用户头像和昵称
       /// if (uid == myUid)  msg.avatar = MyAvatar
       /// if (uid == myUid)  msg.nickname = MyNickname
@@ -498,7 +497,7 @@ class GlobalProvide with ChangeNotifier {
             deleteMessage(message);
             break;
         }
-        pushLocalMessage(message);
+        pushLocalMessage(message, message.fromAccount);
         notifyListeners();
       });
     } catch (e) {
@@ -507,15 +506,14 @@ class GlobalProvide with ChangeNotifier {
   }
 
   /// 处理消息
-  void pushLocalMessage(ImMessageModel message){
+  void pushLocalMessage(ImMessageModel message, int account){
     if(message.bizType == 'pong' || message.bizType == "handshake" ||  message.bizType == "contacts"){
       return;
     }
     ImMessageModel newMsg = _handlerMessage(message);
-    int fromAccount = newMsg.fromAccount;
-    List<ImMessageModel> messages = messagesRecords[fromAccount] ?? [];
+    List<ImMessageModel> messages = messagesRecords[account] ?? [];
     messages.add(newMsg);
-    messagesRecords[fromAccount] = messages;
+    messagesRecords[account] = messages;
     notifyListeners();
   }
 
@@ -527,7 +525,7 @@ class GlobalProvide with ChangeNotifier {
     try {
       if (file == null) return;
       msgHandle = createMessage(toAccount: toAccount, msgType: "photo", content: file.path);
-      pushLocalMessage(msgHandle.localMessage);
+      pushLocalMessage(msgHandle.localMessage, toAccount);
       notifyListeners();
 
       String filePath = file.path;

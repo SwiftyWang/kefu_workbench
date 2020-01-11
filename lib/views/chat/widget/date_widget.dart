@@ -7,8 +7,8 @@ class DateWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: 23.0,
-      margin: EdgeInsets.symmetric(vertical: 10.0),
+      height: ToPx.size(50),
+      margin: EdgeInsets.symmetric(vertical: ToPx.size(20)),
       constraints: BoxConstraints(
         minWidth: 200.0,
       ),

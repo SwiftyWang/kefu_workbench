@@ -38,7 +38,7 @@ class TextMessage extends StatelessWidget {
 
     Widget msgWidget() {
       return Container(
-        margin: EdgeInsets.only(bottom: 15.0),
+        margin: EdgeInsets.only(bottom: ToPx.size(30)),
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisAlignment:
@@ -47,7 +47,7 @@ class TextMessage extends StatelessWidget {
             _avatar(!isSelf),
             Padding(
               padding: EdgeInsets.only(
-                  left: isSelf ? 0 : 7.0, right: isSelf ? 7.0 : 0),
+                  left: isSelf ? 0 : ToPx.size(15), right: isSelf ? ToPx.size(15) : 0),
               child: Column(
                 crossAxisAlignment:
                     isSelf ? CrossAxisAlignment.end : CrossAxisAlignment.start,
@@ -59,10 +59,10 @@ class TextMessage extends StatelessWidget {
                       GestureDetector(
                         onLongPress: onOperation,
                         child: Container(
-                          margin: EdgeInsets.only(top: 3.0),
-                          constraints: BoxConstraints(maxWidth: 290.0),
+                          margin: EdgeInsets.only(top: ToPx.size(8)),
+                          constraints: BoxConstraints(maxWidth: ToPx.size(550),),
                           padding: EdgeInsets.symmetric(
-                              horizontal: 10.0, vertical: 5.0),
+                              horizontal: ToPx.size(20), vertical: ToPx.size(12)),
                           decoration: BoxDecoration(
                               color: isSelf
                                   ? themeData.primaryColor
@@ -83,7 +83,7 @@ class TextMessage extends StatelessWidget {
                                   BorderRadius.all(Radius.circular(3.0))),
                           child: Text("${message.payload}",
                               style: TextStyle(
-                                  fontSize: 15.0,
+                                  fontSize: ToPx.size(28),
                                   color: isSelf
                                       ? Colors.white
                                       : Colors.black87.withAlpha(180))),

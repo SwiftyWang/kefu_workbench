@@ -68,7 +68,7 @@ class PhotoMessage extends StatelessWidget {
 
     Widget msgWidget() {
       return Container(
-        margin: EdgeInsets.only(bottom: 15.0),
+        margin: EdgeInsets.only(bottom: ToPx.size(30)),
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisAlignment:
@@ -77,7 +77,7 @@ class PhotoMessage extends StatelessWidget {
             _avatar(!isSelf),
             Padding(
               padding: EdgeInsets.only(
-                  left: isSelf ? 0 : 7.0, right: isSelf ? 7.0 : 0),
+                  left: isSelf ? 0 : ToPx.size(15), right: isSelf ? ToPx.size(15) : 0),
               child: Column(
                 crossAxisAlignment:
                     isSelf ? CrossAxisAlignment.end : CrossAxisAlignment.start,
@@ -117,14 +117,13 @@ class PhotoMessage extends StatelessWidget {
                               child: Container(
                                 margin: EdgeInsets.only(top: 3.0),
                                 constraints: BoxConstraints(
-                                  maxWidth: 200.0,
+                                  maxWidth: ToPx.size(400),
                                 ),
                                 child: ClipRRect(
                                     borderRadius:
                                         BorderRadius.all(Radius.circular(5.0)),
                                     child: CachedNetworkImage(
-                                        width: 150.0,
-                                        height: 180.0,
+                                        width: ToPx.size(300),
                                         bgColor: Colors.white,
                                         src: message.payload,
                                         fit: BoxFit.fitWidth)),

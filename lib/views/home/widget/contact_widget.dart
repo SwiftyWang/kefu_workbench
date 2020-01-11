@@ -57,7 +57,19 @@ class ContactWidget extends StatelessWidget{
                 child: Stack(
                   children: <Widget>[
                     Center(
-                      child: Avatar(
+                      child: 
+                      contact.avatar.isEmpty ?
+                      Container(
+                        width: ToPx.size(90),
+                        height: ToPx.size(90),
+                        alignment: Alignment.center,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: Color(0xffc0c4cb)
+                        ),
+                        child: Text("访", style: themeData.textTheme.display1),
+                      ) :
+                      Avatar(
                         size: ToPx.size(90),
                         imgUrl:
                             "${contact.avatar.isEmpty ? 'http://qiniu.cmp520.com/avatar_default.png' : contact.avatar}",
