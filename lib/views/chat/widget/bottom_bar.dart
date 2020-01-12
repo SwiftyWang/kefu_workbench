@@ -6,22 +6,22 @@ class BottomBar extends StatelessWidget{
     this.isShowEmoJiPanel = false,
     this.onHideEmoJiPanel,
     this.onShowEmoJiPanel,
-    this.pickrGalleryImage,
-    this.pickrCameraImage,
+    this.onPickrGalleryImage,
+    this.onPickrCameraImage,
     this.focusNode,
     this.editingController,
     this.onSubmit,
-    this.inputOnChanged,
+    this.onInputChanged,
   });
   final bool isShowEmoJiPanel;
   final VoidCallback onHideEmoJiPanel;
   final VoidCallback onShowEmoJiPanel;
-  final VoidCallback pickrGalleryImage;
-  final VoidCallback pickrCameraImage;
+  final VoidCallback onPickrGalleryImage;
+  final VoidCallback onPickrCameraImage;
   final FocusNode focusNode;
   final TextEditingController editingController;
   final VoidCallback onSubmit;
-  final ValueChanged<String> inputOnChanged;
+  final ValueChanged<String> onInputChanged;
   @override
   Widget build(BuildContext context) {
    ThemeData themeData = Theme.of(context);
@@ -65,7 +65,7 @@ class BottomBar extends StatelessWidget{
                       size: ToPx.size(60),
                     ),
                   ),
-                  onTap: pickrGalleryImage,
+                  onTap: onPickrGalleryImage,
                 ),
                 GestureDetector(
                   child: Container(
@@ -76,7 +76,7 @@ class BottomBar extends StatelessWidget{
                       size: ToPx.size(60),
                     ),
                   ),
-                  onTap: pickrCameraImage,
+                  onTap: onPickrCameraImage,
                 ),
               ],
             ),
@@ -90,7 +90,7 @@ class BottomBar extends StatelessWidget{
                       constraints: BoxConstraints(minHeight: ToPx.size(80)),
                       padding: EdgeInsets.symmetric(horizontal:ToPx.size(10)),
                       child: Input(
-                        placeholder: "请用一句话描述您的问题~",
+                        placeholder: "请输入内容~",
                         focusNode: focusNode,
                         controller: editingController,
                         minLines: 1,
@@ -105,7 +105,7 @@ class BottomBar extends StatelessWidget{
                             ? TextInputAction.send
                             : TextInputAction.newline,
                         onChanged: (String value) {
-                          inputOnChanged(value);
+                          onInputChanged(value);
                         },
                       ))),
               Offstage(

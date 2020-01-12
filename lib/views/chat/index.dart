@@ -1,3 +1,4 @@
+import 'package:image_picker/image_picker.dart';
 import 'package:kefu_workbench/core_flutter.dart';
 import 'package:kefu_workbench/provider/chat.dart';
 import 'package:kefu_workbench/provider/global.dart';
@@ -10,31 +11,10 @@ import 'widget/photo_message.dart';
 import 'widget/popup_menu.dart';
 import 'widget/system_message.dart';
 import 'widget/text_message.dart';
-class ChatPage extends StatefulWidget {
+
+class ChatPage extends StatelessWidget {
   final Map<dynamic, dynamic> arguments;
   ChatPage({this.arguments});
-  @override
-  ChatPageState createState() => ChatPageState();
-}
-class ChatPageState extends State<ChatPage> {
-
-  /// 是否显示表情面板
-  bool _isShowEmoJiPanel = false;
-
-  /// 输入键盘相关
-  FocusNode _focusNode = FocusNode();
-  TextEditingController _editingController = TextEditingController();
-
-  @override
-  void initState(){
-
-    super.initState();
-  }
-
-
-  _onHideEmoJiPanel(){
-
-  }
 
   @override
   Widget build(_) {
@@ -58,7 +38,7 @@ class ChatPageState extends State<ChatPage> {
                   Expanded(
                     child: GestureDetector(
                       onPanDown: (_) {
-                        _onHideEmoJiPanel();
+                        chatState.onHideEmoJiPanel();
                         FocusScope.of(context).requestFocus(FocusNode());
                       },
                       child: 
@@ -67,6 +47,7 @@ class ChatPageState extends State<ChatPage> {
                         child: loadingIcon(size: ToPx.size(50)),
                       ) :
                       CustomScrollView(
+                        controller: chatState.scrollController,
                         reverse: true,
                         slivers: <Widget>[
                           SliverPadding(
@@ -109,8 +90,7 @@ class ChatPageState extends State<ChatPage> {
                                 case "system":
                                   return SystemMessage(
                                     message: _msg,
-                                    isSelf:
-                                        _msg.fromAccount == globalState.serviceUser.id,
+                                    isSelf: _msg.fromAccount == globalState.serviceUser.id,
                                   );
                                 case "knowledge":
                                   return KnowledgeMessage(
@@ -158,7 +138,15 @@ class ChatPageState extends State<ChatPage> {
                       top: false,
                       child: Column(
                         children: <Widget>[
-                          BottomBar(),
+                          BottomBar(
+                            editingController: chatState.editingController,
+                            focusNode: chatState.focusNode,
+                            onSubmit: chatState.onSubmit,
+                            isShowEmoJiPanel: chatState.isShowEmoJiPanel,
+                            onInputChanged: chatState.onInputChanged,
+                            onPickrCameraImage: () => chatState.onPickImage(ImageSource.camera),
+                            onPickrGalleryImage: () => chatState.onPickImage(ImageSource.gallery)
+                          ),
                           EmoJiPanel(),
                         ],
                       ),
