@@ -349,6 +349,7 @@ class GlobalProvide with ChangeNotifier {
       "transfer_account": 0,
       "payload": "$content"
     };
+    printf(payloadMap);
     message.payload = base64Encode(utf8.encode(json.encode(payloadMap)));
     return MessageHandle(
         sendMessage: message,
@@ -399,7 +400,13 @@ class GlobalProvide with ChangeNotifier {
   Future<void> getContacts({bool isFullLoading = false}) async{
      Response response = await contactService.getContacts();
      if(response.statusCode == 200){
-      contacts = (response.data['data'] as List).map((i) => ContactModel.fromJson(i)).toList();
+      contacts = (response.data['data'] as List).map((i){
+        ContactModel contact = ContactModel.fromJson(i);
+        if(currentContact != null && contact.fromAccount == currentContact.fromAccount){
+          currentContact = contact;
+        }
+        return ContactModel.fromJson(i);
+      }).toList();
       notifyListeners();
     }else{
       UX.showToast(response.data["message"]);

@@ -1,3 +1,4 @@
+import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:kefu_workbench/provider/global.dart';
 
@@ -114,13 +115,108 @@ class ChatProvide with ChangeNotifier {
 
   /// 结束会话
   void onShowEndMessageAlert(BuildContext context){
-     GlobalProvide globalState = GlobalProvide.getInstance();
+    GlobalProvide globalState = GlobalProvide.getInstance();
     UX.alert(context,
       content: "您确定结束当前会话吗?\r\n强制结束可能会被客户投诉！",
       confirmText: "结束",
       cancelText: "取消",
       onConfirm: () => globalState.sendEndMessage()
     );
+  }
+
+  /// 操作消息
+  void onOperation(BuildContext context, ImMessageModel message){
+    GlobalProvide globalState = GlobalProvide.getInstance();
+    bool isLocalImage = message.payload != null && !message.payload.contains(RegExp(r'^(http://|https://)'));
+    bool isPhoto = message.bizType == "photo";
+    Widget _delete() {
+      return CupertinoDialogAction(
+        child: const Text('删除'),
+        onPressed: () {
+          if(message.fromAccount != globalState.serviceUser.id && message.fromAccount != globalState.robot.id){
+            globalState.deleteMessage(message.fromAccount, message.key);
+          }else{
+            globalState.deleteMessage(message.toAccount, message.key);
+          }
+          globalState.messageService.removeMeessge(
+            toAccount: message.toAccount,
+            fromAccount: message.fromAccount,
+            key: message.key,
+          );
+          Navigator.pop(context);
+        },
+      );
+    }
+
+    Widget _cancel() {
+      return CupertinoDialogAction(
+        child: const Text('撤回'),
+        onPressed: () {
+          onCancelMessage(message);
+          Navigator.pop(context);
+        },
+      );
+    }
+
+    Widget _close() {
+      return CupertinoDialogAction(
+        child: const Text('取消'),
+        isDestructiveAction: true,
+        onPressed: () {
+          Navigator.pop(context);
+        },
+      );
+    }
+
+    Widget _copy() {
+      return CupertinoDialogAction(
+        child: Text(isPhoto ? "复制图片链接" : '复制'),
+        onPressed: () {
+          Clipboard.setData(ClipboardData(text: message.payload));
+          Navigator.pop(context);
+          UX.alert(context, content: "消息已复制到粘贴板");
+        },
+      );
+    }
+
+    List<Widget> actions = [];
+    if (message.isShowCancel) actions.add(_cancel());
+    actions.add(_delete());
+    if (message.bizType == "text") actions.add(_copy());
+    if (isPhoto && !isLocalImage) {
+      actions.add(_copy());
+    }
+    actions.add(_close());
+
+    showCupertinoDialog(
+        context: context,
+        builder: (_) {
+          return CupertinoAlertDialog(
+              title: Text(
+                '消息操作',
+                style: TextStyle(
+                    color: Colors.black.withAlpha(150), fontSize: ToPx.size(32)),
+              ),
+              content: isPhoto
+                  ? SizedBox(
+                      width: ToPx.size(200),
+                      height: ToPx.size(200),
+                      child: CachedNetworkImage(
+                          width: ToPx.size(200),
+                          height: ToPx.size(200),
+                          bgColor: Colors.transparent,
+                          fit: BoxFit.contain,
+                          src: "${message.payload}..."),
+                    )
+                  : Text(
+                      message.payload,
+                      maxLines: 8,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(height: 1.5, color: Colors.black87),
+                    ),
+              actions: actions);
+        });
+
   }
 
 

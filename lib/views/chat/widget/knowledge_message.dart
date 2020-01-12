@@ -6,10 +6,9 @@ import 'date_widget.dart';
 typedef SendKnowledgeMessage(KnowledgeModel message);
 
 class KnowledgeMessage extends StatelessWidget {
-  KnowledgeMessage({this.message, this.onSend});
+  KnowledgeMessage({this.message, this.onOperation});
   final ImMessageModel message;
-  final SendKnowledgeMessage onSend;
-
+  final VoidCallback onOperation;
 
   List<KnowledgeModel> get knowledgeModelList =>
       ((json.decode(message.payload) as List)
@@ -51,7 +50,9 @@ class KnowledgeMessage extends StatelessWidget {
                           ),
                         ],
                         borderRadius: BorderRadius.all(Radius.circular(5))),
-                    child: Column(
+                    child: GestureDetector(
+                      onLongPress: onOperation,
+                      child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: <Widget>[
                         Text("以下是您关心的相关问题？", style: themeData.textTheme.title),
@@ -85,6 +86,7 @@ class KnowledgeMessage extends StatelessWidget {
                           }).toList(),
                         ),
                       ],
+                    ),
                     ),
                   )
                 ],

@@ -34,6 +34,9 @@ const String API_GET_READ = "/public/read";
 /// 获取历史消息记录
 const String API_GET_MESSAGE = "/message/list";
 
+/// 删除单条消息
+const String API_REMOVE_MESSAGE = "/message/remove";
+
 /// 清除未读消息    /uid
 const String API_CLEAN_READ = "/public/clean_read";
 

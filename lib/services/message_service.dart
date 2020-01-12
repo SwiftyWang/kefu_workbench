@@ -28,6 +28,21 @@ class MessageService extends BaseServices {
       return error(e, API_GET_MESSAGE);
     }
   }
+
+   // 删除单条消息
+  Future<Response> removeMeessge(
+      {int toAccount, int fromAccount, int key}) async {
+    try {
+      Response response = await http.post(API_REMOVE_MESSAGE, data: {
+        "to_account": toAccount,
+        "from_account": fromAccount,
+        "key": key
+      });
+      return response;
+    } on DioError catch (e) {
+      return error(e, API_REMOVE_MESSAGE);
+    }
+  }
   
 
 

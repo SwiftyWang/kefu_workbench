@@ -93,7 +93,7 @@ class ChatPage extends StatelessWidget {
                                     message: _msg,
                                     isSelf: _msg.fromAccount != globalState.currentContact.fromAccount,
                                     onCancel: () => chatState.onCancelMessage(_msg),
-                                    onOperation: () => {},
+                                    onOperation: () => chatState.onOperation(context, _msg),
                                   );
                                 case "photo":
                                   return PhotoMessage(
@@ -101,7 +101,7 @@ class ChatPage extends StatelessWidget {
                                     isSelf:
                                         _msg.fromAccount == globalState.serviceUser.id,
                                     onCancel: () => chatState.onCancelMessage(_msg),
-                                    onOperation: () => {},
+                                    onOperation: () => chatState.onOperation(context, _msg),
                                   );
                                 case "end":
                                 case "transfer":
@@ -115,7 +115,7 @@ class ChatPage extends StatelessWidget {
                                 case "knowledge":
                                   return KnowledgeMessage(
                                     message: _msg,
-                                    onSend: (msg) {},
+                                    onOperation: () => chatState.onOperation(context, _msg),
                                   );
                                 default:
                                   return SizedBox();
