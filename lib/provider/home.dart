@@ -34,8 +34,8 @@ class HomeProvide with ChangeNotifier {
     notifyListeners();
   }
 
-   /// ImService
-  ImService imService = ImService.getInstance();
+   /// MessageService
+  MessageService messageService = MessageService.getInstance();
 
   /// 退出登录
   void logout(BuildContext context) {

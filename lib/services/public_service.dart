@@ -14,6 +14,17 @@ class PublicService extends BaseServices {
     return instance;
   }
 
+    // 注册IM
+  Future<Response> registerImAccount({int accountId}) async {
+    try {
+      Response response = await http
+          .post(API_REGISTER, data: {"type": 1, "account_id": accountId});
+      return response;
+    } on DioError catch (e) {
+      return error(e, API_REGISTER);
+    }
+  }
+
   // 获取上传配置信息
   Future<Response> getUploadSecret() async {
     try {
@@ -33,6 +44,8 @@ class PublicService extends BaseServices {
       return error(e, API_GET_ROBOT);
     }
   }
+
+  
 
   // 一分钟上报一次我的活动
   Future<Response> upImLastActivity() async {

@@ -10,6 +10,9 @@ const String API_LOGOUT = "/auth/logout";
 /// 获取会话列表
 const String API_CONTACTS = "/contact/list";
 
+/// 获取快捷语
+const String API_GET_SHORTCUT = "/shortcut/list";
+
 /// 获取个人信息
 const String API_GET_ME = "/admin/me";
 

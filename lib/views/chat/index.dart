@@ -8,13 +8,15 @@ import 'widget/bottom_bar.dart';
 import 'widget/emoji_panel.dart';
 import 'widget/knowledge_message.dart';
 import 'widget/photo_message.dart';
-import 'widget/popup_menu.dart';
+import 'widget/shortcut_panel.dart';
 import 'widget/system_message.dart';
 import 'widget/text_message.dart';
+
 
 class ChatPage extends StatelessWidget {
   final Map<dynamic, dynamic> arguments;
   ChatPage({this.arguments});
+  final ChatProvide chatProvide = ChatProvide();
 
   @override
   Widget build(_) {
@@ -22,8 +24,10 @@ class ChatPage extends StatelessWidget {
       builder: (context, globalState, _){
         return PageContext(builder: (context){
           ThemeData themeData = Theme.of(context);
-          return Consumer<ChatProvide>(
-            builder: (context, chatState , _){
+          return ChangeNotifierProvider<ChatProvide>(
+            create: (_) => chatProvide,
+            child: Consumer<ChatProvide>(
+              builder: (context, chatState , _){
               return Scaffold(
                 appBar: customAppBar(
                   title: Text(
@@ -31,13 +35,29 @@ class ChatPage extends StatelessWidget {
                     style: themeData.textTheme.display1,
                   ),
                   actions: [
-                    PopupMenu()
+                    Offstage(
+                      offstage: globalState.currentContact.isSessionEnd == 1,
+                      child: Button(
+                      useIosStyle: true,
+                      width: ToPx.size(110),
+                      color: Colors.transparent,
+                      onPressed: () => chatState.onShowEndMessageAlert(context),
+                      child: Text("结束会话", style: themeData.textTheme.caption.copyWith(
+                        color: Colors.amber
+                      ),),
+                    ),
+                    ),
+                    IconButton(
+                      icon: Icon(Icons.person_pin),
+                      onPressed: (){},
+                    )
                   ]
                 ),
                 body: Column(children: <Widget>[
                   Expanded(
                     child: GestureDetector(
                       onPanDown: (_) {
+                        chatState.onToggleShortcutPanel(false);
                         chatState.onHideEmoJiPanel();
                         FocusScope.of(context).requestFocus(FocusNode());
                       },
@@ -72,7 +92,7 @@ class ChatPage extends StatelessWidget {
                                   return TextMessage(
                                     message: _msg,
                                     isSelf: _msg.fromAccount != globalState.currentContact.fromAccount,
-                                    onCancel: () => {},
+                                    onCancel: () => chatState.onCancelMessage(_msg),
                                     onOperation: () => {},
                                   );
                                 case "photo":
@@ -80,7 +100,7 @@ class ChatPage extends StatelessWidget {
                                     message: _msg,
                                     isSelf:
                                         _msg.fromAccount == globalState.serviceUser.id,
-                                    onCancel: () =>  {},
+                                    onCancel: () => chatState.onCancelMessage(_msg),
                                     onOperation: () => {},
                                   );
                                 case "end":
@@ -143,11 +163,28 @@ class ChatPage extends StatelessWidget {
                             focusNode: chatState.focusNode,
                             onSubmit: chatState.onSubmit,
                             isShowEmoJiPanel: chatState.isShowEmoJiPanel,
+                            onShowEmoJiPanel: chatState.onShowEmoJiPanel,
+                            onHideEmoJiPanel: chatState.onHideEmoJiPanel,
                             onInputChanged: chatState.onInputChanged,
                             onPickrCameraImage: () => chatState.onPickImage(ImageSource.camera),
-                            onPickrGalleryImage: () => chatState.onPickImage(ImageSource.gallery)
+                            onPickrGalleryImage: () => chatState.onPickImage(ImageSource.gallery),
+                            enabled: globalState.currentContact.isSessionEnd == 0,
+                            onToggleShortcutPanel: () => chatState.onToggleShortcutPanel(!chatState.isShowShortcutPanel),
+                            onToggleTransferPanel: chatState.onToggleTransferPanel,
                           ),
-                          EmoJiPanel(),
+                          EmoJiPanel(
+                            isShow: chatState.isShowEmoJiPanel,
+                            onSelected: (value){
+                              chatState.editingController.text = chatState.editingController.value.text + value;
+                              chatState.editingController.selection = 
+                              TextSelection.collapsed(offset: chatState.editingController.value.text.length);
+                            },
+                          ),
+                          ShortcutPanel(
+                            onSelectedShortcut: chatState.onSelectedShortcut,
+                            shortcuts: globalState.shortcuts,
+                            isShowShortcutPanel: chatState.isShowShortcutPanel,
+                          )
                         ],
                       ),
                     ),
@@ -155,7 +192,7 @@ class ChatPage extends StatelessWidget {
                 ],)
               );
             },
-          );
+          ));
         });
       }
     );

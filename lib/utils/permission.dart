@@ -2,6 +2,7 @@
 // 检测系统权限
 import 'package:kefu_workbench/core_flutter.dart';
 import 'package:permission_handler/permission_handler.dart';
+export 'package:permission_handler/permission_handler.dart';
 
 Future<bool> checkPermission(context, {PermissionGroup permissionGroupType}) async {
   try {

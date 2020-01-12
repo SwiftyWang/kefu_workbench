@@ -12,8 +12,7 @@ Widget createApp() {
   return MultiProvider(
       providers: [
         ChangeNotifierProvider.value(value: GlobalProvide.getInstance()),
-        ChangeNotifierProvider.value(value: HomeProvide()),
-        ChangeNotifierProvider.value(value: ChatProvide()),
+        ChangeNotifierProvider.value(value: HomeProvide())
       ],
       child: _MyApp()
   );

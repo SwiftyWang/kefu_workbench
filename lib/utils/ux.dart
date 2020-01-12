@@ -71,12 +71,14 @@ class UX {
           return CupertinoAlertDialog(
             title: title.isEmpty ? null : Padding(
               padding: EdgeInsets.only(bottom: ToPx.size(20)),
-              child: Text(title, style: themeData.textTheme.title.copyWith(fontSize: 16.0)),
+              child: Text(title, style: themeData.textTheme.title.copyWith(fontSize: ToPx.size(32))),
             ),
-            content: content is Widget ? content : Text('$content'),
+            content: content is Widget ? content : Text('$content', style: themeData.textTheme.body1,),
             actions: <Widget>[
               CupertinoDialogAction(
-                child: Text(cancelText),
+                child: Text(cancelText, style: themeData.textTheme.title.copyWith(
+                  color: themeData.errorColor
+                )),
                 isDestructiveAction: true,
                 onPressed: () {
                   Navigator.pop(context);
@@ -86,7 +88,7 @@ class UX {
               CupertinoDialogAction(
                 child: Text(
                   confirmText,
-                  style: TextStyle(color: themeData.primaryColor),
+                  style: themeData.textTheme.title,
                 ),
                 isDefaultAction: true,
                 onPressed: () {

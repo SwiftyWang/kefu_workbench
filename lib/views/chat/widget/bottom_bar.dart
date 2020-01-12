@@ -12,10 +12,16 @@ class BottomBar extends StatelessWidget{
     this.editingController,
     this.onSubmit,
     this.onInputChanged,
+    this.enabled = true,
+    this.onToggleTransferPanel,
+    this.onToggleShortcutPanel,
   });
+  final bool enabled;
   final bool isShowEmoJiPanel;
   final VoidCallback onHideEmoJiPanel;
   final VoidCallback onShowEmoJiPanel;
+  final VoidCallback onToggleTransferPanel;
+  final VoidCallback onToggleShortcutPanel;
   final VoidCallback onPickrGalleryImage;
   final VoidCallback onPickrCameraImage;
   final FocusNode focusNode;
@@ -78,6 +84,28 @@ class BottomBar extends StatelessWidget{
                   ),
                   onTap: onPickrCameraImage,
                 ),
+                GestureDetector(
+                  child: Container(
+                    padding: EdgeInsets.all(3.0),
+                    child: Icon(
+                      Icons.assignment,
+                      color: Colors.black26,
+                      size: ToPx.size(58),
+                    ),
+                  ),
+                  onTap: onToggleShortcutPanel,
+                ),
+                GestureDetector(
+                  child: Container(
+                    padding: EdgeInsets.all(3.0),
+                    child: Icon(
+                      Icons.swap_horizontal_circle,
+                      color: Colors.black26,
+                      size: ToPx.size(58),
+                    ),
+                  ),
+                  onTap: onToggleTransferPanel,
+                ),
               ],
             ),
           ),
@@ -90,10 +118,11 @@ class BottomBar extends StatelessWidget{
                       constraints: BoxConstraints(minHeight: ToPx.size(80)),
                       padding: EdgeInsets.symmetric(horizontal:ToPx.size(10)),
                       child: Input(
-                        placeholder: "请输入内容~",
+                        placeholder: enabled ? "请输入内容~" : "当前会话已结束~",
                         focusNode: focusNode,
                         controller: editingController,
                         minLines: 1,
+                        enabled: enabled,
                         maxLines: 5,
                         maxLength: 200,
                         border: Border.all(style: BorderStyle.none, width: 0.0),

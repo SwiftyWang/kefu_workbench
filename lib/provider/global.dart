@@ -33,8 +33,8 @@ class GlobalProvide with ChangeNotifier {
   ThemeProvide get themeProvide =>  ThemeProvide.getInstance();
   ThemeData get getCurrentTheme => themeProvide.getCurrentTheme();
   
-  /// ImService
-  ImService imService = ImService.getInstance();
+  /// MessageService
+  MessageService messageService = MessageService.getInstance();
 
   /// AdminService
   AdminService adminService = AdminService.getInstance();
@@ -42,11 +42,20 @@ class GlobalProvide with ChangeNotifier {
   /// PublicService
   PublicService publicService = PublicService.getInstance();
 
+  /// ContactService
+  ContactService contactService = ContactService.getInstance();
+
+  /// ShortcutService
+  ShortcutService shortcutService = ShortcutService.getInstance();
+
   /// GlobalProvide实例
   static GlobalProvide instance;
 
   /// 聊天列表数据
   List<ContactModel> contacts = [];
+
+  /// 快捷语
+  List<ShortcutModel> shortcuts = [];
 
   /// 客服信息
   ServiceUserModel serviceUser;
@@ -113,6 +122,7 @@ class GlobalProvide with ChangeNotifier {
       await _getMe();
       await getContacts();
       await _upImLastActivity();
+      await getShortcuts();
     }
   }
 
@@ -153,7 +163,17 @@ class GlobalProvide with ChangeNotifier {
       } else {
         UX.showToast(response.data['message']);
       }
+  }
 
+  /// 获取快捷语
+  Future<void> getShortcuts() async {
+     Response response = await shortcutService.getShortcuts();
+      if (response.data["code"] == 200) {
+        shortcuts = (response.data['data'] as List).map((i) => ShortcutModel.fromJson(i)).toList();
+        notifyListeners();
+      } else {
+        UX.showToast(response.data['message']);
+      }
   }
 
   /// 设置serviceUser
@@ -178,7 +198,7 @@ class GlobalProvide with ChangeNotifier {
   /// 注册IM账号
   Future<void> _registerImAccount() async {
     try {
-      Response response = await imService.registerImAccount(accountId: serviceUser.id);
+      Response response = await publicService.registerImAccount(accountId: serviceUser.id);
       if (response.data["code"] == 200) {
         imTokenInfo =ImTokenInfoModel.fromJson(response.data["data"]["token"]["data"]);
       } else {
@@ -222,6 +242,7 @@ class GlobalProvide with ChangeNotifier {
     });
     notifyListeners();
     GlobalProvide.getInstance().getMessageRecord(isFirstLoad: true);
+    getContacts();
   }
 
   /// 更新客服上线状态
@@ -266,7 +287,7 @@ class GlobalProvide with ChangeNotifier {
       if(currentUserMessagesRecords.length > 0 && !isFirstLoad){
         timer = currentUserMessagesRecords[0].timestamp;
       }
-      Response response = await imService.getMessageRecord(timestamp: timer, pageSize: pageSize, account: account ?? currentContact.fromAccount);
+      Response response = await messageService.getMessageRecord(timestamp: timer, pageSize: pageSize, account: account ?? currentContact.fromAccount);
       isChatFullLoading = false;
       notifyListeners();
       if (response.data["code"] == 200) {
@@ -310,15 +331,14 @@ class GlobalProvide with ChangeNotifier {
   MessageHandle createMessage(
       {int toAccount, String msgType, dynamic content}) {
     MIMCMessage message = MIMCMessage();
-    String millisecondsSinceEpoch =
-        DateTime.now().millisecondsSinceEpoch.toString();
-    int timestamp = int.parse(
-        millisecondsSinceEpoch.substring(0, millisecondsSinceEpoch.length - 3));
+    String millisecondsSinceEpoch = DateTime.now().millisecondsSinceEpoch.toString();
+    int timestamp = int.parse(millisecondsSinceEpoch.substring(0, millisecondsSinceEpoch.length - 3));
     message.timestamp = timestamp;
     message.bizType = msgType;
     message.toAccount = toAccount.toString();
+    message.fromAccount = serviceUser.id.toString();
     Map<String, dynamic> payloadMap = {
-      "from_account": serviceUser.id ?? robot.id,
+      "from_account": serviceUser.id,
       "to_account": toAccount,
       "biz_type": msgType,
       "version": "0",
@@ -327,7 +347,7 @@ class GlobalProvide with ChangeNotifier {
       "timestamp": timestamp,
       "read": 0,
       "transfer_account": 0,
-      "payload": content
+      "payload": "$content"
     };
     message.payload = base64Encode(utf8.encode(json.encode(payloadMap)));
     return MessageHandle(
@@ -335,7 +355,7 @@ class GlobalProvide with ChangeNotifier {
         localMessage: ImMessageModel.fromJson(payloadMap)..isShowCancel = true);
   }
 
-  /// 发送消息
+  /// 发送消息处理
   void sendMessage(MessageHandle msgHandle) async {
     //  发送失败提示
     if (!await flutterMImc.isOnline()) {
@@ -343,8 +363,10 @@ class GlobalProvide with ChangeNotifier {
       pushLocalMessage(tipsMsg.localMessage, toAccount);
       return;
     }
-
-    flutterMImc.sendMessage(msgHandle.sendMessage);
+    Timer.periodic(Duration(milliseconds: 150), (timer){
+      flutterMImc.sendMessage(msgHandle.sendMessage);
+      timer.cancel();
+    });
 
     /// 消息入库（远程）
     MessageHandle cloneMsgHandle = msgHandle.clone();
@@ -375,7 +397,7 @@ class GlobalProvide with ChangeNotifier {
 
   /// 获取工作台聊天列表
   Future<void> getContacts({bool isFullLoading = false}) async{
-     Response response = await imService.getContacts();
+     Response response = await contactService.getContacts();
      if(response.statusCode == 200){
       contacts = (response.data['data'] as List).map((i) => ContactModel.fromJson(i)).toList();
       notifyListeners();
@@ -384,13 +406,30 @@ class GlobalProvide with ChangeNotifier {
     }
   }
 
-  /// 删除消息
-  void deleteMessage(ImMessageModel msg) {
-    // if (msg == null) return;
-    // int index = messagesRecord.indexWhere(
-    //     (i) => i.key == msg.key && i.fromAccount == msg.fromAccount);
-    // messagesRecord.removeAt(index);
-    // notifyListeners();
+  /// 撤回消息
+  void sendCancelMessage(ImMessageModel msg) {
+    MessageHandle msgHandle = createMessage(toAccount: toAccount, msgType: "cancel", content: msg.key);
+    sendMessage(msgHandle);
+  }
+
+  /// 结束会话
+  void sendEndMessage() {
+    if(currentContact == null || toAccount == null) return;
+    MessageHandle msgHandle = createMessage(toAccount: toAccount, msgType: "end", content: "");
+    sendMessage(msgHandle);
+    currentContact.isSessionEnd = 1;
+    notifyListeners();
+  }
+
+  /// 删除本地消息
+  void deleteMessage(int account, int key){
+    try{
+      int index = messagesRecords[account].indexWhere((i) => i.key == key);
+      messagesRecords[account].removeAt(index);
+      notifyListeners();
+    }catch(e){
+      printf(e);
+    }
   }
 
   // 处理头像昵称
@@ -399,7 +438,6 @@ class GlobalProvide with ChangeNotifier {
     msg.avatar = defaultAvatar;
     // 消息是我发的
     if (msg.fromAccount != serviceUser.id && msg.fromAccount != robot.id && msg.fromAccount > 5000) {
-      print("${msg.bizType} ====== ${msg.fromAccount}");
       /// 这里如果是接入业务平台可替换成用户头像和昵称
       /// if (uid == myUid)  msg.avatar = MyAvatar
       /// if (uid == myUid)  msg.nickname = MyNickname
@@ -470,7 +508,13 @@ class GlobalProvide with ChangeNotifier {
         printf("收到消息===${message.toJson()}");
         switch (message.bizType) {
           case "contacts":
-            contacts = (json.decode(message.payload) as List).map((i) => ContactModel.fromJson(i)).toList();
+            contacts = (json.decode(message.payload) as List).map((i){
+              ContactModel contact = ContactModel.fromJson(i);
+              if(currentContact != null && contact.fromAccount == currentContact.fromAccount){
+                currentContact = contact;
+              }
+              return ContactModel.fromJson(i);
+            }).toList();
             break;
           case "handshake":
             MessageHandle msgHandle = createMessage(toAccount: message.fromAccount, msgType: "text", content: serviceUser.autoReply);
@@ -482,9 +526,11 @@ class GlobalProvide with ChangeNotifier {
           case "end":
           case "timeout":
             advanceText = "";
+            getContacts();
             break;
           case "pong":
             advanceText = message.payload;
+            notifyListeners();
             if (isPong) return;
             isPong = true;
             notifyListeners();
@@ -494,7 +540,7 @@ class GlobalProvide with ChangeNotifier {
             break;
           case "cancel":
             message.key = int.parse(message.payload);
-            deleteMessage(message);
+            deleteMessage(message.fromAccount, message.key);
             break;
         }
         pushLocalMessage(message, message.fromAccount);
@@ -505,7 +551,7 @@ class GlobalProvide with ChangeNotifier {
     }
   }
 
-  /// 处理消息
+  /// 处理接收消息
   void pushLocalMessage(ImMessageModel message, int account){
     if(message.bizType == 'pong' || message.bizType == "handshake" ||  message.bizType == "contacts"){
       return;
@@ -518,8 +564,14 @@ class GlobalProvide with ChangeNotifier {
   }
 
 
-  /// 上传发送图片
-  void sendPhoto(File file) async {
+  /// 发送文本消息
+  void sendTextMessage(String text){
+    MessageHandle msgHandle = createMessage(toAccount: toAccount, msgType: "text", content: text);
+    sendMessage(msgHandle);
+  }
+
+  /// 发送图片
+  void sendPhotoMessage(File file) async {
     debugPrint("${uploadSecret.toJson()}");
     MessageHandle msgHandle;
     try {
@@ -573,7 +625,7 @@ class GlobalProvide with ChangeNotifier {
         /// 其他
       } else {}
 
-      Response response = await ImService.instance.http.post(uploadUrl, data: formData,
+      Response response = await PublicService.instance.http.post(uploadUrl, data: formData,
           onSendProgress: (int sent, int total) {
         msgHandle.localMessage.uploadProgress = (sent / total * 100).ceil();
         notifyListeners();
@@ -589,24 +641,24 @@ class GlobalProvide with ChangeNotifier {
             break;
         }
       } else {
-        deleteMessage(msgHandle.localMessage);
+        deleteMessage(msgHandle.localMessage.toAccount, msgHandle.localMessage.key);
         MessageHandle systemMsgHandle = createMessage(
-            toAccount: toAccount, msgType: "system", content: "图片上传失败！");
-        // messagesRecord.add(_handlerMessage(systemMsgHandle.localMessage));
+            toAccount: toAccount, msgType: "system", content: "图片上传失败~");
+            pushLocalMessage(systemMsgHandle.localMessage, toAccount);
       }
     } catch (e) {
-      deleteMessage(msgHandle.localMessage);
+      deleteMessage(msgHandle.localMessage.toAccount, msgHandle.localMessage.key);
       MessageHandle systemMsgHandle = createMessage(
           toAccount: toAccount, msgType: "system", content: "图片上传失败~");
-      // messagesRecord.add(_handlerMessage(systemMsgHandle.localMessage));
-      debugPrint("图片上传失败！ =======$e");
+     pushLocalMessage(systemMsgHandle.localMessage, toAccount);
     }
   }
 
   // 消息内容变,ping, pong
   bool isSendPong = false;
-  void inputOnChanged(String value) async {
+  void sendPongMessage(String value) async {
     if (isSendPong) return;
+    if(currentContact == null) return;
     isSendPong = true;
     MessageHandle _msgHandle =
         createMessage(toAccount: toAccount, msgType: "pong", content: value);
