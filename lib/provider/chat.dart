@@ -1,3 +1,4 @@
+import 'package:dio/dio.dart';
 import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:kefu_workbench/provider/global.dart';
@@ -18,6 +19,48 @@ class ChatProvide with ChangeNotifier {
     if(globalProvide.shortcuts.length == 0){
       globalProvide.getShortcuts();
     }
+    scrollController = ScrollController();
+    scrollController.addListener(() => _onScrollViewControllerAddListener());
+    globalProvide.getOnlineAdmins();
+  }
+
+   // 监听滚动条
+  void _onScrollViewControllerAddListener() async {
+    try {
+      GlobalProvide globalState = GlobalProvide.getInstance();
+      ScrollPosition position = scrollController?.position;
+      // 判断是否到底部
+      if (position.pixels + 15.0 > position.maxScrollExtent &&
+          !globalState.isLoadRecordEnd &&
+          !globalState.isLoadingMorRecord) {
+        globalState.setIsLoadingMorRecord(true);
+        await Future.delayed(Duration(milliseconds: 1000));
+        await globalState.getMessageRecord();
+        globalState.setIsLoadingMorRecord(false);
+      }
+    } catch (e) {
+      debugPrint(e);
+    }
+  }
+
+   /// 选中客服
+  void onSelectedSeviceUser(ServiceUserModel user){
+    GlobalProvide globalState = GlobalProvide.getInstance();
+     UX.alert(globalState.rooContext,
+      content: "将该客户转接给 " + (user.nickname ?? user.username)+' ?',
+      confirmText: "转接",
+      cancelText: "取消",
+      onConfirm: () async{
+       Response response = await   globalState.messageService.transformerUser(userAccount: globalState.currentContact.fromAccount, toAccount: user.id);
+        if (response.data["code"] == 200) {
+          onToggleTransferPanel(false);
+          UX.showToast("转接成功");
+          globalState.getContacts();
+        } else {
+          UX.showToast(response.data['message']);
+        }
+      }
+    );
   }
 
   /// 选中快捷语
@@ -32,12 +75,21 @@ class ChatProvide with ChangeNotifier {
   /// 是否显示快捷语面板
   bool isShowShortcutPanel = false;
 
+  /// 是否显示转接面板
+  bool isShowTransferPanel = false;
+
+  /// 可转接的客服
+  List<ServiceUserModel> get serviceOnlineUsers{
+    GlobalProvide globalState = GlobalProvide.getInstance();
+    return globalState.serviceOnlineUsers.where((user) => user.id != globalState.serviceUser.id && user.online != 0).toList();
+  }
+
   /// 输入键盘相关
   FocusNode focusNode;
   TextEditingController editingController = TextEditingController();
 
   /// 滚动条控制器
-  ScrollController scrollController = ScrollController();
+  ScrollController scrollController;
 
   /// 是否显示loading
   bool get isChatFullLoading => GlobalProvide.getInstance().isChatFullLoading;
@@ -86,12 +138,27 @@ class ChatProvide with ChangeNotifier {
   }
 
   /// 显示或隐藏转接面板
-  void onToggleTransferPanel(){
-
+  void onToggleTransferPanel(bool isShow) async{
+    isShowEmoJiPanel = false;
+    onToggleShortcutPanel(false);
+    GlobalProvide globalState = GlobalProvide.getInstance();
+    if(globalState.currentContact == null || globalState.currentContact.isSessionEnd == 1){
+      if(isShow)UX.showToast("当前会话已结束！");
+      return;
+    }
+    if(isShow){
+      globalState.getOnlineAdmins();
+      FocusScope.of(GlobalProvide.getInstance().rooContext).requestFocus(FocusNode());
+      await Future.delayed(Duration(milliseconds: 50));
+    }
+    isShowTransferPanel = isShow;
+    notifyListeners();
   }
 
    /// 显示或隐藏快捷语
   void onToggleShortcutPanel(bool isShow) async{
+    isShowEmoJiPanel = false;
+    onToggleTransferPanel(false);
     GlobalProvide globalState = GlobalProvide.getInstance();
     if(globalState.currentContact == null || globalState.currentContact.isSessionEnd == 1) {
       if(isShow)UX.showToast("当前会话已结束！");
@@ -99,7 +166,7 @@ class ChatProvide with ChangeNotifier {
     }
     if(isShow){
       FocusScope.of(GlobalProvide.getInstance().rooContext).requestFocus(FocusNode());
-      await Future.delayed(Duration(milliseconds: 100));
+      await Future.delayed(Duration(milliseconds: 50));
     }
     onHideEmoJiPanel();
     isShowShortcutPanel = isShow;
@@ -123,6 +190,7 @@ class ChatProvide with ChangeNotifier {
       onConfirm: () => globalState.sendEndMessage()
     );
   }
+
 
   /// 操作消息
   void onOperation(BuildContext context, ImMessageModel message){
@@ -174,7 +242,7 @@ class ChatProvide with ChangeNotifier {
         onPressed: () {
           Clipboard.setData(ClipboardData(text: message.payload));
           Navigator.pop(context);
-          UX.alert(context, content: "消息已复制到粘贴板");
+          UX.showToast("消息已复制到粘贴板");
         },
       );
     }
@@ -206,10 +274,10 @@ class ChatProvide with ChangeNotifier {
                           height: ToPx.size(200),
                           bgColor: Colors.transparent,
                           fit: BoxFit.contain,
-                          src: "${message.payload}..."),
+                          src: "${message.payload}"),
                     )
                   : Text(
-                      message.payload,
+                      message.bizType == "knowledge" ? "相关问题列表..." : message.payload,
                       maxLines: 8,
                       overflow: TextOverflow.ellipsis,
                       style: TextStyle(height: 1.5, color: Colors.black87),
@@ -228,6 +296,7 @@ class ChatProvide with ChangeNotifier {
 
   /// 显示表情背面板
   void onShowEmoJiPanel() async{
+    onToggleTransferPanel(false);
     GlobalProvide globalState = GlobalProvide.getInstance();
     if(globalState.currentContact == null || globalState.currentContact.isSessionEnd == 1){
       UX.showToast("当前会话已结束！");
@@ -236,7 +305,7 @@ class ChatProvide with ChangeNotifier {
     isShowShortcutPanel = false;
     notifyListeners();
     FocusScope.of(GlobalProvide.getInstance().rooContext).requestFocus(FocusNode());
-    await Future.delayed(Duration(milliseconds: 100));
+    await Future.delayed(Duration(milliseconds: 50));
     isShowEmoJiPanel = true;
     notifyListeners();
   }

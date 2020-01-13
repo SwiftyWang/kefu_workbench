@@ -154,15 +154,30 @@ class GlobalProvide with ChangeNotifier {
   /// 获取个人信息
   Future<void> _getMe() async {
      Response response = await adminService.getMe();
-      if (response.data["code"] == 200) {
-        serviceUser = ServiceUserModel.fromJson(response.data['data']);
-        setServiceUser(serviceUser);
-        if(serviceUser.online != 0){
-          flutterMImc?.login();
-        }
-      } else {
-        UX.showToast(response.data['message']);
+    if (response.data["code"] == 200) {
+      serviceUser = ServiceUserModel.fromJson(response.data['data']);
+      setServiceUser(serviceUser);
+      if(serviceUser.online != 0){
+        flutterMImc?.login();
       }
+    } else {
+      UX.showToast(response.data['message']);
+    }
+  }
+
+
+  /// 可转接的客服
+  List<ServiceUserModel> serviceOnlineUsers = [];
+
+   /// 获取客服
+  void getOnlineAdmins() async{
+    Response response = await  adminService.getAdmins(pageOn: 1, pageSize: 1000, online: 3);
+    if (response.data["code"] == 200) {
+      serviceOnlineUsers = (response.data['data']['list'] as List).map((i) => ServiceUserModel.fromJson(i)).toList();
+      notifyListeners();
+    } else {
+      UX.showToast(response.data['message']);
+    }
   }
 
   /// 获取快捷语
@@ -240,9 +255,16 @@ class GlobalProvide with ChangeNotifier {
     Navigator.pushNamed(rooContext, "/chat", arguments: {}).then((_){
      getContacts();
     });
+    isLoadRecordEnd = false;
     notifyListeners();
-    GlobalProvide.getInstance().getMessageRecord(isFirstLoad: true);
+    getMessageRecord(isFirstLoad: true);
     getContacts();
+    _updateCurrentServiceUser();
+  }
+
+  /// 更新当前服务谁
+  void _updateCurrentServiceUser(){
+    adminService.updateCurrentServiceUser(accountId: currentContact.fromAccount);
   }
 
   /// 更新客服上线状态
@@ -275,27 +297,52 @@ class GlobalProvide with ChangeNotifier {
     });
   }
 
+
+  /// 是否加载聊天记录完毕
+  bool isLoadRecordEnd = false;
+
+  /// 是否在加载更多聊天记录
+  bool isLoadingMorRecord = false;
+
+  /// 设置是否在加载中状态
+  void setIsLoadingMorRecord(bool isLoading){
+    isLoadingMorRecord = isLoading;
+    notifyListeners();
+  }
+
   /// 获取服务器消息列表
   Future<void> getMessageRecord({int timestamp, int pageSize = 20, int account, bool isFirstLoad = false}) async {
     try {
       if(currentContact == null) return;
-      int timer = timestamp ?? DateTime.now().millisecondsSinceEpoch;
+      int timer = timestamp ?? 0;
       if(isFirstLoad && currentUserMessagesRecords.length <= 0){
         isChatFullLoading = true;
         notifyListeners();
       }
       if(currentUserMessagesRecords.length > 0 && !isFirstLoad){
         timer = currentUserMessagesRecords[0].timestamp;
+        printf(timer);
       }
       Response response = await messageService.getMessageRecord(timestamp: timer, pageSize: pageSize, account: account ?? currentContact.fromAccount);
       isChatFullLoading = false;
       notifyListeners();
       if (response.data["code"] == 200) {
-        int total = response.data['data']['total'];
-        if(isFirstLoad) messagesRecords[currentContact.fromAccount] = [];
-        (response.data['data']['list'] as List).forEach((i){
-          pushLocalMessage(ImMessageModel.fromJson(i), currentContact.fromAccount);
-        });
+        if(isFirstLoad){
+          messagesRecords[currentContact.fromAccount] = [];
+          (response.data['data']['list'] as List).forEach((i){
+            pushLocalMessage(ImMessageModel.fromJson(i), currentContact.fromAccount, isInsert: !isFirstLoad);
+          });
+        }else{
+          List<ImMessageModel>  messages = (response.data['data']['list'] as List).map((i) => _handlerMessage(ImMessageModel.fromJson(i))).toList();
+          messagesRecords[toAccount].insertAll(0, messages);
+          notifyListeners();
+        }
+
+        if((response.data['data']['list'] as List).length < pageSize){
+          printf("没有更多了");
+          isLoadRecordEnd = true;
+          notifyListeners();
+        }
       } else {
         UX.showToast("${response.data["message"]}");
       }
@@ -536,6 +583,7 @@ class GlobalProvide with ChangeNotifier {
             getContacts();
             break;
           case "pong":
+            if(message.fromAccount != currentContact.fromAccount) return;
             advanceText = message.payload;
             notifyListeners();
             if (isPong) return;
@@ -559,13 +607,17 @@ class GlobalProvide with ChangeNotifier {
   }
 
   /// 处理接收消息
-  void pushLocalMessage(ImMessageModel message, int account){
+  void pushLocalMessage(ImMessageModel message, int account, {bool isInsert = false}){
     if(message.bizType == 'pong' || message.bizType == "handshake" ||  message.bizType == "contacts"){
       return;
     }
     ImMessageModel newMsg = _handlerMessage(message);
     List<ImMessageModel> messages = messagesRecords[account] ?? [];
-    messages.add(newMsg);
+    if(isInsert){
+      messages.insert(0, newMsg);
+    }else{
+      messages.add(newMsg);
+    }
     messagesRecords[account] = messages;
     notifyListeners();
   }

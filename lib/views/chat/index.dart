@@ -11,6 +11,7 @@ import 'widget/photo_message.dart';
 import 'widget/shortcut_panel.dart';
 import 'widget/system_message.dart';
 import 'widget/text_message.dart';
+import 'widget/transfer_panel.dart';
 
 
 class ChatPage extends StatelessWidget {
@@ -59,6 +60,7 @@ class ChatPage extends StatelessWidget {
                       onPanDown: (_) {
                         chatState.onToggleShortcutPanel(false);
                         chatState.onHideEmoJiPanel();
+                        chatState.onToggleTransferPanel(false);
                         FocusScope.of(context).requestFocus(FocusNode());
                       },
                       child: 
@@ -124,7 +126,7 @@ class ChatPage extends StatelessWidget {
                           ),
                           SliverToBoxAdapter(
                             child: Offstage(
-                              offstage: !chatState.isChatFullLoading,
+                              offstage: !globalState.isLoadingMorRecord,
                               child: Padding(
                                 padding: EdgeInsets.symmetric(vertical: 10.0),
                                 child: Row(
@@ -170,7 +172,7 @@ class ChatPage extends StatelessWidget {
                             onPickrGalleryImage: () => chatState.onPickImage(ImageSource.gallery),
                             enabled: globalState.currentContact.isSessionEnd == 0,
                             onToggleShortcutPanel: () => chatState.onToggleShortcutPanel(!chatState.isShowShortcutPanel),
-                            onToggleTransferPanel: chatState.onToggleTransferPanel,
+                            onToggleTransferPanel: () => chatState.onToggleTransferPanel(!chatState.isShowTransferPanel),
                           ),
                           EmoJiPanel(
                             isShow: chatState.isShowEmoJiPanel,
@@ -181,10 +183,15 @@ class ChatPage extends StatelessWidget {
                             },
                           ),
                           ShortcutPanel(
-                            onSelectedShortcut: chatState.onSelectedShortcut,
-                            shortcuts: globalState.shortcuts,
-                            isShowShortcutPanel: chatState.isShowShortcutPanel,
-                          )
+                            onSelected: chatState.onSelectedShortcut,
+                            listData: globalState.shortcuts,
+                            isShow: chatState.isShowShortcutPanel,
+                          ),
+                          TransferPanel(
+                            onSelected: chatState.onSelectedSeviceUser,
+                            listData: chatState.serviceOnlineUsers,
+                            isShow: chatState.isShowTransferPanel,
+                          ),
                         ],
                       ),
                     ),

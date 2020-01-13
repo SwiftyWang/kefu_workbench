@@ -24,6 +24,16 @@ class AdminService extends BaseServices {
     }
   }
 
+  // 更新当前服务谁
+  Future<Response> updateCurrentServiceUser({int accountId}) async {
+    try {
+      Response response = await http.get(API_UPDATE_CURRENR_USER + accountId.toString());
+      return response;
+    } on DioError catch (e) {
+      return error(e, API_UPDATE_CURRENR_USER);
+    }
+  }
+
   // 更新登录状态
   Future<Response> updateUserOnlineStatus({int status}) async {
     try {
@@ -31,6 +41,21 @@ class AdminService extends BaseServices {
       return response;
     } on DioError catch (e) {
       return error(e, API_REGISTER);
+    }
+  }
+
+   // 获取客服列表
+  Future<Response> getAdmins({int pageOn = 1, int pageSize = 20,int online = 3,String keyword = ""}) async {
+    try {
+      Response response = await http.post(API_GET_ADMINS, data: {
+        "page_on": pageOn,
+        "page_size": pageSize,
+        "online": online,
+        "keyword": keyword
+      });
+      return response;
+    } on DioError catch (e) {
+      return error(e, API_GET_ADMINS);
     }
   }
 

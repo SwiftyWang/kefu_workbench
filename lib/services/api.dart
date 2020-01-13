@@ -19,6 +19,15 @@ const String API_GET_ME = "/admin/me";
 /// 更新客服上线状态
 const String API_UPDATE_ONLINE_STATUS = "/admin/online/";
 
+/// 更新当前服务谁
+const String API_UPDATE_CURRENR_USER = "/admin/current/user/";
+
+/// 获取客服列表
+const String API_GET_ADMINS = "/admin/list";
+
+/// 转接用户
+const String API_TRANSFER_USER = "/message/transfer";
+
 /// 注册IM账号
 const String API_REGISTER = "/public/register";
 
@@ -33,6 +42,7 @@ const String API_GET_READ = "/public/read";
 
 /// 获取历史消息记录
 const String API_GET_MESSAGE = "/message/list";
+
 
 /// 删除单条消息
 const String API_REMOVE_MESSAGE = "/message/remove";

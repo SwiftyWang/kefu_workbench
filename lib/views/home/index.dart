@@ -32,10 +32,10 @@ class HomePage extends StatelessWidget {
 
   @override
   Widget build(ctx) {
-    GlobalProvide.getInstance().setRooContext(ctx);
     return Consumer<HomeProvide>(
       builder: (context, homeState, _){
         return PageContext(builder: (context) {
+          GlobalProvide.getInstance().setRooContext(context);
           ThemeData themeData = Theme.of(context);
           HomeProvide homeState = Provider.of<HomeProvide>(context);
           return WillPopScope(

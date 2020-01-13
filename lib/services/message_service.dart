@@ -29,6 +29,19 @@ class MessageService extends BaseServices {
     }
   }
 
+  // 转接用户
+  Future<Response> transformerUser({int toAccount, int userAccount}) async {
+    try {
+      Response response = await http.post(API_TRANSFER_USER, data: {
+        "to_account": toAccount,
+        "user_account": userAccount
+      });
+      return response;
+    } on DioError catch (e) {
+      return error(e, API_TRANSFER_USER);
+    }
+  }
+
    // 删除单条消息
   Future<Response> removeMeessge(
       {int toAccount, int fromAccount, int key}) async {

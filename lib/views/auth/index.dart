@@ -42,6 +42,7 @@ class _LoginPageState extends State<LoginPage> {
         child: Builder(
           builder: (context) {
             return PageContext(builder: (context) {
+              GlobalProvide.getInstance().setRooContext(context);
               ThemeData themeData = Theme.of(context);
               LoginProvide loginState = Provider.of<LoginProvide>(context);
               return Scaffold(
