@@ -1,18 +1,22 @@
+import 'dart:convert';
+
 import 'package:dio/dio.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_mimc/flutter_mimc.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:kefu_workbench/provider/global.dart';
 
 import '../core_flutter.dart';
 
 class ChatProvide with ChangeNotifier {
-
+  StreamSubscription _listener;
   ChatProvide(){
     focusNode = FocusNode();
     focusNode.addListener((){
       if(focusNode.hasFocus){
         onHideEmoJiPanel();
         onToggleShortcutPanel(false);
+        toScrollEnd();
       }
     });
     GlobalProvide globalProvide =GlobalProvide.getInstance();
@@ -22,6 +26,13 @@ class ChatProvide with ChangeNotifier {
     scrollController = ScrollController();
     scrollController.addListener(() => _onScrollViewControllerAddListener());
     globalProvide.getOnlineAdmins();
+    _listener = globalProvide.flutterMImc.addEventListenerHandleMessage().listen((MIMCMessage msg) async{
+      ImMessageModel message = ImMessageModel.fromJson(json.decode(utf8.decode(base64Decode(msg.payload))));
+      if(!["pong", "contacts", "cancel"].contains(message.bizType)){
+        toScrollEnd();
+      }
+    });
+    
   }
 
    // 监听滚动条
@@ -109,6 +120,7 @@ class ChatProvide with ChangeNotifier {
     GlobalProvide.getInstance().sendTextMessage(text);
     editingController.clear();
     notifyListeners();
+    toScrollEnd();
   }
 
   /// 输入框改动
@@ -135,6 +147,7 @@ class ChatProvide with ChangeNotifier {
     File _file = await ImagePicker.pickImage(source: imageSource, maxWidth: 2000);
     if (_file == null) return;
     globalState.sendPhotoMessage(_file);
+    toScrollEnd();
   }
 
   /// 显示或隐藏转接面板
@@ -153,6 +166,11 @@ class ChatProvide with ChangeNotifier {
     }
     isShowTransferPanel = isShow;
     notifyListeners();
+  }
+
+   /// 滚动条至底部
+  void toScrollEnd() async {
+    scrollController?.jumpTo(0);
   }
 
    /// 显示或隐藏快捷语
@@ -315,6 +333,7 @@ class ChatProvide with ChangeNotifier {
     focusNode?.dispose();
     editingController?.dispose();
     scrollController?.dispose();
+    _listener?.cancel();
     super.dispose();
   }
 

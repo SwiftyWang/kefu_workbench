@@ -29,6 +29,7 @@ class ChatPage extends StatelessWidget {
             create: (_) => chatProvide,
             child: Consumer<ChatProvide>(
               builder: (context, chatState , _){
+                printf(222222);
               return Scaffold(
                 appBar: customAppBar(
                   title: Text(
