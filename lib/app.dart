@@ -25,6 +25,7 @@ class _MyApp extends StatelessWidget {
         theme: globalState.getCurrentTheme,
         home: Builder(builder: (context) {
           ToPx().init(context);
+          GlobalProvide.getInstance().setRooContext(context);
           return Routers.buildPage("/home", arguments: {"data": "not arguments"});
         }),
         onGenerateRoute: (RouteSettings settings) {

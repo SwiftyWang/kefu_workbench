@@ -1,4 +1,4 @@
-class ImUserModel {
+class UserModel {
   String avatar;
   String address;
   String nickname;
@@ -13,7 +13,7 @@ class ImUserModel {
   int lastActivity;
   int createAt;
 
-  ImUserModel(
+  UserModel(
       {this.avatar,
       this.address,
       this.nickname,
@@ -28,7 +28,7 @@ class ImUserModel {
       this.lastActivity,
       this.createAt});
 
-  ImUserModel.fromJson(Map<String, dynamic> json) {
+  UserModel.fromJson(Map<String, dynamic> json) {
     this.avatar = json['avatar'];
     this.address = json['address'];
     this.nickname = json['nickname'];

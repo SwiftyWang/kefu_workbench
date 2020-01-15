@@ -64,3 +64,6 @@ const String API_UPLOAD_FILE = "/public/upload";
 
 /// 获取平台信息
 const String API_GET_PLATFORM =  "/platform/list";
+
+/// 用户接口
+const String API_USER =  "/user";

@@ -5,3 +5,4 @@ export 'public_service.dart';
 export 'contact_service.dart';
 export 'shortcut_service.dart';
 export 'platform_service.dart';
+export 'user_service.dart';
