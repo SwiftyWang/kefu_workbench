@@ -15,10 +15,6 @@ class HomeProvide with ChangeNotifier {
     return instance;
   }
 
-
-  /// 是否显示loading
-  bool isFullLoading = false;
-
   ///  所有未读消息
   int get contactReadCount{
     int count = 0;
@@ -40,12 +36,6 @@ class HomeProvide with ChangeNotifier {
     return true;
   }
 
-  /// 设置是否显示loading
-  void setFullLoading(bool isShow){
-    isFullLoading = isShow;
-    notifyListeners();
-  }
-
    /// MessageService
   MessageService messageService = MessageService.getInstance();
 
@@ -60,9 +50,7 @@ class HomeProvide with ChangeNotifier {
 
   /// 获取聊天列表
   Future<void> getContacts({bool isFullLoading = false}) async{
-    setFullLoading(isFullLoading);
     await GlobalProvide.getInstance().getContacts();
-    setFullLoading(false);
   }
 
   @override

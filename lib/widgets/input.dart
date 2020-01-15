@@ -1,4 +1,8 @@
+
+import 'dart:io';
+
 import '../core_flutter.dart';
+
 typedef BoolCallBack = Function(bool b);
 class Input extends StatefulWidget{
 
@@ -31,12 +35,18 @@ class Input extends StatefulWidget{
     this.onFocus,
     this.enabled = true,
     this.onClick,
-    this.counterText = ""
+    this.counterText = "",
+    this.textMaxLength,
+    this.style,
+    this.placeholderAlignment,
+    this.contentPadding
   }) : super(key : key);
 
 
+  final TextStyle style;
   final BoolCallBack onFocus;
   final int maxLength;
+  final int textMaxLength;
   final bool showClear;
   final TextInputType keyboardType;
   final ValueChanged<String> onChanged;
@@ -53,6 +63,7 @@ class Input extends StatefulWidget{
   final FocusNode focusNode;
   final BorderRadius borderRadius;
   final EdgeInsetsGeometry padding;
+  final EdgeInsetsGeometry contentPadding;
   final bool autofocus;
   final TextCapitalization textCapitalization;
   final VoidCallback onEditingComplete;
@@ -63,6 +74,7 @@ class Input extends StatefulWidget{
   final bool enabled;
   final VoidCallback onClick;
   final String counterText;
+  final AlignmentGeometry placeholderAlignment;
 
 
   @override
@@ -81,8 +93,6 @@ class _InputState extends State<Input>{
   double maxHeight = double.infinity;
   double minHeight = ToPx.size(90);
   bool isInputEmpty = false;
-  bool isShowVisibility = false;
-  bool obscureText = false;
 
   @override
   void initState() {
@@ -90,8 +100,6 @@ class _InputState extends State<Input>{
 
     if(widget.height != null) minHeight = widget.height;
     if(widget.maxHeight != null && widget.maxHeight > minHeight) maxHeight = widget.maxHeight;
-    obscureText = widget.obscureText;
-    if(widget.obscureText) isShowVisibility = true;
     setState(() {});
 
     // 判断外部是否给控制器
@@ -102,7 +110,7 @@ class _InputState extends State<Input>{
     }
 
     // 监听输入框判断是否显示清除按钮
-    controller.addListener((){
+    controller.addListener(() async{
       // 清除按钮
       if(controller.value.text.length == 0){
         if(widget.showClear) isShowClear = false;
@@ -112,7 +120,7 @@ class _InputState extends State<Input>{
         isInputEmpty = true;
       }
       // 判断长度截取掉
-      if(widget.maxLength != null && controller.value.text.length > widget.maxLength){
+      if(widget.maxLength != null && controller.value.text.length > widget.maxLength && Platform.isAndroid){
         controller.text = controller.value.text.substring(0, widget.maxLength);
         controller.selection = TextSelection.collapsed(offset: widget.maxLength);
       }
@@ -126,15 +134,16 @@ class _InputState extends State<Input>{
       focusNode = widget.focusNode;
     }
     focusNode.addListener((){
+      // 判断长度截取掉
+      if(widget.maxLength != null && controller.value.text.length > widget.maxLength && Platform.isIOS){
+        controller.text = controller.value.text.substring(0, widget.maxLength);
+        controller.selection = TextSelection.collapsed(offset: widget.maxLength);
+      }
       if(widget.onFocus != null) widget.onFocus(focusNode.hasFocus);
       if(!focusNode.hasFocus && widget.isToUpperCase){
         controller.text = controller.value.text.toUpperCase();
       }
       controller.text = controller.value.text.trim();
-      if(!focusNode.hasFocus){
-        isShowClear = false;
-        setState(() {});
-      }
     });
     
     if(controller.value.text.length > 0){
@@ -169,7 +178,9 @@ class _InputState extends State<Input>{
           width: widget.width == null ? MediaQuery.of(context).size.width : widget.width,
           child: Stack(
             children: <Widget>[
-              Container(
+              Align(
+                alignment: Alignment.centerLeft,
+                child: Container(
                 width: widget.width == null ? MediaQuery.of(context).size.width : widget.width,
                 padding: widget.padding,
                 constraints: BoxConstraints(
@@ -187,9 +198,9 @@ class _InputState extends State<Input>{
                     Offstage(
                       offstage: isInputEmpty,
                       child: SizedBox(
-                        height: ToPx.size(90),
+                        height: minHeight,
                         child: Align(
-                        alignment: widget.textAlign == TextAlign.center ?
+                        alignment: widget.placeholderAlignment != null ? widget.placeholderAlignment :widget.minLines > 1 ? Alignment.topLeft : widget.textAlign == TextAlign.center ?
                          Alignment.center : widget.textAlign == TextAlign.right || widget.textAlign == TextAlign.end ?
                           Alignment.centerRight : Alignment.centerLeft,
                         child: Text(widget.placeholder, style: themeData.textTheme.caption.copyWith(
@@ -198,7 +209,9 @@ class _InputState extends State<Input>{
                       ),
                       ),
                     ),
-                    TextField(
+                    Align(
+                      alignment: Alignment.centerLeft,
+                      child: TextField(
                       scrollPhysics: Platform.isAndroid ? BouncingScrollPhysics() : null,
                       controller: controller,
                       focusNode: focusNode,
@@ -207,8 +220,10 @@ class _InputState extends State<Input>{
                       onEditingComplete: widget.onEditingComplete,
                       textInputAction: widget.textInputAction,
                       decoration: InputDecoration(
+                        contentPadding: widget.contentPadding != null ? widget.contentPadding : EdgeInsets.all(0.0),
                         counterText: widget.counterText,
                         hintStyle: themeData.textTheme.body1.copyWith(
+                          fontSize: widget.style != null ? widget.style.fontSize : themeData.textTheme.body1.fontSize,
                           color: themeData.disabledColor
                         ),
                         hintText: "",
@@ -217,25 +232,25 @@ class _InputState extends State<Input>{
                       cursorColor: themeData.primaryColor,
                       cursorRadius: Radius.circular(ToPx.size(3)),
                       cursorWidth: ToPx.size(5),
-                      style: themeData.textTheme.body1,
-                      obscureText: obscureText,
+                      style: widget.style ?? themeData.textTheme.body1,
+                      obscureText: widget.obscureText,
                       keyboardType: widget.keyboardType,
                       maxLines: widget.maxLines,
                       minLines: widget.minLines,
+                      maxLength: widget.textMaxLength,
                       onChanged: widget.onChanged,
                       textAlign: widget.textAlign,
                       autofocus: widget.autofocus,
                       keyboardAppearance: Brightness.light,
+                    ),
                     )
                   ],
                 ),
               ),
+              ),
               Align(
                   alignment: Alignment.centerRight,
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    children: <Widget>[
-                      Offstage(
+                  child: Offstage(
                     offstage: !widget.showClear,
                     child: Offstage(
                       offstage: !isShowClear,
@@ -252,26 +267,8 @@ class _InputState extends State<Input>{
                         child: Icon(Icons.cancel, size: ToPx.size(35), color: Color(0xffcccccc),),
                       ),
                     ),
-                  ),
-                  Offstage(
-                    offstage: !isShowVisibility,
-                    child: Button(
-                        onPressed: (){
-                            setState(() {
-                              obscureText = !obscureText;
-                            });
-                        },
-                        alignment: Alignment.centerRight,
-                        useIosStyle: true,
-                        disabledColor:  Colors.transparent,
-                        color: Colors.transparent,
-                        width: ToPx.size(45),
-                        child: Icon(obscureText ? Icons.visibility : Icons.visibility_off, size: ToPx.size(35), color: Color(0xffcccccc),),
-                      ),
                   )
-                    ],
-                  )
-              ),
+              )
             ],
           ),
         ),

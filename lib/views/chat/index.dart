@@ -6,6 +6,7 @@ import 'package:provider/provider.dart';
 
 import 'widget/bottom_bar.dart';
 import 'widget/emoji_panel.dart';
+import 'widget/end_drawer.dart';
 import 'widget/knowledge_message.dart';
 import 'widget/photo_message.dart';
 import 'widget/shortcut_panel.dart';
@@ -17,6 +18,10 @@ import 'widget/transfer_panel.dart';
 class ChatPage extends StatelessWidget {
   final Map<dynamic, dynamic> arguments;
   ChatPage({this.arguments});
+
+  void openDrawer(context) {
+    Scaffold.of(context).openEndDrawer();
+  }
 
   @override
   Widget build(_) {
@@ -47,10 +52,14 @@ class ChatPage extends StatelessWidget {
                       ),),
                     ),
                     ),
-                    IconButton(
-                      icon: Icon(Icons.person_pin),
-                      onPressed: (){},
-                    )
+                    Builder(
+                      builder: (ctx) {
+                        return IconButton(
+                          icon: Icon(Icons.person_pin),
+                          onPressed: ()=>openDrawer(ctx),
+                        );
+                    })
+                    
                   ]
                 ),
                 body: Column(children: <Widget>[
@@ -204,7 +213,10 @@ class ChatPage extends StatelessWidget {
                       ),
                     ),
                   )
-                ],)
+                ],),
+                endDrawer: Drawer(
+                  child: ChatEndDrawer(),
+                ),
               );
             });
         });

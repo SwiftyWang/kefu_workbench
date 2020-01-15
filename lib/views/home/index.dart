@@ -38,6 +38,7 @@ class HomePage extends StatelessWidget {
           GlobalProvide.getInstance().setRooContext(context);
           ThemeData themeData = Theme.of(context);
           HomeProvide homeState = Provider.of<HomeProvide>(context);
+          GlobalProvide globalState = Provider.of<GlobalProvide>(context);
           return WillPopScope(
               onWillPop: onBackPressed,
               child: Scaffold(
@@ -107,11 +108,12 @@ class HomePage extends StatelessWidget {
                         )
                       ],
                     )),
-                body: homeState.isFullLoading
-                    ? Center(
-                        child: loadingIcon(size: ToPx.size(50)),
-                      )
-                    : RefreshIndicator(
+                body: 
+                globalState.isContactShowLoading
+                ? Center(
+                    child: loadingIcon(size: ToPx.size(50)),
+                  )
+                : RefreshIndicator(
                         color: themeData.primaryColorLight,
                         backgroundColor: themeData.primaryColor,
                         onRefresh: () => homeState.onRefresh(),
@@ -123,7 +125,7 @@ class HomePage extends StatelessWidget {
                               builder: (context, globalState, _){
                                 return SliverToBoxAdapter(
                                   child: Offstage(
-                                    offstage: globalState.contacts.length > 0 || homeState.isFullLoading,
+                                    offstage: globalState.contacts.length > 0 || globalState.isContactShowLoading,
                                     child: SizedBox(
                                       height: ToPx.size(200),
                                       child: Center(

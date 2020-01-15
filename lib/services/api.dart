@@ -61,3 +61,6 @@ const String API_RUN_LAST_ACTiIVITY = "/public/activity/";
 
 /// 内置文件上传api
 const String API_UPLOAD_FILE = "/public/upload";
+
+/// 获取平台信息
+const String API_GET_PLATFORM =  "/platform/list";

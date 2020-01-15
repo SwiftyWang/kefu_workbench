@@ -51,6 +51,9 @@ class GlobalProvide with ChangeNotifier {
   /// ShortcutService
   ShortcutService shortcutService = ShortcutService.getInstance();
 
+  /// PlatformService
+   PlatformService platformService = PlatformService.getInstance();
+
   /// GlobalProvide实例
   static GlobalProvide instance;
 
@@ -92,6 +95,10 @@ class GlobalProvide with ChangeNotifier {
   /// 是否显示loading
   bool isChatFullLoading = false;
 
+
+  /// 平台数据
+  List<PlatformModel> platforms = [];
+
   /// 显示对方输入中...
   bool isPong = false;
   String advanceText = "";
@@ -123,9 +130,10 @@ class GlobalProvide with ChangeNotifier {
       await _flutterMImcInstance();
       await _addMimcEvent();
       await _getMe();
-      await getContacts();
+      await getContacts(isFullLoading: true);
       await _upImLastActivity();
       await getShortcuts();
+      await getPlatforms();
     }
   }
 
@@ -204,7 +212,7 @@ class GlobalProvide with ChangeNotifier {
 
   /// 实例化 FlutterMImc
   Future<void> _flutterMImcInstance() async {
-    if(flutterMImc != null) return;
+    if(imTokenInfo == null) return;
     try{
       String tokenString = '{"code": 200, "message": "success", "data": ${jsonEncode(imTokenInfo?.toJson())}}';
       flutterMImc = FlutterMIMC.stringTokenInit(tokenString, debug: true);
@@ -216,6 +224,7 @@ class GlobalProvide with ChangeNotifier {
   /// 注册IM账号
   Future<void> _registerImAccount() async {
     try {
+      if(serviceUser == null) return;
       Response response = await publicService.registerImAccount(accountId: serviceUser.id);
       if (response.data["code"] == 200) {
         imTokenInfo =ImTokenInfoModel.fromJson(response.data["data"]["token"]["data"]);
@@ -253,7 +262,6 @@ class GlobalProvide with ChangeNotifier {
 
   /// 设置当前服务谁
   setCurrentContact(ContactModel contact){
-    printf(chatProvideIsDispose);
     if(!chatProvideIsDispose) return;
     currentContact = contact;
     toAccount = currentContact.fromAccount;
@@ -301,7 +309,6 @@ class GlobalProvide with ChangeNotifier {
        updateUserOnlineStatus(online: online);
     });
   }
-
 
   /// 是否加载聊天记录完毕
   bool isLoadRecordEnd = false;
@@ -434,7 +441,7 @@ class GlobalProvide with ChangeNotifier {
       payload: cloneMsgHandle.localMessage.toBase64(),
     ).toBase64();
     flutterMImc.sendMessage(cloneMsgHandle.sendMessage);
-    if (type != "photo") pushLocalMessage(cloneMsgHandle.localMessage, toAccount);
+    if (type != "photo") pushLocalMessage(cloneMsgHandle.localMessage, cloneMsgHandle.localMessage.toAccount);
     notifyListeners();
     await Future.delayed(Duration(milliseconds: 10000));
     cloneMsgHandle.localMessage.isShowCancel = false;
@@ -448,10 +455,37 @@ class GlobalProvide with ChangeNotifier {
     notifyListeners();
   }
 
+  /// 获取平台数据
+  Future<void> getPlatforms() async{
+    Response response = await platformService.getPlatforms();
+    if(response.statusCode == 200){
+      platforms = (response.data['data'] as List).map((i)=>PlatformModel.fromJson(i)).toList();
+    }else{
+      UX.showToast(response.data["message"]);
+    }
+    notifyListeners();
+  }
+
+
+  /// 根据平台ID获取平台标题
+  String getPlatformTitle(int id){
+    PlatformModel platform = platforms.singleWhere((p) => p.id == id);
+    if(platform != null){
+      return platform.title;
+    }
+    return "未知平台";
+  }
+
   /// 获取工作台聊天列表
+  bool isContactShowLoading = false;
   Future<void> getContacts({bool isFullLoading = false}) async{
-     Response response = await contactService.getContacts();
-     if(response.statusCode == 200){
+    if(isFullLoading && contacts.length <= 0){
+      isContactShowLoading = true;
+      notifyListeners();
+    }
+    Response response = await contactService.getContacts();
+    isContactShowLoading = false;
+    if(response.statusCode == 200){
       contacts = (response.data['data'] as List).map((i){
         ContactModel contact = ContactModel.fromJson(i);
         if(currentContact != null && contact.fromAccount == currentContact.fromAccount){
@@ -459,10 +493,10 @@ class GlobalProvide with ChangeNotifier {
         }
         return ContactModel.fromJson(i);
       }).toList();
-      notifyListeners();
     }else{
       UX.showToast(response.data["message"]);
     }
+    notifyListeners();
   }
 
   /// 撤回消息
@@ -564,7 +598,6 @@ class GlobalProvide with ChangeNotifier {
         ImMessageModel message = ImMessageModel.fromJson(
             json.decode(utf8.decode(base64Decode(msg.payload))));
 
-        printf("收到消息===${message.toJson()}");
         switch (message.bizType) {
           case "contacts":
             contacts = (json.decode(message.payload) as List).map((i){
@@ -580,12 +613,16 @@ class GlobalProvide with ChangeNotifier {
             sendMessage(msgHandle);
             break;
           case "text":
+          case "photo":
+            if(message.fromAccount != currentContact.fromAccount) return;
             advanceText = "";
+            notifyListeners();
             break;
           case "end":
           case "timeout":
-            advanceText = "";
             getContacts();
+            if(message.fromAccount != currentContact.fromAccount) return;
+             advanceText = "";
             break;
           case "pong":
             if(message.fromAccount != currentContact.fromAccount) return;

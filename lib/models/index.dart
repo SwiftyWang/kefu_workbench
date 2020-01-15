@@ -7,3 +7,4 @@ export 'service_user_model.dart';
 export 'upload_secret_model.dart';
 export 'contact_model.dart';
 export 'shortcut_model.dart';
+export 'platform_model.dart';

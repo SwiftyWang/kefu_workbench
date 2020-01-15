@@ -68,8 +68,8 @@ class DrawerMenu extends StatelessWidget {
                     children: <Widget>[
                       Avatar(
                         size: ToPx.size(100),
-                        imgUrl: globalState.serviceUser?.avatar ??
-                            "http://qiniu.cmp520.com/avatar_default.png",
+                        imgUrl: globalState.serviceUser == null || globalState.serviceUser.avatar.isEmpty ?
+                         "http://qiniu.cmp520.com/avatar_default.png" : globalState.serviceUser?.avatar,
                       ),
                       Padding(
                         padding: EdgeInsets.only(top: ToPx.size(20)),

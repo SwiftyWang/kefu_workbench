@@ -2,6 +2,7 @@ import 'core_flutter.dart';
 import 'provider/global.dart';
 import 'views/auth/index.dart';
 import 'views/chat/index.dart';
+import 'views/edit_user/index.dart';
 import 'views/home/index.dart';
 
 class Routers {
@@ -20,6 +21,9 @@ class Routers {
         break;
       case "/chat":
         return ChatPage(arguments: arguments);
+        break;
+      case "/edit_user":
+        return EditUserPage(arguments: arguments);
         break;
       default:
         return Scaffold(

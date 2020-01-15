@@ -29,6 +29,7 @@ class ChatProvide with ChangeNotifier {
       if(focusNode.hasFocus){
         onHideEmoJiPanel();
         onToggleShortcutPanel(false);
+        onToggleTransferPanel(false);
         toScrollEnd();
       }
     });
