@@ -53,6 +53,7 @@ class HomeProvide with ChangeNotifier {
     await GlobalProvide.getInstance().getContacts();
   }
 
+
   @override
   void dispose() {
     instance = null;

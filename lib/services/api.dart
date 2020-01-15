@@ -7,6 +7,9 @@ const String API_LOGIN = "/auth/login";
 /// 退出登录
 const String API_LOGOUT = "/auth/logout";
 
+/// 工作台记录
+const String API_CONTACT = "/contact/";
+
 /// 获取会话列表
 const String API_CONTACTS = "/contact/list";
 

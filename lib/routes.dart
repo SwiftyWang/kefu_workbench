@@ -4,6 +4,7 @@ import 'views/auth/index.dart';
 import 'views/chat/index.dart';
 import 'views/edit_user/index.dart';
 import 'views/home/index.dart';
+import 'views/knowledge/index.dart';
 
 class Routers {
   static Widget buildPage(String path, {Object arguments}) {
@@ -24,6 +25,8 @@ class Routers {
         break;
       case "/edit_user":
         return EditUserPage(arguments: arguments);
+      case "/knowledge":
+        return KnowledgePage(arguments: arguments);
         break;
       default:
         return Scaffold(

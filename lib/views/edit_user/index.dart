@@ -34,6 +34,7 @@ class EditUserPageState extends State<EditUserPage> {
       UX.showToast("用户昵称不能为空");
       return;
     }
+    FocusScope.of(context).requestFocus(FocusNode());
     UX.showLoading(context, content: "保存中...");
     Response response = await UserService.getInstance().save(useMap);
     UX.hideLoading(context);
@@ -77,7 +78,7 @@ class EditUserPageState extends State<EditUserPage> {
         String label,
         TextEditingController controller,
         String placeholder,
-        bool enabled = true
+        bool enabled = true,
       }){
         return Container(
           height: ToPx.size(90),
@@ -137,10 +138,32 @@ class EditUserPageState extends State<EditUserPage> {
                 placeholder: "请输入用户联系方式",
                 controller: phoneCtr
               ),
-              _fromInput(
-                label: "备注信息：",
-                placeholder: "请输入用户备注信息",
-                controller: remarksCtr
+              Container(
+                height: ToPx.size(250),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  border: Border(bottom: BorderSide(color: themeData.dividerColor,width: ToPx.size(2)))
+                ),
+                padding: EdgeInsets.symmetric(horizontal: ToPx.size(40), vertical: ToPx.size(10)),
+                child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: <Widget>[
+                    Text("备注信息：", style: themeData.textTheme.title,),
+                    Expanded(
+                      child: Input(
+                      border: Border.all(style: BorderStyle.none, color: Colors.transparent),
+                      placeholder: "请输入用户备注信息",
+                      controller: remarksCtr,
+                      textAlign: TextAlign.start,
+                      minLines: 5,
+                      maxLength: 100,
+                      placeholderAlignment: Alignment.topLeft,
+                      textInputAction: TextInputAction.newline,
+                      maxLines: 5,
+                    ),
+                    )
+                  ],
+                ),
               ),
 
               Button(

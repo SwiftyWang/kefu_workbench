@@ -25,5 +25,15 @@ class ContactService extends BaseServices {
     }
   }
 
+  // 删除单个
+  Future<Response> removeSingle(int cid) async {
+    try {
+      Response response = await http.delete(API_CONTACT + cid.toString());
+      return response;
+    } on DioError catch (e) {
+      return error(e, API_CONTACT + cid.toString());
+    }
+  }
+
   
 }

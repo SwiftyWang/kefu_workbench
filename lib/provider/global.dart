@@ -499,6 +499,12 @@ class GlobalProvide with ChangeNotifier {
     notifyListeners();
   }
 
+  /// 移除的单个聊天列表
+  void removeSingleContact(int cid){
+    contactService.removeSingle(cid);
+    contacts.removeWhere((c) => c.cid == cid);
+  }
+
   /// 撤回消息
   void sendCancelMessage(ImMessageModel msg) {
     MessageHandle msgHandle = createMessage(toAccount: toAccount, msgType: "cancel", content: msg.key);

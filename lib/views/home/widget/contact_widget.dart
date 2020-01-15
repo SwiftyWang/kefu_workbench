@@ -1,5 +1,6 @@
 import 'package:flutter/gestures.dart';
 import 'package:kefu_workbench/core_flutter.dart';
+import 'package:kefu_workbench/provider/global.dart';
 import 'package:kefu_workbench/provider/home.dart';
 import 'package:provider/provider.dart';
 
@@ -10,10 +11,12 @@ class ContactWidget extends StatelessWidget{
   Widget build(BuildContext context) {
      ThemeData themeData = Theme.of(context);
      HomeProvide homeState = Provider.of<HomeProvide>(context);
+     GlobalProvide globalProvide = Provider.of<GlobalProvide>(context);
       return Dismissible(
         dragStartBehavior: DragStartBehavior.down,
         confirmDismiss: (DismissDirection direction) async {
           if (direction.index != 2) return false;
+          globalProvide.removeSingleContact(contact.cid);
           return true;
         },
         secondaryBackground: Container(
@@ -117,9 +120,9 @@ class ContactWidget extends StatelessWidget{
                 contact.lastMessageType == "text"
                 ? contact.lastMessage
                 : contact.lastMessageType == "photo"
-                ? "图片文件"
+                ? "图片"
                 : contact.lastMessageType == "video"
-                ? "视频文件"
+                ? "视频"
                 : contact.lastMessageType == "end"
                 ? "会话结束"
                 : contact.lastMessageType == "timeout"

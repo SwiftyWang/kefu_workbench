@@ -132,7 +132,7 @@ class DrawerMenu extends StatelessWidget {
               _listTile(
                   icon: Icons.library_books,
                   title: "知识库",
-                  onTap: () => Navigator.pop(context)),
+                  onTap: () => Navigator.popAndPushNamed(context, "/knowledge")),
               _listTile(
                   icon: Icons.android,
                   title: "机器人",
