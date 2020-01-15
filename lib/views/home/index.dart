@@ -24,15 +24,15 @@ class HomePage extends StatelessWidget {
   final Map<dynamic, dynamic> arguments;
   HomePage({this.arguments});
 
-  final HomeProvide homeProvide = HomeProvide();
-
   void openDrawer(context) {
     Scaffold.of(context).openDrawer();
   }
 
   @override
   Widget build(ctx) {
-    return Consumer<HomeProvide>(
+    return ChangeNotifierProvider<HomeProvide>(
+      create: (_) => HomeProvide.getInstance(),
+      child: Consumer<HomeProvide>(
       builder: (context, homeState, _){
         return PageContext(builder: (context) {
           GlobalProvide.getInstance().setRooContext(context);
@@ -152,6 +152,7 @@ class HomePage extends StatelessWidget {
               ),
             );
         });
-    });
+    })
+    );
   }
 }

@@ -29,6 +29,9 @@ class GlobalProvide with ChangeNotifier {
   /// root context
   BuildContext rooContext;
 
+  /// ChatProvide是否已销毁
+  bool chatProvideIsDispose = true;
+
   /// 当前主题
   ThemeProvide get themeProvide =>  ThemeProvide.getInstance();
   ThemeData get getCurrentTheme => themeProvide.getCurrentTheme();
@@ -250,6 +253,8 @@ class GlobalProvide with ChangeNotifier {
 
   /// 设置当前服务谁
   setCurrentContact(ContactModel contact){
+    printf(chatProvideIsDispose);
+    if(!chatProvideIsDispose) return;
     currentContact = contact;
     toAccount = currentContact.fromAccount;
     Navigator.pushNamed(rooContext, "/chat", arguments: {}).then((_){
@@ -584,6 +589,7 @@ class GlobalProvide with ChangeNotifier {
             break;
           case "pong":
             if(message.fromAccount != currentContact.fromAccount) return;
+            print(message.payload);
             advanceText = message.payload;
             notifyListeners();
             if (isPong) return;
@@ -719,8 +725,7 @@ class GlobalProvide with ChangeNotifier {
     if (isSendPong) return;
     if(currentContact == null) return;
     isSendPong = true;
-    MessageHandle _msgHandle =
-        createMessage(toAccount: toAccount, msgType: "pong", content: value);
+    MessageHandle _msgHandle = createMessage(toAccount: toAccount, msgType: "pong", content: value);
     sendMessage(_msgHandle);
     await Future.delayed(Duration(milliseconds: 200));
     isSendPong = false;

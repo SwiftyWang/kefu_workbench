@@ -4,6 +4,18 @@ import '../core_flutter.dart';
 
 class HomeProvide with ChangeNotifier {
 
+  static HomeProvide instance;
+
+   // 单例
+  static HomeProvide getInstance() {
+    if (instance != null) {
+      return instance;
+    }
+    instance = HomeProvide();
+    return instance;
+  }
+
+
   /// 是否显示loading
   bool isFullLoading = false;
 
@@ -51,6 +63,12 @@ class HomeProvide with ChangeNotifier {
     setFullLoading(isFullLoading);
     await GlobalProvide.getInstance().getContacts();
     setFullLoading(false);
+  }
+
+  @override
+  void dispose() {
+    instance = null;
+    super.dispose();
   }
 
   

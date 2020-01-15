@@ -17,20 +17,18 @@ import 'widget/transfer_panel.dart';
 class ChatPage extends StatelessWidget {
   final Map<dynamic, dynamic> arguments;
   ChatPage({this.arguments});
-  final ChatProvide chatProvide = ChatProvide();
 
   @override
   Widget build(_) {
-    return Consumer<GlobalProvide>(
-      builder: (context, globalState, _){
+    return ChangeNotifierProvider<ChatProvide>(
+      create: (_) => ChatProvide.getInstance(),
+      child: Consumer<ChatProvide>(
+        builder: (context, chatState , _){
         return PageContext(builder: (context){
           ThemeData themeData = Theme.of(context);
-          return ChangeNotifierProvider<ChatProvide>(
-            create: (_) => chatProvide,
-            child: Consumer<ChatProvide>(
-              builder: (context, chatState , _){
-                printf(222222);
-              return Scaffold(
+          return Consumer<GlobalProvide>(
+          builder: (context, globalState, _){
+            return Scaffold(
                 appBar: customAppBar(
                   title: Text(
                     globalState.isPong ? "对方正在输入..." : "${globalState.currentContact?.nickname}",
@@ -161,6 +159,15 @@ class ChatPage extends StatelessWidget {
                       top: false,
                       child: Column(
                         children: <Widget>[
+                          Offstage(
+                            offstage: globalState.advanceText.isEmpty || globalState.advanceText == "",
+                            child: Container(
+                            width: double.infinity,
+                            color: Colors.grey.withAlpha(80),
+                            padding: EdgeInsets.symmetric(horizontal: ToPx.size(20), vertical: ToPx.size(20)),
+                            child: Text("客户输入：${globalState.advanceText}...", style: themeData.textTheme.caption,),
+                          ),
+                          ),
                           BottomBar(
                             editingController: chatState.editingController,
                             focusNode: chatState.focusNode,
@@ -199,10 +206,10 @@ class ChatPage extends StatelessWidget {
                   )
                 ],)
               );
-            },
-          ));
+            });
         });
-      }
-    );
+      },
+  ));
+
   }
 }

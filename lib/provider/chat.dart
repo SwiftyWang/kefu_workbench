@@ -9,7 +9,20 @@ import 'package:kefu_workbench/provider/global.dart';
 import '../core_flutter.dart';
 
 class ChatProvide with ChangeNotifier {
+
+  static ChatProvide instance;
+
   StreamSubscription _listener;
+
+  // 单例
+  static ChatProvide getInstance() {
+    if (instance != null) {
+      return instance;
+    }
+    instance = ChatProvide();
+    return instance;
+  }
+
   ChatProvide(){
     focusNode = FocusNode();
     focusNode.addListener((){
@@ -20,20 +33,19 @@ class ChatProvide with ChangeNotifier {
       }
     });
     GlobalProvide globalProvide =GlobalProvide.getInstance();
+    globalProvide.chatProvideIsDispose = false;
     if(globalProvide.shortcuts.length == 0){
       globalProvide.getShortcuts();
     }
     scrollController = ScrollController();
     scrollController.addListener(() => _onScrollViewControllerAddListener());
-    globalProvide.getOnlineAdmins();
     _listener = globalProvide.flutterMImc.addEventListenerHandleMessage().listen((MIMCMessage msg) async{
       ImMessageModel message = ImMessageModel.fromJson(json.decode(utf8.decode(base64Decode(msg.payload))));
       if(!["pong", "contacts", "cancel"].contains(message.bizType)){
         toScrollEnd();
       }
     });
-    
-  }
+  } 
 
    // 监听滚动条
   void _onScrollViewControllerAddListener() async {
@@ -125,7 +137,8 @@ class ChatProvide with ChangeNotifier {
 
   /// 输入框改动
   void onInputChanged(String value){
-
+     GlobalProvide globalState = GlobalProvide.getInstance();
+     globalState.sendPongMessage("");
   }
 
   
@@ -152,16 +165,16 @@ class ChatProvide with ChangeNotifier {
 
   /// 显示或隐藏转接面板
   void onToggleTransferPanel(bool isShow) async{
-    isShowEmoJiPanel = false;
-    onToggleShortcutPanel(false);
     GlobalProvide globalState = GlobalProvide.getInstance();
     if(globalState.currentContact == null || globalState.currentContact.isSessionEnd == 1){
       if(isShow)UX.showToast("当前会话已结束！");
       return;
     }
     if(isShow){
+      onHideEmoJiPanel();
+      onToggleShortcutPanel(false);
       globalState.getOnlineAdmins();
-      FocusScope.of(GlobalProvide.getInstance().rooContext).requestFocus(FocusNode());
+      FocusScope.of(globalState.rooContext).requestFocus(FocusNode());
       await Future.delayed(Duration(milliseconds: 50));
     }
     isShowTransferPanel = isShow;
@@ -175,18 +188,17 @@ class ChatProvide with ChangeNotifier {
 
    /// 显示或隐藏快捷语
   void onToggleShortcutPanel(bool isShow) async{
-    isShowEmoJiPanel = false;
-    onToggleTransferPanel(false);
     GlobalProvide globalState = GlobalProvide.getInstance();
     if(globalState.currentContact == null || globalState.currentContact.isSessionEnd == 1) {
       if(isShow)UX.showToast("当前会话已结束！");
       return;
     }
     if(isShow){
-      FocusScope.of(GlobalProvide.getInstance().rooContext).requestFocus(FocusNode());
+      onHideEmoJiPanel();
+      onToggleTransferPanel(false);
+      FocusScope.of(globalState.rooContext).requestFocus(FocusNode());
       await Future.delayed(Duration(milliseconds: 50));
     }
-    onHideEmoJiPanel();
     isShowShortcutPanel = isShow;
     notifyListeners();
   }
@@ -330,10 +342,14 @@ class ChatProvide with ChangeNotifier {
 
   @override
   void dispose() {
+    GlobalProvide globalProvide =GlobalProvide.getInstance();
+    globalProvide.chatProvideIsDispose = true;
     focusNode?.dispose();
     editingController?.dispose();
     scrollController?.dispose();
     _listener?.cancel();
+    instance = null;
+    printf("销毁了GlobalProvide");
     super.dispose();
   }
 
