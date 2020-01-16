@@ -93,6 +93,8 @@ class _InputState extends State<Input>{
   double maxHeight = double.infinity;
   double minHeight = ToPx.size(90);
   bool isInputEmpty = false;
+  bool isShowVisibility = false;
+  bool obscureText = false;
 
   @override
   void initState() {
@@ -100,6 +102,8 @@ class _InputState extends State<Input>{
 
     if(widget.height != null) minHeight = widget.height;
     if(widget.maxHeight != null && widget.maxHeight > minHeight) maxHeight = widget.maxHeight;
+    obscureText = widget.obscureText;
+    if(widget.obscureText) isShowVisibility = true;
     setState(() {});
 
     // 判断外部是否给控制器
@@ -113,10 +117,10 @@ class _InputState extends State<Input>{
     controller.addListener(() async{
       // 清除按钮
       if(controller.value.text.length == 0){
-        if(widget.showClear) isShowClear = false;
+        isShowClear = false;
         isInputEmpty = false;
       }else{
-        if(widget.showClear)  isShowClear = true;
+        if(widget.showClear) isShowClear = true;
         isInputEmpty = true;
       }
       // 判断长度截取掉
@@ -134,6 +138,7 @@ class _InputState extends State<Input>{
       focusNode = widget.focusNode;
     }
     focusNode.addListener((){
+      printf(focusNode.hasFocus);
       // 判断长度截取掉
       if(widget.maxLength != null && controller.value.text.length > widget.maxLength && Platform.isIOS){
         controller.text = controller.value.text.substring(0, widget.maxLength);
@@ -150,7 +155,6 @@ class _InputState extends State<Input>{
       isInputEmpty = true;
       setState(() {});
     }
-
   }
 
   @override
@@ -212,6 +216,7 @@ class _InputState extends State<Input>{
                     Align(
                       alignment: Alignment.centerLeft,
                       child: TextField(
+                      key: widget.key,
                       scrollPhysics: Platform.isAndroid ? BouncingScrollPhysics() : null,
                       controller: controller,
                       focusNode: focusNode,
@@ -233,7 +238,7 @@ class _InputState extends State<Input>{
                       cursorRadius: Radius.circular(ToPx.size(3)),
                       cursorWidth: ToPx.size(5),
                       style: widget.style ?? themeData.textTheme.body1,
-                      obscureText: widget.obscureText,
+                      obscureText: obscureText,
                       keyboardType: widget.keyboardType,
                       maxLines: widget.maxLines,
                       minLines: widget.minLines,
@@ -249,6 +254,27 @@ class _InputState extends State<Input>{
               ),
               ),
               Align(
+                alignment: Alignment.centerRight,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                children: <Widget>[
+                   Offstage(
+                    offstage: !isShowVisibility,
+                    child: Button(
+                        onPressed: (){
+                            setState(() {
+                              obscureText = !obscureText;
+                            });
+                        },
+                        alignment: Alignment.centerRight,
+                        useIosStyle: true,
+                        disabledColor:  Colors.transparent,
+                        color: Colors.transparent,
+                        width: ToPx.size(45),
+                        child: Icon(obscureText ? Icons.visibility : Icons.visibility_off, size: ToPx.size(40), color: Color(0xffcccccc),),
+                      ),
+                  ),
+                  Align(
                   alignment: Alignment.centerRight,
                   child: Offstage(
                     offstage: !widget.showClear,
@@ -268,7 +294,8 @@ class _InputState extends State<Input>{
                       ),
                     ),
                   )
-              )
+              ),
+              ]))
             ],
           ),
         ),

@@ -86,6 +86,7 @@ class _LoginPageState extends State<LoginPage> {
                                   ),
                                   Expanded(
                                     child: Input(
+                                      key: Key("accountCtr"),
                                       controller: loginState.accountCtr,
                                       showClear: true,
                                       padding:
@@ -117,6 +118,7 @@ class _LoginPageState extends State<LoginPage> {
                                   ),
                                   Expanded(
                                     child: Input(
+                                      key: Key("passwordCtr"),
                                       obscureText: true,
                                       controller: loginState.passwordCtr,
                                       showClear: true,

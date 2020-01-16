@@ -623,19 +623,18 @@ class GlobalProvide with ChangeNotifier {
             break;
           case "text":
           case "photo":
-            if(message.fromAccount != currentContact.fromAccount) return;
+            if(currentContact != null && message.fromAccount != currentContact.fromAccount) return;
             advanceText = "";
             notifyListeners();
             break;
           case "end":
           case "timeout":
             getContacts();
-            if(message.fromAccount != currentContact.fromAccount) return;
+            if(currentContact != null && message.fromAccount != currentContact.fromAccount) return;
              advanceText = "";
             break;
           case "pong":
-            if(message.fromAccount != currentContact.fromAccount) return;
-            print(message.payload);
+            if(currentContact != null && message.fromAccount != currentContact.fromAccount) return;
             advanceText = message.payload;
             notifyListeners();
             if (isPong) return;

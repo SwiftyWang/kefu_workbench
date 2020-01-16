@@ -73,3 +73,13 @@ const String API_USER =  "/user/";
 
 /// 客服接口
 const String API_ADMIN =  "/admin/";
+
+/// 修改客服密码
+const String API_UPDATE_ADMIN_PASSWORD =  "/admin/password/";
+
+/// 获取知识库列表
+const String API_GET_KNOWLEDGE =  "/knowledge/list/";
+
+
+
+

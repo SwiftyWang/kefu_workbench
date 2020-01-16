@@ -130,10 +130,20 @@ class EditProfilePageState extends State<EditProfilePage> {
       }
       return Scaffold(
         appBar: customAppBar(
-            title: Text(
-              "编辑个人资料",
-              style: themeData.textTheme.display1,
-            )),
+          actions: [
+            Button(
+              height: ToPx.size(90),
+              useIosStyle: true,
+              color: Colors.transparent,
+              width: ToPx.size(150),
+              child: Text("修改密码"),
+              onPressed: () => Navigator.pushNamed(context, "/edit_password")
+            ),
+          ],
+          title: Text(
+            "编辑个人资料",
+            style: themeData.textTheme.display1,
+          )),
         body: ListView(
           children: <Widget>[
               SizedBox(

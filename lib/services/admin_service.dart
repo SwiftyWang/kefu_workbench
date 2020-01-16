@@ -69,5 +69,15 @@ class AdminService extends BaseServices {
     }
   }
 
+  // 修改客服密码
+  Future<Response> updatePassword(Map data) async {
+    try {
+      Response response = await http.put(API_UPDATE_ADMIN_PASSWORD, data: data);
+      return response;
+    } on DioError catch (e) {
+      return error(e, API_UPDATE_ADMIN_PASSWORD);
+    }
+  }
+
 
 }
