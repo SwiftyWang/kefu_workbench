@@ -11,8 +11,9 @@ class KnowledgePage extends StatefulWidget {
 class _KnowledgePageState extends State<KnowledgePage> {
 
   List<KnowledgeModel> knowledges = [];
+  ScrollController scrollController = ScrollController();
   int pageOn = 0;
-  int pageSize = 20;
+  int pageSize = 25;
   bool isLoadEnd = false;
   bool isLoading = false;
 
@@ -20,10 +21,31 @@ class _KnowledgePageState extends State<KnowledgePage> {
   void initState() {
     super.initState();
     _getKnowledges();
+    // 监听滚动
+    scrollController?.addListener(() => _onScrollViewControllerAddListener());
   }
+
+  // 监听滚动条
+void _onScrollViewControllerAddListener() async{
+  try {
+    ScrollPosition position = scrollController.position;
+    if (position.pixels + 10.0 > position.maxScrollExtent &&
+        !isLoadEnd && !isLoading) {
+      // 判断网络
+      if (!await checkNetWork()) {
+        UX.showToast('您的网络异常，请检查您的网络!', position: ToastPosition.top);
+        return;
+      }
+      _getKnowledges();
+    }
+  }catch(e){
+    printf(e);
+  }
+}
 
   /// 获取数据
   Future<void> _getKnowledges() async{
+    if(isLoadEnd) return;
     pageOn = pageOn +1;
     isLoading = true;
     setState(() { });
@@ -33,17 +55,31 @@ class _KnowledgePageState extends State<KnowledgePage> {
     if (response.data["code"] == 200) {
       List<KnowledgeModel> _knowledges = (response.data["data"]['list'] as List).map((i) => KnowledgeModel.fromJson(i)).toList();
       if(_knowledges.length < pageSize){
-        isLoadEnd = false;
+        isLoadEnd = true;
       }
-      knowledges = _knowledges;
+      if(pageOn > 1){
+        knowledges.addAll(_knowledges);
+      }else{
+        knowledges = _knowledges;
+      }
       setState(() { });
     } else {
       UX.showToast("${response.data["message"]}");
     }
   }
 
+  // onRefresh
+  Future<bool> onRefresh() async{
+    pageOn = 0;
+    isLoadEnd = false;
+    await _getKnowledges();
+    UX.showToast("刷新成功", position: ToastPosition.top);
+    return true;
+  }
+
   @override
   void dispose() {
+    scrollController?.dispose();
     super.dispose();
   }
   
@@ -65,15 +101,20 @@ class _KnowledgePageState extends State<KnowledgePage> {
                 color: Colors.transparent,
                 width: ToPx.size(150),
                 child: Text("新增"),
-                onPressed: () => Navigator.pushNamed(context, "/add_knowledge")
+                onPressed: () => Navigator.pushNamed(context, "/knowledge_add")
               ),
             ],
           ),
-        body: RefreshIndicator(
+        body: 
+        isLoading && knowledges.length == 0 ? Center(
+          child: loadingIcon(size: ToPx.size(50)),
+        ): 
+        RefreshIndicator(
           color: themeData.primaryColorLight,
           backgroundColor: themeData.primaryColor,
-          onRefresh: (){},
+          onRefresh: onRefresh,
           child: CustomScrollView(
+          controller: scrollController,
           slivers: <Widget>[
               SliverToBoxAdapter(
                 child: Offstage(
@@ -90,9 +131,16 @@ class _KnowledgePageState extends State<KnowledgePage> {
                   return Column(
                     children: <Widget>[
                       ListTile(
-                        onTap: (){},
-                        subtitle: Text("添加时间：2019/10/17", style: themeData.textTheme.caption,),
-                        title: Text("${index+1}、 ${knowledge.title}", style: themeData.textTheme.title, maxLines: 2, overflow: TextOverflow.ellipsis,),
+                        onTap: () => Navigator.pushNamed(context, "/knowledge_detail",arguments: {
+                          "knowledge": knowledge
+                        }),
+                        trailing: Text("${Utils.formatDate(knowledge.createAt)}", style: themeData.textTheme.caption),
+                        title: Row(children: <Widget>[
+                          Text("${index+1}、", style: themeData.textTheme.title),
+                          Expanded(
+                            child: Text("${knowledge.title}", style: themeData.textTheme.title, maxLines: 2, overflow: TextOverflow.ellipsis,),
+                          )
+                        ],),
                       ),
                       Divider(height: 1.0,)
                     ],
@@ -100,7 +148,37 @@ class _KnowledgePageState extends State<KnowledgePage> {
                 },
                 childCount: knowledges.length
                 ),
-              )
+              ),
+              SliverToBoxAdapter(
+                child: Offstage(
+                  child: Center(
+                    child: SizedBox(
+                      height: ToPx.size(150),
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: <Widget>[
+                          loadingIcon(),
+                          Text('  内容加载中...',
+                              style: themeData.textTheme.caption)
+                        ],
+                      ),
+                    ),
+                  ),
+                  offstage: !isLoading || isLoadEnd
+                )
+              ),
+              SliverToBoxAdapter(
+                child: Offstage(
+                  child: Padding(
+                    padding: EdgeInsets.symmetric(vertical: ToPx.size(40)),
+                    child: Center(
+                        child: Text(
+                            '没有更多了', style: themeData.textTheme.caption)
+                    ),),
+                  offstage: !isLoadEnd
+                )
+              ),
 
           ],
         )

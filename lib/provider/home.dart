@@ -42,6 +42,7 @@ class HomeProvide with ChangeNotifier {
   /// 退出登录
   void logout(BuildContext context) {
     UX.alert(context, content: "您确定退出登录吗？", onConfirm: () {
+      Navigator.pop(context);
       Navigator.pushNamedAndRemoveUntil(context, "/login", ModalRoute.withName('/'), arguments: {"isAnimate": false});
       UX.showToast("已退出登录~");
       GlobalProvide.getInstance().applicationLogout();

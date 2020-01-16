@@ -5,11 +5,13 @@ import 'package:provider/provider.dart';
 
 import 'core_flutter.dart';
 import 'provider/global.dart';
+import 'provider/home.dart';
 
 Widget createApp() {
   return MultiProvider(
       providers: [
-        ChangeNotifierProvider.value(value: GlobalProvide.getInstance())
+        ChangeNotifierProvider.value(value: GlobalProvide.getInstance()),
+        ChangeNotifierProvider.value(value: HomeProvide.getInstance()),
       ],
       child: _MyApp()
   );

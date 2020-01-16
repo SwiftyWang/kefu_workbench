@@ -7,6 +7,8 @@ import 'views/edit_profile/index.dart';
 import 'views/edit_user/index.dart';
 import 'views/home/index.dart';
 import 'views/knowledge/index.dart';
+import 'views/knowledge_detail/index.dart';
+import 'views/knowledge_edit/index.dart';
 
 class Routers {
   static Widget buildPage(String path, {Object arguments}) {
@@ -33,6 +35,11 @@ class Routers {
         return EditProfilePage(arguments: arguments);
       case "/edit_password":
         return EditPasswordPage(arguments: arguments);
+      case "/knowledge_detail":
+        return KnowledgeDetailPage(arguments: arguments);
+      case "/knowledge_add":
+      case "/knowledge_edit":
+        return KnowledgeEditPage(arguments: arguments);
         break;
       default:
         return Scaffold(

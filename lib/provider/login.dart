@@ -35,7 +35,9 @@ class LoginProvide with ChangeNotifier {
       UX.showToast("请输入密码~");
        return;
     }
+    UX.showLoading(context, content: "登录中...");
     Response response = await authService.login(username: account, password: password);
+    UX.hideLoading(context);
     if(response.statusCode == 200){
       ServiceUserModel user = ServiceUserModel.fromJson(response.data['data']);
       GlobalProvide.getInstance().setServiceUser(user);

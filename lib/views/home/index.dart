@@ -30,13 +30,10 @@ class HomePage extends StatelessWidget {
 
   @override
   Widget build(ctx) {
-    return ChangeNotifierProvider<HomeProvide>(
-      create: (_) => HomeProvide.getInstance(),
-      child: Builder(builder: (context){
-        return PageContext(builder: (context) {
+    return Consumer<HomeProvide>(builder: (context, homeState, ___){
+      return PageContext(builder: (context) {
           GlobalProvide.getInstance().setRooContext(context);
           ThemeData themeData = Theme.of(context);
-          HomeProvide homeState = Provider.of<HomeProvide>(context);
           GlobalProvide globalState = Provider.of<GlobalProvide>(context);
           return WillPopScope(
               onWillPop: onBackPressed,
@@ -154,7 +151,6 @@ class HomePage extends StatelessWidget {
               ),
             );
         });
-      },)
-    );
+    });
   }
 }

@@ -49,6 +49,7 @@ class _LoginPageState extends State<LoginPage> {
                 backgroundColor: themeData.primaryColor,
                 appBar: customAppBar(
                     isShowLeading: false,
+                    leading: "",
                     title: Text(
                       "用户登录",
                       style: themeData.textTheme.display1,

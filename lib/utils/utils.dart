@@ -74,6 +74,16 @@ class Utils{
   }
 
   // 日期格式化
+  static String formatDate(int timeStamp){
+    if(timeStamp.toString().length <= 10){
+      timeStamp = int.parse(timeStamp.toString() + '000');
+    }
+    if(timeStamp == null) return "";
+    DateTime date = DateTime.fromMillisecondsSinceEpoch(timeStamp);
+    return "${date.year}/${date.month}/${date.day}";
+  }
+
+  // 日期格式化1
   static String epocFormat(int timeStamp){
     if(timeStamp.toString().length <= 10){
       timeStamp = int.parse(timeStamp.toString() + '000');
