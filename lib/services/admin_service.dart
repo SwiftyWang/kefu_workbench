@@ -59,5 +59,15 @@ class AdminService extends BaseServices {
     }
   }
 
+   // 更新客服信息
+  Future<Response> saveAdminInfo(Map data) async {
+    try {
+      Response response = await http.put(API_ADMIN, data: data);
+      return response;
+    } on DioError catch (e) {
+      return error(e, API_ADMIN);
+    }
+  }
+
 
 }

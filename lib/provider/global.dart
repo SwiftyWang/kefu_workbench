@@ -123,13 +123,13 @@ class GlobalProvide with ChangeNotifier {
   /// return bool
   Future<void> init() async {
     await _prefsInstance();
+    await getMe();
     await _getUploadSecret();
     await _getOnlineRobot();
     if(isLogin){
       await _registerImAccount();
       await _flutterMImcInstance();
       await _addMimcEvent();
-      await _getMe();
       await getContacts(isFullLoading: true);
       await _upImLastActivity();
       await getShortcuts();
@@ -163,7 +163,7 @@ class GlobalProvide with ChangeNotifier {
   }
 
   /// 获取个人信息
-  Future<void> _getMe() async {
+  Future<void> getMe() async {
      Response response = await adminService.getMe();
     if (response.data["code"] == 200) {
       serviceUser = ServiceUserModel.fromJson(response.data['data']);
@@ -172,7 +172,7 @@ class GlobalProvide with ChangeNotifier {
         flutterMImc?.login();
       }
     } else {
-      UX.showToast(response.data['message']);
+      applicationLogout();
     }
   }
 
@@ -216,6 +216,9 @@ class GlobalProvide with ChangeNotifier {
     try{
       String tokenString = '{"code": 200, "message": "success", "data": ${jsonEncode(imTokenInfo?.toJson())}}';
       flutterMImc = FlutterMIMC.stringTokenInit(tokenString, debug: true);
+      if(serviceUser != null && serviceUser.online != 0){
+        flutterMImc.login();
+      }
     } catch(_) {
       Navigator.pushNamedAndRemoveUntil(rooContext, "/login", ModalRoute.withName('/'), arguments: {"isAnimate": false});
     }
@@ -284,7 +287,7 @@ class GlobalProvide with ChangeNotifier {
   Future<void> updateUserOnlineStatus({int online}) async{
     Response response = await adminService.updateUserOnlineStatus(status: online);
     if (response.data["code"] == 200) {
-      _getMe();
+      getMe();
       if(online == 0){
         UX.showToast("当前状态为离线");
         flutterMImc.logout();
@@ -678,17 +681,11 @@ class GlobalProvide with ChangeNotifier {
     sendMessage(msgHandle);
   }
 
-  /// 发送图片
-  void sendPhotoMessage(File file) async {
-    debugPrint("${uploadSecret.toJson()}");
-    MessageHandle msgHandle;
-    try {
-      if (file == null) return;
-      msgHandle = createMessage(toAccount: toAccount, msgType: "photo", content: file.path);
-      pushLocalMessage(msgHandle.localMessage, toAccount);
-      notifyListeners();
-
-      String filePath = file.path;
+  /// 上传图片
+  Future<String> uploadImage(File file,{
+    Function(int, int) onSendProgress
+  }) async{
+    String filePath = file.path;
       String fileName = "${DateTime.now().microsecondsSinceEpoch}_" +
           (filePath.lastIndexOf('/') > -1
               ? filePath.substring(filePath.lastIndexOf('/') + 1)
@@ -702,22 +699,6 @@ class GlobalProvide with ChangeNotifier {
         "token": uploadSecret.secret ?? "",
         "file": MultipartFile.fromFileSync(file.path, filename: fileName)
       });
-
-      void uploadSuccess(url) async {
-        String img = uploadSecret.host + "/" + url;
-        msgHandle.localMessage.isShowCancel = true;
-        msgHandle.localMessage.payload = img;
-        notifyListeners();
-        ImMessageModel sendMsg = ImMessageModel.fromJson(json
-            .decode(utf8.decode(base64Decode(msgHandle.sendMessage.payload))));
-        sendMsg.payload = img;
-        msgHandle.sendMessage.payload =
-            base64Encode(utf8.encode(json.encode(sendMsg.toJson())));
-        sendMessage(msgHandle.clone()..localMessage.payload = img);
-        await Future.delayed(Duration(milliseconds: 10000));
-        msgHandle.localMessage.isShowCancel = false;
-        notifyListeners();
-      }
 
       String uploadUrl;
 
@@ -733,27 +714,63 @@ class GlobalProvide with ChangeNotifier {
         /// 其他
       } else {}
 
-      Response response = await PublicService.instance.http.post(uploadUrl, data: formData,
-          onSendProgress: (int sent, int total) {
-        msgHandle.localMessage.uploadProgress = (sent / total * 100).ceil();
-        notifyListeners();
-      });
-      debugPrint("${response.data}");
+      Response response = await PublicService.instance.http.post(uploadUrl, data: formData, onSendProgress: onSendProgress);
       if (response.statusCode == 200) {
         switch (uploadSecret.mode) {
           case 1:
-            uploadSuccess(response.data["data"]);
+            return uploadSecret.host + "/" + response.data["data"];
             break;
           case 2:
-            uploadSuccess(response.data["key"]);
+            return uploadSecret.host + "/" + response.data["key"];
             break;
+          default:
+          return null;
         }
       } else {
+       return null;
+      }
+
+  }
+
+  /// 发送图片
+  void sendPhotoMessage(File file) async {
+    debugPrint("${uploadSecret.toJson()}");
+    MessageHandle msgHandle;
+    try {
+      if (file == null) return;
+      msgHandle = createMessage(toAccount: toAccount, msgType: "photo", content: file.path);
+      pushLocalMessage(msgHandle.localMessage, toAccount);
+      notifyListeners();
+
+      String imgUrl = await uploadImage(file, onSendProgress:(int sent, int total) {
+        msgHandle.localMessage.uploadProgress = (sent / total * 100).ceil();
+        notifyListeners();
+      });
+
+      /// 上传失败
+      if(imgUrl == null){
         deleteMessage(msgHandle.localMessage.toAccount, msgHandle.localMessage.key);
         MessageHandle systemMsgHandle = createMessage(
             toAccount: toAccount, msgType: "system", content: "图片上传失败~");
             pushLocalMessage(systemMsgHandle.localMessage, toAccount);
+        return;
       }
+
+      /// 上传成功
+      msgHandle.localMessage.isShowCancel = true;
+      msgHandle.localMessage.payload = imgUrl;
+      notifyListeners();
+      ImMessageModel sendMsg = ImMessageModel.fromJson(json
+          .decode(utf8.decode(base64Decode(msgHandle.sendMessage.payload))));
+      sendMsg.payload = imgUrl;
+      msgHandle.sendMessage.payload =
+          base64Encode(utf8.encode(json.encode(sendMsg.toJson())));
+      sendMessage(msgHandle.clone()..localMessage.payload = imgUrl);
+      await Future.delayed(Duration(milliseconds: 10000));
+      msgHandle.localMessage.isShowCancel = false;
+      notifyListeners();
+
+
     } catch (e) {
       deleteMessage(msgHandle.localMessage.toAccount, msgHandle.localMessage.key);
       MessageHandle systemMsgHandle = createMessage(

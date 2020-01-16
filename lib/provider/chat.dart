@@ -154,7 +154,11 @@ class ChatProvide with ChangeNotifier {
       UX.showToast("未授权使用相机！");
       return;
     }
-    if(imageSource == ImageSource.gallery && !await checkPermission(globalState.rooContext, permissionGroupType: PermissionGroup.photos)){
+    if(Platform.isAndroid && imageSource == ImageSource.gallery && !await checkPermission(globalState.rooContext, permissionGroupType: PermissionGroup.storage)){
+      UX.showToast("未授权使用相册！");
+      return;
+    }
+    if(Platform.isIOS && imageSource == ImageSource.gallery && !await checkPermission(globalState.rooContext, permissionGroupType: PermissionGroup.photos)){
       UX.showToast("未授权使用相册！");
       return;
     }

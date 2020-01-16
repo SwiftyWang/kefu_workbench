@@ -1,5 +1,6 @@
 
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:kefu_workbench/core_flutter.dart';
 
 enum ToastPosition {
@@ -110,6 +111,42 @@ class UX {
           return PhotoPreview(images: images, context: context,);
         }
     ));
+  }
+
+  // 图片选择 sheet
+  static Future<ImageSource> selectImageSheet(context) async {
+    ThemeData themeData = Theme.of(context);
+    var imageSource = await showCupertinoModalPopup(
+      context: context,
+      builder: (BuildContext context){
+        return CupertinoActionSheet(
+            actions: <Widget>[
+              CupertinoActionSheetAction(
+                child: Text('拍照', style: themeData.textTheme.body2),
+                onPressed: () {
+                  Navigator.pop(context, ImageSource.camera);
+                },
+              ),
+              CupertinoActionSheetAction(
+                child: Text('从手机选择照片', style: themeData.textTheme.body2),
+                onPressed: () {
+                  Navigator.pop(context, ImageSource.gallery);
+                },
+              ),
+            ],
+            cancelButton: SizedBox(
+              child: CupertinoActionSheetAction(
+                isDestructiveAction: true,
+                child: Text('取消', style: themeData.textTheme.body2),
+                onPressed: () {
+                  Navigator.pop(context, null);
+                },
+              ),
+            )
+        );
+      }
+    );
+    return imageSource;
   }
 
   // 时间选择器 IOS 风格

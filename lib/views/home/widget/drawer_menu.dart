@@ -109,7 +109,7 @@ class DrawerMenu extends StatelessWidget {
                     child: Button(
                       useIosStyle: true,
                       width: ToPx.size(120),
-                      onPressed: () {},
+                      onPressed: () => Navigator.popAndPushNamed(context, "/edit_profile"),
                       color: Colors.transparent,
                       child: Text(
                         "编辑资料",

@@ -15,9 +15,11 @@ class BottomBar extends StatelessWidget{
     this.enabled = true,
     this.onToggleTransferPanel,
     this.onToggleShortcutPanel,
+    this.isShowShortcutPanel,
   });
   final bool enabled;
   final bool isShowEmoJiPanel;
+  final bool isShowShortcutPanel;
   final VoidCallback onHideEmoJiPanel;
   final VoidCallback onShowEmoJiPanel;
   final VoidCallback onToggleTransferPanel;
@@ -28,6 +30,14 @@ class BottomBar extends StatelessWidget{
   final TextEditingController editingController;
   final VoidCallback onSubmit;
   final ValueChanged<String> onInputChanged;
+
+  void _onSubmit(BuildContext context) {
+    onSubmit();
+    if(isShowEmoJiPanel) return;
+    if(isShowShortcutPanel) return;
+    FocusScope.of(context).requestFocus(focusNode);
+  }
+
   @override
   Widget build(BuildContext context) {
    ThemeData themeData = Theme.of(context);
@@ -126,10 +136,7 @@ class BottomBar extends StatelessWidget{
                         maxLines: 5,
                         maxLength: 200,
                         border: Border.all(style: BorderStyle.none, width: 0.0),
-                        onEditingComplete: () {
-                          onSubmit();
-                          FocusScope.of(context).requestFocus(focusNode);
-                        },
+                        onEditingComplete: () => _onSubmit(context),
                         textInputAction: Platform.isIOS
                             ? TextInputAction.send
                             : TextInputAction.newline,
@@ -146,10 +153,7 @@ class BottomBar extends StatelessWidget{
                       width: ToPx.size(100),
                       height: ToPx.size(60),
                       color: Theme.of(context).primaryColor,
-                      onPressed: () {
-                        onSubmit();
-                        FocusScope.of(context).requestFocus(focusNode);
-                      },
+                      onPressed:  () => _onSubmit(context),
                       child: Text(
                         "发送",
                         style: themeData.textTheme.title.copyWith(

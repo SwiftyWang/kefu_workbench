@@ -182,6 +182,7 @@ class ChatPage extends StatelessWidget {
                             focusNode: chatState.focusNode,
                             onSubmit: chatState.onSubmit,
                             isShowEmoJiPanel: chatState.isShowEmoJiPanel,
+                            isShowShortcutPanel: chatState.isShowShortcutPanel,
                             onShowEmoJiPanel: chatState.onShowEmoJiPanel,
                             onHideEmoJiPanel: chatState.onHideEmoJiPanel,
                             onInputChanged: chatState.onInputChanged,

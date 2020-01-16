@@ -2,6 +2,7 @@ import 'core_flutter.dart';
 import 'provider/global.dart';
 import 'views/auth/index.dart';
 import 'views/chat/index.dart';
+import 'views/edit_profile/index.dart';
 import 'views/edit_user/index.dart';
 import 'views/home/index.dart';
 import 'views/knowledge/index.dart';
@@ -27,6 +28,8 @@ class Routers {
         return EditUserPage(arguments: arguments);
       case "/knowledge":
         return KnowledgePage(arguments: arguments);
+      case "/edit_profile":
+        return EditProfilePage(arguments: arguments);
         break;
       default:
         return Scaffold(
