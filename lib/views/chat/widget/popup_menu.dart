@@ -10,9 +10,6 @@ class PopupMenu extends StatelessWidget{
       builder: (context, globalState, _){
         ThemeData themeData = Theme.of(context);
         GlobalProvide  globalState = Provider.of<GlobalProvide>(context);
-        Color lineColor = globalState?.serviceUser?.online == 1  ? Colors.green[400] :
-                    globalState?.serviceUser?.online == 0 ? Colors.grey :
-                    globalState?.serviceUser?.online == 2 ? Colors.amber : Colors.grey;
         return PopupMenuButton<int>(
         onSelected: (int status) =>
             globalState?.setOnline(online: status),

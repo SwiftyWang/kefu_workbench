@@ -138,7 +138,7 @@ class DrawerMenu extends StatelessWidget {
               _listTile(
                   icon: Icons.android,
                   title: "机器人",
-                  onTap: () => Navigator.pop(context)),
+                  onTap: () => Navigator.popAndPushNamed(context, "/robots")),
               _listTile(
                   icon: Icons.supervised_user_circle,
                   title: "客服管理",

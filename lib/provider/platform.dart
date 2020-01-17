@@ -1,5 +1,3 @@
-import 'package:kefu_workbench/provider/global.dart';
-
 import '../core_flutter.dart';
 
 class PlatformProvide with ChangeNotifier {

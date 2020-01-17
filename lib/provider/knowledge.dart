@@ -1,5 +1,4 @@
 import 'package:dio/dio.dart';
-import 'package:kefu_workbench/provider/global.dart';
 
 import '../core_flutter.dart';
 
@@ -15,6 +14,7 @@ class KnowledgeProvide with ChangeNotifier {
     instance = KnowledgeProvide();
     return instance;
   }
+  
   KnowledgeProvide(){
     scrollController = ScrollController();
     getKnowledges();

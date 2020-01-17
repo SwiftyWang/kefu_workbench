@@ -2,7 +2,6 @@ import 'package:dio/dio.dart';
 import 'package:kefu_workbench/core_flutter.dart';
 import 'package:kefu_workbench/provider/global.dart';
 import 'package:kefu_workbench/provider/knowledge.dart';
-import 'package:provider/provider.dart';
 
 class KnowledgeDetailPage extends   StatefulWidget {
   final Map<dynamic, dynamic> arguments;

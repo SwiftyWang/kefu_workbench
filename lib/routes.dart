@@ -9,6 +9,8 @@ import 'views/home/index.dart';
 import 'views/knowledge/index.dart';
 import 'views/knowledge_detail/index.dart';
 import 'views/knowledge_edit/index.dart';
+import 'views/robot_edit/index.dart';
+import 'views/robots/index.dart';
 
 class Routers {
   static Widget buildPage(String path, {Object arguments}) {
@@ -40,6 +42,13 @@ class Routers {
       case "/knowledge_add":
       case "/knowledge_edit":
         return KnowledgeEditPage(arguments: arguments);
+        break;
+      case "/robots":
+        return RobotsPage(arguments: arguments);
+        break;
+      case "/robot_add":
+      case "/robot_edit":
+        return RobotEditPage(arguments: arguments);
         break;
       default:
         return Scaffold(

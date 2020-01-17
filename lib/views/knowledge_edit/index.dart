@@ -176,7 +176,7 @@ class _KnowledgeEditPageState extends State<KnowledgeEditPage> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 subChild: Padding(
                   padding: EdgeInsets.symmetric(vertical: ToPx.size(8)),
-                  child: Text("注意：副标题如有多条请换行处理，每行一条", style: themeData.textTheme.caption.copyWith(
+                  child: Text("注意：副标题如有多条请换行处理", style: themeData.textTheme.caption.copyWith(
                     color: Colors.amber
                   ),),
                 )

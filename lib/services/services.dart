@@ -7,3 +7,4 @@ export 'shortcut_service.dart';
 export 'platform_service.dart';
 export 'user_service.dart';
 export 'knowledge_service.dart';
+export 'robot_service.dart';

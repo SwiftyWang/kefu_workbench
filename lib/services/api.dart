@@ -40,6 +40,12 @@ const String API_ACTIVITY = "/public/activity";
 /// 获取机器人  /platform
 const String API_GET_ROBOT = "/public/robot/1";
 
+/// 机器人
+const String API_ROBOT = "/robot/";
+
+/// 获取机器人列表
+const String API_ROBOTS =  "/robot/list/";
+
 /// 获取未读消息    /uid
 const String API_GET_READ = "/public/read";
 

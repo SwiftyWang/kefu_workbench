@@ -244,7 +244,7 @@ class GlobalProvide with ChangeNotifier {
   /// 获取一个在线机器人
   Future<void> _getOnlineRobot() async {
     try {
-      Response response = await publicService.getOnlineRobot();
+      Response response = await RobotService.getInstance().getOnlineRobot();
       if (response.data["code"] == 200) {
         robot = RobotModel.fromJson(response.data["data"]);
       } else {
