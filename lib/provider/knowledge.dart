@@ -67,6 +67,11 @@ class KnowledgeProvide with ChangeNotifier {
     }
   }
 
+  /// 删除单个数据
+  void deleteItem(int id){
+    knowledges.removeWhere((i) => i.id == id);
+  }
+
   /// 找出一个
   KnowledgeModel getItem(int id){
     return knowledges.firstWhere((k) => k.id == id);

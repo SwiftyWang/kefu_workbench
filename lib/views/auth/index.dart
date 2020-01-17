@@ -89,7 +89,6 @@ class _LoginPageState extends State<LoginPage> {
                                     child: Input(
                                       key: Key("accountCtr"),
                                       controller: loginState.accountCtr,
-                                      showClear: true,
                                       padding:
                                           EdgeInsets.only(left: ToPx.size(20)),
                                       border: Border.all(
@@ -122,7 +121,6 @@ class _LoginPageState extends State<LoginPage> {
                                       key: Key("passwordCtr"),
                                       obscureText: true,
                                       controller: loginState.passwordCtr,
-                                      showClear: true,
                                       padding:
                                           EdgeInsets.only(left: ToPx.size(20)),
                                       border: Border.all(

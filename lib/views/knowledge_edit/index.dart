@@ -88,10 +88,10 @@ class _KnowledgeEditPageState extends State<KnowledgeEditPage> {
     UX.hideLoading(context);
     if(response.statusCode == 200){
       UX.showToast("保存成功");
-      Navigator.pop(context, true);
       if(isEdit){
-        KnowledgeProvide.getInstance().getKnowledge(knowledge.id);
+       await KnowledgeProvide.getInstance().getKnowledge(knowledge.id);
       }
+      Navigator.pop(context, true);
     }else{
       UX.showToast(response.data["message"]);
     }

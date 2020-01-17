@@ -16,6 +16,7 @@ class DrawerMenu extends StatelessWidget {
         {IconData icon,
         String title,
         VoidCallback onTap,
+        bool selected = false,
         Color selectedColor = Colors.white}) {
       return Button(
         onPressed: onTap,
@@ -29,13 +30,13 @@ class DrawerMenu extends StatelessWidget {
             Expanded(
               child: Row(
                 children: <Widget>[
-                  Icon(icon, color: themeData.primaryColorLight),
+                  Icon(icon, color: selected ? Colors.amber : themeData.primaryColorLight),
                   Padding(
                     padding: EdgeInsets.only(left: ToPx.size(50)),
                     child: Text(
                       title,
                       style: themeData.textTheme.title.copyWith(
-                          color: themeData.primaryColorLight,
+                          color:  selected ? Colors.amber : themeData.primaryColorLight,
                           fontWeight: FontWeight.w500),
                     ),
                   )
@@ -43,7 +44,7 @@ class DrawerMenu extends StatelessWidget {
               ),
             ),
             Icon(Icons.chevron_right,
-                color: themeData.primaryColorLight.withAlpha(30))
+                color:  selected ? Colors.amber : themeData.primaryColorLight.withAlpha(30))
           ],
         ),
       );
@@ -128,6 +129,7 @@ class DrawerMenu extends StatelessWidget {
               _listTile(
                   icon: Icons.home,
                   title: "工作台",
+                  selected: true,
                   onTap: () => Navigator.pop(context)),
               _listTile(
                   icon: Icons.library_books,
