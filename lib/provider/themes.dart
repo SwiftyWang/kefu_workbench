@@ -24,8 +24,8 @@ class ThemeProvide with ChangeNotifier {
         primaryColor: Color(0xff3e444a), // 主题色
         dividerColor: Color(0xfff3f3f3), // 描边等
         accentColor: Color(0xff999999), //  文本前景色
-        indicatorColor: Color(0xff0cb8fd), // 选中颜色
-        buttonColor: Color(0xff0cb8fd), // 按钮颜色
+        indicatorColor: Color(0xff3e444a), // 选中颜色
+        buttonColor: Color(0xff3e444a), // 按钮颜色
         disabledColor: Color(0xffcccccc), // 禁用颜色
         primaryColorLight: Color(0xffffffff), // 比较亮的颜色
         primaryColorDark: Color(0xff333333), // 比较暗的颜色

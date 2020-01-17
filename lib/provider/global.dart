@@ -478,6 +478,14 @@ class GlobalProvide with ChangeNotifier {
     }
     return "未知平台";
   }
+  /// 根据平台标题获取平台ID
+  int getPlatformId(String title){
+    PlatformModel platform = platforms.singleWhere((p) => p.title == title);
+    if(platform != null){
+      return platform.id;
+    }
+    return 1;
+  }
 
   /// 获取工作台聊天列表
   bool isContactShowLoading = false;

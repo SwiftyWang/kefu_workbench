@@ -80,6 +80,9 @@ const String API_UPDATE_ADMIN_PASSWORD =  "/admin/password/";
 /// 获取知识库列表
 const String API_GET_KNOWLEDGE =  "/knowledge/list/";
 
+/// 知识库操作
+const String API_KNOWLEDGE =  "/knowledge/";
+
 
 
 

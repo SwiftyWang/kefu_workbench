@@ -354,7 +354,7 @@ class ChatProvide with ChangeNotifier {
     scrollController?.dispose();
     _listener?.cancel();
     instance = null;
-    printf("销毁了GlobalProvide");
+    printf("销毁了ChatProvide");
     super.dispose();
   }
 
