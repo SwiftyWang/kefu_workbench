@@ -1,4 +1,5 @@
 import 'package:kefu_workbench/core_flutter.dart';
+import 'package:kefu_workbench/provider/global.dart';
 import 'package:kefu_workbench/provider/robot.dart';
 import 'package:provider/provider.dart';
 
@@ -57,26 +58,38 @@ class RobotsPage extends StatelessWidget {
                           children: <Widget>[
                             ListTile(
                               onTap: () => Navigator.pushNamed(context, "/robot_detail",arguments: {
-                                "knowledge": robot
+                                "robot": robot
                               }),
-                              trailing: Text("${Utils.formatDate(robot.createAt)}", style: themeData.textTheme.caption),
-                              title: Row(children: <Widget>[
-                                Avatar(
-                                  size: ToPx.size(60),
-                                  imgUrl: robot.avatar == null || robot.avatar.isEmpty ?
-                                  "http://qiniu.cmp520.com/avatar_default.png" : robot.avatar
+                              subtitle: Row(
+                                children: <Widget>[
+                                  Text("服务平台：", style: themeData.textTheme.caption),
+                                  Text("${GlobalProvide.getInstance().getPlatformTitle(robot.platform)}", style: themeData.textTheme.caption),
+                                ],
+                              ),
+                              trailing: RichText(
+                                text: TextSpan(
+                                  style: themeData.textTheme.caption,
+                                  children: [
+                                    TextSpan(text: "状态："),
+                                    TextSpan(text: robot.isRun == 1 ? "运行中" : "展厅中", style: themeData.textTheme.caption.copyWith(
+                                      color: robot.isRun == 1 ? Colors.green : Colors.amber
+                                    )),
+                                  ]
                                 ),
-                                Expanded(
-                                  child: Text("  ${robot.nickname}", style: themeData.textTheme.title, maxLines: 2, overflow: TextOverflow.ellipsis,),
-                                )
-                              ],),
+                              ),
+                              leading: Avatar(
+                                size: ToPx.size(100),
+                                imgUrl: robot.avatar == null || robot.avatar.isEmpty ?
+                                "http://qiniu.cmp520.com/avatar_default.png" : robot.avatar
+                              ),
+                              title: Text("${robot.nickname}", style: themeData.textTheme.title, maxLines: 2, overflow: TextOverflow.ellipsis,),
                             ),
                             Divider(height: 1.0,)
                           ],
                         );
                       },
                       childCount: robotState.robots.length
-                      ),
+                     ),
                     ),
                 ],
               )

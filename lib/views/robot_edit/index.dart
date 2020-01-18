@@ -26,7 +26,7 @@ class _RobotEditPageState extends State<RobotEditPage> {
   List<PlatformModel> platforms = GlobalProvide.getInstance().platforms;
   String selectPlatform = "全平台";
   String avatar;
-  bool isSwitch = false;
+  bool isSwitch = true;
 
   @override
   void initState() {
@@ -40,9 +40,10 @@ class _RobotEditPageState extends State<RobotEditPage> {
         timeoutTextCtr = TextEditingController(text: robot.timeoutText);
         noServicesCtr = TextEditingController(text: robot.noServices);
         loogTimeWaitTextCtr = TextEditingController(text: robot.loogTimeWaitText);
-        keywordCtr = TextEditingController(text: robot.keyword);
-        artificialCtr = TextEditingController(text: robot.artificial);
+        keywordCtr = TextEditingController(text: robot.keyword.replaceAll("|", "\n"));
+        artificialCtr = TextEditingController(text: robot.artificial.replaceAll("|", "\n"));
         selectPlatform = GlobalProvide.getInstance().getPlatformTitle(robot.platform);
+        isSwitch = robot.isRun == 1;
       }else{
         nicknameCtr = TextEditingController();
         welcomeCtr = TextEditingController();
@@ -262,37 +263,42 @@ class _RobotEditPageState extends State<RobotEditPage> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 subChild: _tip("接入人工关键词，多个请换行处理", color: Colors.amber)
               ),
-              DropdownButtonHideUnderline(
-                child: Padding(
-                  padding: EdgeInsets.symmetric(horizontal: ToPx.size(30)),
-                  child: InputDecorator(
-                decoration: InputDecoration(
-                  labelText: '所属平台',
-                  hintText: '请选择所属平台',
-                  labelStyle: themeData.textTheme.title.copyWith(
-                    color: themeData.primaryColor,
-                    fontSize: ToPx.size(38)
+              Offstage(
+                offstage: isEdit && robot.system == 1,
+                child: DropdownButtonHideUnderline(
+                  child: Padding(
+                    padding: EdgeInsets.symmetric(horizontal: ToPx.size(30)),
+                    child: InputDecorator(
+                  decoration: InputDecoration(
+                    labelText: '所属平台',
+                    hintText: '请选择所属平台',
+                    labelStyle: themeData.textTheme.title.copyWith(
+                      color: themeData.primaryColor,
+                      fontSize: ToPx.size(38)
+                    ),
+                    contentPadding: EdgeInsets.zero,
                   ),
-                  contentPadding: EdgeInsets.zero,
+                  child: DropdownButton<String>(
+                    value: selectPlatform,
+                    onChanged: (String newValue) {
+                      setState(() {
+                        selectPlatform = newValue;
+                      });
+                    },
+                    items: platforms.map<DropdownMenuItem<String>>((PlatformModel platform) {
+                      return DropdownMenuItem<String>(
+                        value: platform.title,
+                        child: Text(platform.title, style: themeData.textTheme.title,),
+                      );
+                    }).toList(),
+                  ),
                 ),
-                child: DropdownButton<String>(
-                  value: selectPlatform,
-                  onChanged: (String newValue) {
-                    setState(() {
-                      selectPlatform = newValue;
-                    });
-                  },
-                  items: platforms.map<DropdownMenuItem<String>>((PlatformModel platform) {
-                    return DropdownMenuItem<String>(
-                      value: platform.title,
-                      child: Text(platform.title, style: themeData.textTheme.title,),
-                    );
-                  }).toList(),
-                ),
-              ),
+                  )
                 )
               ),
-              Container(
+              Offstage(
+                offstage: isEdit && robot.system == 1,
+                child: Container(
                  padding: EdgeInsets.symmetric(horizontal: ToPx.size(20),vertical: ToPx.size(10)),
                 child: Row(
                   children: <Widget>[
@@ -304,6 +310,7 @@ class _RobotEditPageState extends State<RobotEditPage> {
                         }, activeColor: themeData.primaryColor))
                   ],
                 ),
+              ),
               ),
               Button(
                 margin: EdgeInsets.symmetric(horizontal: ToPx.size(40), vertical: ToPx.size(200)),

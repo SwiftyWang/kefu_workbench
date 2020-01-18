@@ -51,6 +51,10 @@ class RobotProvide with ChangeNotifier {
       }
     }
   }
+  /// 找出一个
+  RobotModel getItem(int id){
+    return robots.firstWhere((k) => k.id == id);
+  }
 
     // onRefresh
   Future<bool> onRefresh() async{

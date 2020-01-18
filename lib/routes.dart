@@ -9,6 +9,7 @@ import 'views/home/index.dart';
 import 'views/knowledge/index.dart';
 import 'views/knowledge_detail/index.dart';
 import 'views/knowledge_edit/index.dart';
+import 'views/robot_detail/index.dart';
 import 'views/robot_edit/index.dart';
 import 'views/robots/index.dart';
 
@@ -49,6 +50,9 @@ class Routers {
       case "/robot_add":
       case "/robot_edit":
         return RobotEditPage(arguments: arguments);
+        break;
+      case "/robot_detail":
+        return RobotDetailPage(arguments: arguments);
         break;
       default:
         return Scaffold(
