@@ -34,20 +34,20 @@ class _RotobDetailPageState extends State<RobotDetailPage> {
 
   /// delete
   void _delete(BuildContext context){
-    // UX.alert(
-    //   context,
-    //   content: Text("是否删除该知识库！"),
-    //   onConfirm: () async{
-    //    Response response = await KnowledgeService.getInstance().delete(id: knowledge.id);
-    //    if (response.data["code"] == 200) {
-    //      UX.showToast("删除成功");
-    //      KnowledgeProvide.getInstance().deleteItem(knowledge.id);
-    //      Navigator.pop(context);
-    //   } else {
-    //     UX.showToast("${response.data["message"]}");
-    //   }
-    //   }
-    // );
+    UX.alert(
+      context,
+      content: Text("是否删除该机器人吗！"),
+      onConfirm: () async{
+       Response response = await RobotService.getInstance().delete(id: robot.id);
+       if (response.data["code"] == 200) {
+         UX.showToast("删除成功");
+         RobotProvide.getInstance().deleteItem(robot.id);
+         Navigator.pop(context);
+      } else {
+        UX.showToast("${response.data["message"]}");
+      }
+      }
+    );
   }
   
   @override
@@ -137,7 +137,7 @@ class _RotobDetailPageState extends State<RobotDetailPage> {
                         style: themeData.textTheme.caption,
                         children: [
                           TextSpan(text: "状态："),
-                          TextSpan(text: robot.isRun == 1 ? "运行中" : "展厅中", style: themeData.textTheme.caption.copyWith(
+                          TextSpan(text: robot.isRun == 1 ? "运行中" : "暂停中", style: themeData.textTheme.caption.copyWith(
                             color: robot.isRun == 1 ? Colors.green : Colors.amber
                           )),
                         ]

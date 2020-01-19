@@ -44,6 +44,7 @@ class _RobotEditPageState extends State<RobotEditPage> {
         artificialCtr = TextEditingController(text: robot.artificial.replaceAll("|", "\n"));
         selectPlatform = GlobalProvide.getInstance().getPlatformTitle(robot.platform);
         isSwitch = robot.isRun == 1;
+        avatar = robot.avatar;
       }else{
         nicknameCtr = TextEditingController();
         welcomeCtr = TextEditingController();
@@ -70,6 +71,15 @@ class _RobotEditPageState extends State<RobotEditPage> {
     super.dispose();
   }
 
+
+  /// 选择图片上传
+  void _pickerImage() async{
+    String imgUser = await uploadImage<String>(context, maxWidth: 300.0);
+    if(imgUser == null) return;
+    avatar = imgUser;
+    setState(() {});
+  }
+
   /// 保存
   void _save(BuildContext context) async{
     String nickname = nicknameCtr.value.text.trim();
@@ -85,18 +95,20 @@ class _RobotEditPageState extends State<RobotEditPage> {
     UX.showLoading(context, content: "保存中...");
     GlobalProvide globalProvide = GlobalProvide.getInstance();
     Map data = {
+      "id": robot != null ? robot.id : null,
       "nickname": nickname,
       "avatar": avatar,
       "welcome": welcome,
       "understand": understand,
-      "artificial": artificial,
-      "keyword": keyword,
+      "artificial": artificial.replaceAll("\n", "|"),
+      "keyword": keyword.replaceAll("\n", "|"),
       "timeout_text": timeoutText,
       "no_services": noServices,
       "loog_time_wait_text": loogTimeWaitText,
       "platform": globalProvide.getPlatformId(selectPlatform),
-      "switch": isSwitch
+      "switch": isSwitch ? 1 : 0
     };
+    printf(data);
     Response response;
     if(isEdit){
        response = await RobotService.getInstance().update(data: data);
@@ -186,6 +198,29 @@ class _RobotEditPageState extends State<RobotEditPage> {
         body: ListView(
           children: <Widget>[
               SizedBox(height: ToPx.size(20),),
+              Container(
+                width: double.infinity,
+                color: Colors.white,
+                height: ToPx.size(250),
+                padding: EdgeInsets.symmetric(vertical: ToPx.size(30)),
+                child: Stack(
+                  children: <Widget>[
+                    Center(
+                      child: Avatar(
+                          size: ToPx.size(150),
+                          imgUrl: avatar.isNotEmpty ? avatar : "http://qiniu.cmp520.com/avatar_default.png",
+                          onPressed: _pickerImage
+                        )
+                    ),
+                    Center(
+                      child: Padding(
+                        padding: EdgeInsets.only(top: ToPx.size(120), left: ToPx.size(80)),
+                        child: Icon(Icons.camera_alt, color:themeData.primaryColor.withAlpha(150), size: ToPx.size(35),),
+                      )
+                    )
+                  ],
+                ),
+              ),
               _lineItem(
                 label: "    昵称：",
                 placeholder: "请输入机器人昵称",
@@ -304,9 +339,11 @@ class _RobotEditPageState extends State<RobotEditPage> {
                   children: <Widget>[
                     Text("运行状态：", style: themeData.textTheme.title,),
                     Platform.isAndroid ?
-                        Switch(value: isSwitch, onChanged: (bool isSwitch){
+                        Switch(value: isSwitch, onChanged: (bool _isSwitch){
+                          isSwitch = _isSwitch;
                         }, activeColor: themeData.primaryColor) :
-                        Transform.scale(scale: .7, child: CupertinoSwitch(value: isSwitch, onChanged: (bool isSwitch){
+                        Transform.scale(scale: .7, child: CupertinoSwitch(value: isSwitch, onChanged: (bool _isSwitch){
+                          isSwitch = _isSwitch;
                         }, activeColor: themeData.primaryColor))
                   ],
                 ),

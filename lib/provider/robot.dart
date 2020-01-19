@@ -56,6 +56,11 @@ class RobotProvide with ChangeNotifier {
     return robots.firstWhere((k) => k.id == id);
   }
 
+  /// 删除单个数据
+  void deleteItem(int id){
+    robots.removeWhere((i) => i.id == id);
+  }
+
     // onRefresh
   Future<bool> onRefresh() async{
     await getRobots();

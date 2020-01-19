@@ -1,5 +1,4 @@
 import 'package:dio/dio.dart';
-import 'package:image_picker/image_picker.dart';
 import 'package:kefu_workbench/core_flutter.dart';
 import 'package:kefu_workbench/provider/global.dart';
 class EditProfilePage extends StatefulWidget {
@@ -18,27 +17,10 @@ class EditProfilePageState extends State<EditProfilePage> {
 
   /// 选择图片上传
   void _pickerImage() async{
-    ImageSource imageSource = await UX.selectImageSheet(context);
-    if(imageSource == ImageSource.camera && !await checkPermission(context, permissionGroupType: PermissionGroup.camera)){
-      UX.showToast("未授权使用相机！");
-      return;
-    }
-    if(Platform.isAndroid && imageSource == ImageSource.gallery && !await checkPermission(context, permissionGroupType: PermissionGroup.storage)){
-      UX.showToast("未授权使用相册！");
-      return;
-    }
-    if(Platform.isIOS && imageSource == ImageSource.gallery && !await checkPermission(context, permissionGroupType: PermissionGroup.photos)){
-      UX.showToast("未授权使用相册！");
-      return;
-    }
-    File _file = await ImagePicker.pickImage(source: imageSource, maxWidth: 300);
-    String imgUser = await GlobalProvide.getInstance().uploadImage(_file);
-    if(imgUser != null && imgUser.isNotEmpty){
-      serviceUser.avatar = imgUser;
-      setState(() {});
-    }else{
-      UX.showToast("上传失败了，请重新尝试");
-    }
+    String imgUser = await uploadImage<String>(context, maxWidth: 300.0);
+    if(imgUser == null) return;
+    serviceUser.avatar = imgUser;
+    setState(() {});
   }
 
 

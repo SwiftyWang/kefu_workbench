@@ -144,25 +144,13 @@ class ChatProvide with ChangeNotifier {
 
   
   /// 选择图片
-  void onPickImage(ImageSource imageSource) async{
+  void onPickImage(BuildContext context) async{
     GlobalProvide globalState = GlobalProvide.getInstance();
     if(globalState.currentContact == null || globalState.currentContact.isSessionEnd == 1){
       UX.showToast("当前会话已结束！");
       return;
     }
-    if(imageSource == ImageSource.camera && !await checkPermission(globalState.rooContext, permissionGroupType: PermissionGroup.camera)){
-      UX.showToast("未授权使用相机！");
-      return;
-    }
-    if(Platform.isAndroid && imageSource == ImageSource.gallery && !await checkPermission(globalState.rooContext, permissionGroupType: PermissionGroup.storage)){
-      UX.showToast("未授权使用相册！");
-      return;
-    }
-    if(Platform.isIOS && imageSource == ImageSource.gallery && !await checkPermission(globalState.rooContext, permissionGroupType: PermissionGroup.photos)){
-      UX.showToast("未授权使用相册！");
-      return;
-    }
-    File _file = await ImagePicker.pickImage(source: imageSource, maxWidth: 2000);
+    File _file = await uploadImage<File>(context);
     if (_file == null) return;
     globalState.sendPhotoMessage(_file);
     toScrollEnd();

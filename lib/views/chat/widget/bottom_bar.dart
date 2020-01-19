@@ -6,8 +6,7 @@ class BottomBar extends StatelessWidget{
     this.isShowEmoJiPanel = false,
     this.onHideEmoJiPanel,
     this.onShowEmoJiPanel,
-    this.onPickrGalleryImage,
-    this.onPickrCameraImage,
+    this.onPickrImage,
     this.focusNode,
     this.editingController,
     this.onSubmit,
@@ -24,8 +23,7 @@ class BottomBar extends StatelessWidget{
   final VoidCallback onShowEmoJiPanel;
   final VoidCallback onToggleTransferPanel;
   final VoidCallback onToggleShortcutPanel;
-  final VoidCallback onPickrGalleryImage;
-  final VoidCallback onPickrCameraImage;
+  final VoidCallback onPickrImage;
   final FocusNode focusNode;
   final TextEditingController editingController;
   final VoidCallback onSubmit;
@@ -81,18 +79,7 @@ class BottomBar extends StatelessWidget{
                       size: ToPx.size(60),
                     ),
                   ),
-                  onTap: onPickrGalleryImage,
-                ),
-                GestureDetector(
-                  child: Container(
-                    padding: EdgeInsets.all(3.0),
-                    child: Icon(
-                      Icons.camera_alt,
-                      color: Colors.black26,
-                      size: ToPx.size(60),
-                    ),
-                  ),
-                  onTap: onPickrCameraImage,
+                  onTap: onPickrImage,
                 ),
                 GestureDetector(
                   child: Container(

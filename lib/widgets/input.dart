@@ -99,61 +99,61 @@ class _InputState extends State<Input>{
   @override
   void initState() {
     super.initState();
+    if(mounted){
+      if(widget.height != null) minHeight = widget.height;
+      if(widget.maxHeight != null && widget.maxHeight > minHeight) maxHeight = widget.maxHeight;
+      obscureText = widget.obscureText;
+      if(widget.obscureText) isShowVisibility = true;
+      setState(() {});
 
-    if(widget.height != null) minHeight = widget.height;
-    if(widget.maxHeight != null && widget.maxHeight > minHeight) maxHeight = widget.maxHeight;
-    obscureText = widget.obscureText;
-    if(widget.obscureText) isShowVisibility = true;
-    setState(() {});
-
-    // 判断外部是否给控制器
-    if(widget.controller == null){
-      controller = TextEditingController();
-    }else{
-      controller = widget.controller;
-    }
-
-    // 监听输入框判断是否显示清除按钮
-    controller.addListener(() async{
-      // 清除按钮
-      if(controller.value.text.length == 0){
-        isShowClear = false;
-        isInputEmpty = false;
+      // 判断外部是否给控制器
+      if(widget.controller == null){
+        controller = TextEditingController();
       }else{
-        if(widget.showClear) isShowClear = true;
-        isInputEmpty = true;
+        controller = widget.controller;
       }
-      // 判断长度截取掉
-      if(widget.maxLength != null && controller.value.text.length > widget.maxLength && Platform.isAndroid){
-        controller.text = controller.value.text.substring(0, widget.maxLength);
-        controller.selection = TextSelection.collapsed(offset: widget.maxLength);
-      }
-      setState(() {});
-    });
 
-    // 判断外部是否给focusNode
-    if(widget.focusNode == null){
-      focusNode = FocusNode();
-    }else{
-      focusNode = widget.focusNode;
-    }
-    focusNode.addListener((){
-      printf(focusNode.hasFocus);
-      // 判断长度截取掉
-      if(widget.maxLength != null && controller.value.text.length > widget.maxLength && Platform.isIOS){
-        controller.text = controller.value.text.substring(0, widget.maxLength);
-        controller.selection = TextSelection.collapsed(offset: widget.maxLength);
+      // 监听输入框判断是否显示清除按钮
+      controller.addListener(() async{
+        // 清除按钮
+        if(controller.value.text.length == 0){
+          isShowClear = false;
+          isInputEmpty = false;
+        }else{
+          if(widget.showClear) isShowClear = true;
+          isInputEmpty = true;
+        }
+        // 判断长度截取掉
+        if(widget.maxLength != null && controller.value.text.length > widget.maxLength && Platform.isAndroid){
+          controller.text = controller.value.text.substring(0, widget.maxLength);
+          controller.selection = TextSelection.collapsed(offset: widget.maxLength);
+        }
+        setState(() {});
+      });
+
+      // 判断外部是否给focusNode
+      if(widget.focusNode == null){
+        focusNode = FocusNode();
+      }else{
+        focusNode = widget.focusNode;
       }
-      if(widget.onFocus != null) widget.onFocus(focusNode.hasFocus);
-      if(!focusNode.hasFocus && widget.isToUpperCase){
-        controller.text = controller.value.text.toUpperCase();
+      focusNode.addListener((){
+        // 判断长度截取掉
+        if(widget.maxLength != null && controller.value.text.length > widget.maxLength && Platform.isIOS){
+          controller.text = controller.value.text.substring(0, widget.maxLength);
+          controller.selection = TextSelection.collapsed(offset: widget.maxLength);
+        }
+        if(widget.onFocus != null) widget.onFocus(focusNode.hasFocus);
+        if(!focusNode.hasFocus && widget.isToUpperCase){
+          controller.text = controller.value.text.toUpperCase();
+        }
+        controller.text = controller.value.text.trim();
+      });
+      
+      if(controller.value.text.length > 0){
+        isInputEmpty = true;
+        setState(() {});
       }
-      controller.text = controller.value.text.trim();
-    });
-    
-    if(controller.value.text.length > 0){
-      isInputEmpty = true;
-      setState(() {});
     }
   }
 
@@ -216,7 +216,6 @@ class _InputState extends State<Input>{
                     Align(
                       alignment: Alignment.centerLeft,
                       child: TextField(
-                      key: widget.key,
                       scrollPhysics: Platform.isAndroid ? BouncingScrollPhysics() : null,
                       controller: controller,
                       focusNode: focusNode,

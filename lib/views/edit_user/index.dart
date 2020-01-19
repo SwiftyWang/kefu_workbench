@@ -36,7 +36,7 @@ class EditUserPageState extends State<EditUserPage> {
     }
     FocusScope.of(context).requestFocus(FocusNode());
     UX.showLoading(context, content: "保存中...");
-    Response response = await UserService.getInstance().save(useMap);
+    Response response = await UserService.getInstance().update(useMap);
     UX.hideLoading(context);
     if(response.statusCode == 200){
       UX.showToast("保存成功");

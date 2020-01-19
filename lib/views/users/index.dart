@@ -1,17 +1,17 @@
 import 'package:kefu_workbench/core_flutter.dart';
 import 'package:kefu_workbench/provider/global.dart';
-import 'package:kefu_workbench/provider/robot.dart';
+import 'package:kefu_workbench/provider/user.dart';
 import 'package:provider/provider.dart';
 
-class RobotsPage extends StatelessWidget {
+class UsersPage extends StatelessWidget {
   final Map<dynamic, dynamic> arguments;
-  RobotsPage({this.arguments});
+  UsersPage({this.arguments});
 
   @override
   Widget build(_) {
-    return ChangeNotifierProvider<RobotProvide>(
-      create: (_) => RobotProvide.getInstance(),
-      child: Consumer<RobotProvide>(builder: (context, robotState, _){
+    return ChangeNotifierProvider<UserProvide>(
+      create: (_) => UserProvide.getInstance(),
+      child: Consumer<UserProvide>(builder: (context, userState, _){
          return PageContext(builder: (context){
             ThemeData themeData = Theme.of(context);
             return Scaffold(
@@ -28,23 +28,23 @@ class RobotsPage extends StatelessWidget {
                       color: Colors.transparent,
                       width: ToPx.size(150),
                       child: Text("新增"),
-                      onPressed: () => robotState.goAdd(context)
+                      onPressed: () => userState.goAdd(context)
                     ),
                   ],
                 ),
               body: 
-              robotState.isLoading && robotState.robots.length == 0 ? Center(
+              userState.isLoading && userState.robots.length == 0 ? Center(
                 child: loadingIcon(size: ToPx.size(50)),
               ): 
               RefreshIndicator(
                 color: themeData.primaryColorLight,
                 backgroundColor: themeData.primaryColor,
-                onRefresh: robotState.onRefresh,
+                onRefresh: userState.onRefresh,
                 child: CustomScrollView(
                 slivers: <Widget>[
                     SliverToBoxAdapter(
                       child: Offstage(
-                        offstage: robotState.robots.length > 0 || robotState.isLoading,
+                        offstage: userState.users.length > 0 || userState.isLoading,
                         child: Padding(
                           padding: EdgeInsets.only(top: ToPx.size(50)),
                           child: Text("暂无数据~", style: themeData.textTheme.body1, textAlign: TextAlign.center,),
@@ -53,17 +53,17 @@ class RobotsPage extends StatelessWidget {
                     ),
                     SliverList(
                       delegate: SliverChildBuilderDelegate((context, index){
-                        RobotModel robot = robotState.robots[index];
+                        UserModel user = userState.users[index];
                         return Column(
                           children: <Widget>[
                             ListTile(
-                              onTap: () => Navigator.pushNamed(context, "/robot_detail",arguments: {
-                                "robot": robot
+                              onTap: () => Navigator.pushNamed(context, "/user_detail",arguments: {
+                                "user": user
                               }),
                               subtitle: Row(
                                 children: <Widget>[
                                   Text("服务平台：", style: themeData.textTheme.caption),
-                                  Text("${GlobalProvide.getInstance().getPlatformTitle(robot.platform)}", style: themeData.textTheme.caption),
+                                  Text("sss", style: themeData.textTheme.caption),
                                 ],
                               ),
                               trailing: RichText(
@@ -71,24 +71,24 @@ class RobotsPage extends StatelessWidget {
                                   style: themeData.textTheme.caption,
                                   children: [
                                     TextSpan(text: "状态："),
-                                    TextSpan(text: robot.isRun == 1 ? "运行中" : "暂停中", style: themeData.textTheme.caption.copyWith(
-                                      color: robot.isRun == 1 ? Colors.green : Colors.amber
+                                    TextSpan(text: "暂停中", style: themeData.textTheme.caption.copyWith(
+                                      color:  Colors.amber
                                     )),
                                   ]
                                 ),
                               ),
                               leading: Avatar(
                                 size: ToPx.size(100),
-                                imgUrl: robot.avatar == null || robot.avatar.isEmpty ?
-                                "http://qiniu.cmp520.com/avatar_default.png" : robot.avatar
+                                imgUrl: user.avatar == null || user.avatar.isEmpty ?
+                                "http://qiniu.cmp520.com/avatar_default.png" : user.avatar
                               ),
-                              title: Text("${robot.nickname}", style: themeData.textTheme.title, maxLines: 2, overflow: TextOverflow.ellipsis,),
+                              title: Text("${user.nickname}", style: themeData.textTheme.title, maxLines: 2, overflow: TextOverflow.ellipsis,),
                             ),
                             Divider(height: 1.0,)
                           ],
                         );
                       },
-                      childCount: robotState.robots.length
+                      childCount: userState.robots.length
                      ),
                     ),
                 ],

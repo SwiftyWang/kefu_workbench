@@ -77,6 +77,9 @@ const String API_GET_PLATFORM =  "/platform/list";
 /// 用户接口
 const String API_USER =  "/user/";
 
+/// 用户接口
+const String API_USERS =  "/user/list/";
+
 /// 客服接口
 const String API_ADMIN =  "/admin/";
 

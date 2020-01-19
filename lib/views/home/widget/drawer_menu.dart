@@ -142,23 +142,23 @@ class DrawerMenu extends StatelessWidget {
               _listTile(
                   icon: Icons.supervised_user_circle,
                   title: "客服管理",
-                  onTap: () => Navigator.pop(context)),
+                  onTap: () => Navigator.popAndPushNamed(context, "/admins")),
               _listTile(
                   icon: Icons.supervisor_account,
                   title: "用户管理",
-                  onTap: () => Navigator.pop(context)),
+                  onTap: () => Navigator.popAndPushNamed(context, "/users")),
               _listTile(
                   icon: Icons.featured_play_list,
                   title: "服务记录",
-                  onTap: () => Navigator.pop(context)),
+                  onTap: () => Navigator.popAndPushNamed(context, "/services")),
               _listTile(
                   icon: Icons.assignment,
                   title: "快捷语设置",
-                  onTap: () => Navigator.pop(context)),
+                  onTap: () => Navigator.popAndPushNamed(context, "/shortcuts")),
               _listTile(
                   icon: Icons.settings,
                   title: "系统设置",
-                  onTap: () => Navigator.pop(context)),
+                  onTap: () => Navigator.popAndPushNamed(context, "/system")),
             ],
           ),
           Expanded(
