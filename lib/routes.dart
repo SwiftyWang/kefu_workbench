@@ -12,6 +12,7 @@ import 'views/knowledge_edit/index.dart';
 import 'views/robot_detail/index.dart';
 import 'views/robot_edit/index.dart';
 import 'views/robots/index.dart';
+import 'views/user_detail/index.dart';
 import 'views/users/index.dart';
 
 class Routers {
@@ -57,6 +58,9 @@ class Routers {
         break;
       case "/users":
         return UsersPage(arguments: arguments);
+        break;
+      case "/user_detail":
+        return UserDetailPage(arguments: arguments);
         break;
       default:
         return Scaffold(

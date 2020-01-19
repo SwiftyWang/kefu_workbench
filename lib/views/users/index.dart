@@ -18,22 +18,12 @@ class UsersPage extends StatelessWidget {
               backgroundColor: themeData.primaryColorLight,
               appBar: customAppBar(
                   title: Text(
-                    "知识库列表",
+                    "用户列表(${userState.usersTotal}人)",
                     style: themeData.textTheme.display1,
                   ),
-                  actions: [
-                    Button(
-                      height: ToPx.size(90),
-                      useIosStyle: true,
-                      color: Colors.transparent,
-                      width: ToPx.size(150),
-                      child: Text("新增"),
-                      onPressed: () => userState.goAdd(context)
-                    ),
-                  ],
                 ),
               body: 
-              userState.isLoading && userState.robots.length == 0 ? Center(
+              userState.isLoading && userState.users.length == 0 ? Center(
                 child: loadingIcon(size: ToPx.size(50)),
               ): 
               RefreshIndicator(
@@ -41,7 +31,41 @@ class UsersPage extends StatelessWidget {
                 backgroundColor: themeData.primaryColor,
                 onRefresh: userState.onRefresh,
                 child: CustomScrollView(
+                controller: userState.scrollController,
                 slivers: <Widget>[
+                  SliverToBoxAdapter(
+                    child: Column(children: <Widget>[
+                      Container(
+                        decoration: BoxDecoration(
+                          border: Border(bottom: BorderSide(color: themeData.dividerColor, width: ToPx.size(2)))
+                        ),
+                        child: Row(
+                          children: <Widget>[
+                            Expanded(
+                              child: Input(
+                                controller: userState.searchTextEditingController,
+                                border: Border.all(style: BorderStyle.none, color: Colors.transparent),
+                                padding: EdgeInsets.symmetric(horizontal: ToPx.size(20)),
+                                placeholder: "请输入关键词查找用户~",
+                                onChanged: (value){
+                                  if(value.trim().isEmpty){
+                                    userState.isLoadEnd = false;
+                                    userState.pageOn = 0;
+                                    userState.keyword = "";
+                                    userState.getUsers();
+                                  }
+                                },
+                              ),
+                            ),
+                            IconButton(
+                              icon: Icon(CupertinoIcons.search),
+                              onPressed: userState.onSearch,
+                            )
+                          ],
+                        ),
+                      )
+                    ],),
+                  ),
                     SliverToBoxAdapter(
                       child: Offstage(
                         offstage: userState.users.length > 0 || userState.isLoading,
@@ -62,21 +86,11 @@ class UsersPage extends StatelessWidget {
                               }),
                               subtitle: Row(
                                 children: <Widget>[
-                                  Text("服务平台：", style: themeData.textTheme.caption),
-                                  Text("sss", style: themeData.textTheme.caption),
+                                  Text("所在平台：", style: themeData.textTheme.caption),
+                                  Text("${GlobalProvide.getInstance().getPlatformTitle(user.platform)}", style: themeData.textTheme.caption),
                                 ],
                               ),
-                              trailing: RichText(
-                                text: TextSpan(
-                                  style: themeData.textTheme.caption,
-                                  children: [
-                                    TextSpan(text: "状态："),
-                                    TextSpan(text: "暂停中", style: themeData.textTheme.caption.copyWith(
-                                      color:  Colors.amber
-                                    )),
-                                  ]
-                                ),
-                              ),
+                              trailing: Text("${Utils.formatDate(user.createAt)}"),
                               leading: Avatar(
                                 size: ToPx.size(100),
                                 imgUrl: user.avatar == null || user.avatar.isEmpty ?
@@ -88,8 +102,38 @@ class UsersPage extends StatelessWidget {
                           ],
                         );
                       },
-                      childCount: userState.robots.length
+                      childCount: userState.users.length
                      ),
+                    ),
+                    SliverToBoxAdapter(
+                      child: Offstage(
+                        child: Center(
+                          child: SizedBox(
+                            height: ToPx.size(150),
+                            child: Row(
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: <Widget>[
+                                loadingIcon(),
+                                Text('  内容加载中...',
+                                    style: themeData.textTheme.caption)
+                              ],
+                            ),
+                          ),
+                        ),
+                        offstage: !userState.isLoading || userState.isLoadEnd
+                      )
+                    ),
+                    SliverToBoxAdapter(
+                      child: Offstage(
+                        child: Padding(
+                          padding: EdgeInsets.symmetric(vertical: ToPx.size(40)),
+                          child: Center(
+                              child: Text(
+                                  '没有更多了', style: themeData.textTheme.caption)
+                          ),),
+                        offstage: !userState.isLoadEnd || userState.users.length == 0
+                      )
                     ),
                 ],
               )

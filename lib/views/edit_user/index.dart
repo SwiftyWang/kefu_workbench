@@ -8,8 +8,8 @@ class EditUserPage extends StatefulWidget {
   EditUserPageState createState() => EditUserPageState(arguments['user']);
 }
 class EditUserPageState extends State<EditUserPage> {
-  final ContactModel currentContact;
-  EditUserPageState(this.currentContact);
+  final UserModel user;
+  EditUserPageState(this.user);
 
   TextEditingController nicknameCtr;
   TextEditingController addrCtr;
@@ -50,12 +50,12 @@ class EditUserPageState extends State<EditUserPage> {
   @override
   void initState() {
     super.initState();
-    if(mounted && currentContact!= null){
-      nicknameCtr = TextEditingController(text: currentContact.nickname);
-      addrCtr = TextEditingController(text: currentContact.address);
-      phoneCtr = TextEditingController(text: currentContact.phone);
-      remarksCtr = TextEditingController(text: currentContact.remarks);
-      idCtr = TextEditingController(text: currentContact.id.toString());
+    if(mounted && user!= null){
+      nicknameCtr = TextEditingController(text: user.nickname);
+      addrCtr = TextEditingController(text: user.address);
+      phoneCtr = TextEditingController(text: user.phone);
+      remarksCtr = TextEditingController(text: user.remarks);
+      idCtr = TextEditingController(text: user.id.toString());
     }
   }
 

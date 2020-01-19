@@ -118,7 +118,7 @@ class ChatEndDrawer extends StatelessWidget {
                             width: ToPx.size(220),
                             height: ToPx.size(60),
                             onPressed: () => Navigator.popAndPushNamed(context, "/edit_user", arguments: {
-                              "user": currentContact
+                              "user": UserModel.fromJson(currentContact.toJson())
                             }),
                             child: Text(
                               "编辑用户信息",

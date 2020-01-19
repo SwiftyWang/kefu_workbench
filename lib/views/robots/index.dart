@@ -18,7 +18,7 @@ class RobotsPage extends StatelessWidget {
               backgroundColor: themeData.primaryColorLight,
               appBar: customAppBar(
                   title: Text(
-                    "知识库列表",
+                    "机器人列表",
                     style: themeData.textTheme.display1,
                   ),
                   actions: [

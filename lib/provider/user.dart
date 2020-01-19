@@ -19,6 +19,7 @@ class UserProvide with ChangeNotifier {
 
   UserProvide(){
     scrollController = ScrollController();
+    searchTextEditingController = TextEditingController();
     getUsers();
     // 监听滚动
     scrollController?.addListener(() => _onScrollViewControllerAddListener());
@@ -28,8 +29,11 @@ class UserProvide with ChangeNotifier {
   int pageSize = 25;
   bool isLoadEnd = false;
   bool isLoading = false;
+  String keyword = "";
   ScrollController scrollController;
+  TextEditingController searchTextEditingController;
   List<UserModel> users = [];
+  int usersTotal = 0;
 
   // 监听滚动条
   void _onScrollViewControllerAddListener() async{
@@ -48,16 +52,28 @@ class UserProvide with ChangeNotifier {
       printf(e);
     }
   }
+  
 
-    /// 获取列表数据
+  /// 获取列表数据
   Future<void> getUsers() async{
+    if(isLoadEnd) return;
+    pageOn = pageOn +1;
     isLoading = true;
     notifyListeners();
-    Response response = await userservice.getList();
+    Response response = await userservice.getList(pageOn: pageOn, pageSize: pageSize, keyword: keyword);
     isLoading = false;
     notifyListeners();
     if (response.data["code"] == 200) {
-      users = (response.data["data"] as List).map((i) => UserModel.fromJson(i)).toList();
+      List<UserModel> _users = (response.data["data"]['list'] as List).map((i) => UserModel.fromJson(i)).toList();
+      usersTotal = response.data["data"]['total'];
+      if(_users.length < pageSize){
+        isLoadEnd = true;
+      }
+      if(pageOn > 1){
+        users.addAll(_users);
+      }else{
+        users = _users;
+      }
       notifyListeners();
     } else {
       UX.showToast("${response.data["message"]}");
@@ -83,38 +99,36 @@ class UserProvide with ChangeNotifier {
 
   /// 删除单个数据
   void deleteItem(int id){
+    usersTotal--;
     users.removeWhere((i) => i.id == id);
   }
 
-    // onRefresh
-  Future<bool> onRefresh() async{
-   pageOn = 0;
+  // search
+  void onSearch() async{
+    pageOn = 0;
+    keyword = searchTextEditingController.value.text.trim();
     isLoadEnd = false;
     notifyListeners();
-    await getKnowledges();
+    await getUsers();
+  }
+
+  // onRefresh
+  Future<bool> onRefresh() async{
+    pageOn = 0;
+    keyword = "";
+    isLoadEnd = false;
+    searchTextEditingController.clear();
+    notifyListeners();
+    await getUsers();
     UX.showToast("刷新成功", position: ToastPosition.top);
     return true;
   }
-
-
-  /// add
-  void goAdd(BuildContext context) async{
-    Navigator.pushNamed(context, "/user_add").then((isSuccess){
-      if(isSuccess == true){
-        pageOn = 0;
-        isLoadEnd = false;
-         notifyListeners();
-        getUsers();
-      }
-    });
-  }
-
-  
 
   @override
   void dispose() {
     instance = null;
     scrollController?.dispose();
+    searchTextEditingController?.dispose();
     super.dispose();
   }
 

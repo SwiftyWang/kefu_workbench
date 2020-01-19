@@ -25,7 +25,7 @@ class _RobotEditPageState extends State<RobotEditPage> {
   _RobotEditPageState({this.robot});
   List<PlatformModel> platforms = GlobalProvide.getInstance().platforms;
   String selectPlatform = "全平台";
-  String avatar;
+  String avatar = "";
   bool isSwitch = true;
 
   @override
