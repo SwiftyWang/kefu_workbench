@@ -1,10 +1,14 @@
+import 'package:kefu_workbench/views/user_edit/index.dart';
+
 import 'core_flutter.dart';
 import 'provider/global.dart';
+import 'views/admin_detail/index.dart';
+import 'views/admin_edit/index.dart';
+import 'views/admins/index.dart';
 import 'views/auth/index.dart';
 import 'views/chat/index.dart';
 import 'views/edit_password/index.dart';
 import 'views/edit_profile/index.dart';
-import 'views/edit_user/index.dart';
 import 'views/home/index.dart';
 import 'views/knowledge/index.dart';
 import 'views/knowledge_detail/index.dart';
@@ -32,8 +36,6 @@ class Routers {
       case "/chat":
         return ChatPage(arguments: arguments);
         break;
-      case "/edit_user":
-        return EditUserPage(arguments: arguments);
       case "/knowledge":
         return KnowledgePage(arguments: arguments);
       case "/edit_profile":
@@ -59,8 +61,18 @@ class Routers {
       case "/users":
         return UsersPage(arguments: arguments);
         break;
+      case "/user_edit":
+        return UserEditPage(arguments: arguments);
       case "/user_detail":
         return UserDetailPage(arguments: arguments);
+        break;
+      case "/admins":
+        return AdminsPage(arguments: arguments);
+        break;
+      case "/admin_detail":
+        return AdminDetailPage(arguments: arguments);
+      case "/admin_edit":
+        return AdminEditPage(arguments: arguments);
         break;
       default:
         return Scaffold(

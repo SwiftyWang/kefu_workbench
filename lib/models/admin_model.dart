@@ -1,4 +1,4 @@
-class ServiceUserModel {
+class AdminModel {
   int id;
   String avatar;
   String username;
@@ -14,7 +14,7 @@ class ServiceUserModel {
   int updateAt;
   int createAt;
 
-  ServiceUserModel(
+  AdminModel(
       {this.id,
       this.avatar,
       this.username,
@@ -30,7 +30,7 @@ class ServiceUserModel {
       this.updateAt,
       this.createAt});
 
-  ServiceUserModel.fromJson(Map<String, dynamic> json) {
+  AdminModel.fromJson(Map<String, dynamic> json) {
     id = json['id'];
     avatar = json['avatar'];
     username = json['username'];

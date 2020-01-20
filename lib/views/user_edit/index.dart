@@ -1,15 +1,15 @@
 import 'package:dio/dio.dart';
 import 'package:kefu_workbench/core_flutter.dart';
 import 'package:kefu_workbench/provider/global.dart';
-class EditUserPage extends StatefulWidget {
+class UserEditPage extends StatefulWidget {
   final Map<dynamic, dynamic> arguments;
-  EditUserPage({this.arguments});
+  UserEditPage({this.arguments});
   @override
-  EditUserPageState createState() => EditUserPageState(arguments['user']);
+  _UserEditPagePageState createState() => _UserEditPagePageState(arguments['user']);
 }
-class EditUserPageState extends State<EditUserPage> {
+class _UserEditPagePageState extends State<UserEditPage> {
   final UserModel user;
-  EditUserPageState(this.user);
+  _UserEditPagePageState(this.user);
 
   TextEditingController nicknameCtr;
   TextEditingController addrCtr;
@@ -40,7 +40,7 @@ class EditUserPageState extends State<EditUserPage> {
     UX.hideLoading(context);
     if(response.statusCode == 200){
       UX.showToast("保存成功");
-      Navigator.pop(context);
+      Navigator.pop(context, true);
       GlobalProvide.getInstance().getContacts();
     }else{
       UX.showToast(response.data["message"]);

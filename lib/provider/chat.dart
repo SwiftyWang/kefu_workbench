@@ -3,7 +3,6 @@ import 'dart:convert';
 import 'package:dio/dio.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_mimc/flutter_mimc.dart';
-import 'package:image_picker/image_picker.dart';
 import 'package:kefu_workbench/provider/global.dart';
 
 import '../core_flutter.dart';
@@ -68,14 +67,14 @@ class ChatProvide with ChangeNotifier {
   }
 
    /// 选中客服
-  void onSelectedSeviceUser(ServiceUserModel user){
+  void onSelectedSeviceUser(AdminModel admin){
     GlobalProvide globalState = GlobalProvide.getInstance();
      UX.alert(globalState.rooContext,
-      content: "将该客户转接给 " + (user.nickname ?? user.username)+' ?',
+      content: "将该客户转接给 " + (admin.nickname ?? admin.username)+' ?',
       confirmText: "转接",
       cancelText: "取消",
       onConfirm: () async{
-       Response response = await   globalState.messageService.transformerUser(userAccount: globalState.currentContact.fromAccount, toAccount: user.id);
+       Response response = await   globalState.messageService.transformerUser(userAccount: globalState.currentContact.fromAccount, toAccount: admin.id);
         if (response.data["code"] == 200) {
           onToggleTransferPanel(false);
           UX.showToast("转接成功");
@@ -103,9 +102,9 @@ class ChatProvide with ChangeNotifier {
   bool isShowTransferPanel = false;
 
   /// 可转接的客服
-  List<ServiceUserModel> get serviceOnlineUsers{
+  List<AdminModel> get serviceOnlineUsers{
     GlobalProvide globalState = GlobalProvide.getInstance();
-    return globalState.serviceOnlineUsers.where((user) => user.id != globalState.serviceUser.id && user.online != 0).toList();
+    return globalState.serviceOnlineUsers.where((admin) => admin.id != globalState.serviceUser.id && admin.online != 0).toList();
   }
 
   /// 输入键盘相关

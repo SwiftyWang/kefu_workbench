@@ -117,7 +117,7 @@ class ChatEndDrawer extends StatelessWidget {
                             color: themeData.primaryColorDark,
                             width: ToPx.size(220),
                             height: ToPx.size(60),
-                            onPressed: () => Navigator.popAndPushNamed(context, "/edit_user", arguments: {
+                            onPressed: () => Navigator.popAndPushNamed(context, "/user_edit", arguments: {
                               "user": UserModel.fromJson(currentContact.toJson())
                             }),
                             child: Text(

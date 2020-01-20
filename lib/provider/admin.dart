@@ -2,25 +2,25 @@ import 'package:dio/dio.dart';
 
 import '../core_flutter.dart';
 
-class UserProvide with ChangeNotifier {
+class AdminProvide with ChangeNotifier {
 
-  UserService userService = UserService.getInstance();
+  AdminService adminService = AdminService.getInstance();
 
-  static UserProvide instance;
+  static AdminProvide instance;
 
    // 单例
-  static UserProvide getInstance() {
+  static AdminProvide getInstance() {
     if (instance != null) {
       return instance;
     }
-    instance = UserProvide();
+    instance = AdminProvide();
     return instance;
   }
 
-  UserProvide(){
+  AdminProvide(){
     scrollController = ScrollController();
     searchTextEditingController = TextEditingController();
-    getUsers();
+    getAdmins();
     // 监听滚动
     scrollController?.addListener(() => _onScrollViewControllerAddListener());
   }
@@ -32,7 +32,7 @@ class UserProvide with ChangeNotifier {
   String keyword = "";
   ScrollController scrollController;
   TextEditingController searchTextEditingController;
-  List<UserModel> users = [];
+  List<AdminModel> admins = [];
   int usersTotal = 0;
 
   // 监听滚动条
@@ -46,7 +46,7 @@ class UserProvide with ChangeNotifier {
           UX.showToast('您的网络异常，请检查您的网络!', position: ToastPosition.top);
           return;
         }
-        getUsers();
+        getAdmins();
       }
     }catch(e){
       printf(e);
@@ -55,24 +55,24 @@ class UserProvide with ChangeNotifier {
   
 
   /// 获取列表数据
-  Future<void> getUsers() async{
+  Future<void> getAdmins() async{
     if(isLoadEnd) return;
     pageOn = pageOn +1;
     isLoading = true;
     notifyListeners();
-    Response response = await userService.getList(pageOn: pageOn, pageSize: pageSize, keyword: keyword);
+    Response response = await adminService.getAdmins(pageOn: pageOn, pageSize: pageSize, keyword: keyword);
     isLoading = false;
     notifyListeners();
     if (response.data["code"] == 200) {
-      List<UserModel> _users = (response.data["data"]['list'] as List).map((i) => UserModel.fromJson(i)).toList();
+      List<AdminModel> _admins= (response.data["data"]['list'] as List).map((i) => AdminModel.fromJson(i)).toList();
       usersTotal = response.data["data"]['total'];
-      if(_users.length < pageSize){
+      if(_admins.length < pageSize){
         isLoadEnd = true;
       }
       if(pageOn > 1){
-        users.addAll(_users);
+        admins.addAll(_admins);
       }else{
-        users = _users;
+        admins = _admins;
       }
       notifyListeners();
     } else {
@@ -82,25 +82,25 @@ class UserProvide with ChangeNotifier {
 
   /// 更新单个数据
   Future<void> getUser(int id) async{
-    Response response = await userService.getItem(id: id);
+    Response response = await adminService.getItem(id: id);
     if (response.data["code"] == 200) {
-      UserModel _user = UserModel.fromJson(response.data["data"]);
-      int index = users.indexWhere((k) => k.id == id);
+      AdminModel _admin = AdminModel.fromJson(response.data["data"]);
+      int index = admins.indexWhere((k) => k.id == id);
       if(index != null){
-        users[index] = _user;
+        admins[index] = _admin;
         notifyListeners();
       }
     }
   }
   /// 找出一个
-  UserModel getItem(int id){
-    return users.firstWhere((k) => k.id == id);
+  AdminModel getItem(int id){
+    return admins.firstWhere((k) => k.id == id);
   }
 
   /// 删除单个数据
   void deleteItem(int id){
     usersTotal--;
-    users.removeWhere((i) => i.id == id);
+    admins.removeWhere((i) => i.id == id);
   }
 
   // search
@@ -109,7 +109,7 @@ class UserProvide with ChangeNotifier {
     keyword = searchTextEditingController.value.text.trim();
     isLoadEnd = false;
     notifyListeners();
-    await getUsers();
+    await getAdmins();
   }
 
   // onRefresh
@@ -119,7 +119,7 @@ class UserProvide with ChangeNotifier {
     isLoadEnd = false;
     searchTextEditingController.clear();
     notifyListeners();
-    await getUsers();
+    await getAdmins();
     UX.showToast("刷新成功", position: ToastPosition.top);
     return true;
   }

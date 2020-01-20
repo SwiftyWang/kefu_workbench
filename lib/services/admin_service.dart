@@ -14,8 +14,28 @@ class AdminService extends BaseServices {
     return instance;
   }
 
+  // 获取单个客服信息
+  Future<Response> getItem({int id}) async {
+    try {
+      Response response = await http.get(API_ADMIN + id.toString());
+      return response;
+    } on DioError catch (e) {
+      return error(e, API_REGISTER);
+    }
+  }
+
+   // 删除
+  Future<Response> delete({int id}) async {
+    try {
+      Response response = await http.delete(API_ADMIN + id.toString());
+      return response;
+    } on DioError catch (e) {
+      return error(e, API_USER);
+    }
+  }
+
   // 获取个人信息
-  Future<Response> getMe({int accountId}) async {
+  Future<Response> getMe() async {
     try {
       Response response = await http.get(API_GET_ME);
       return response;

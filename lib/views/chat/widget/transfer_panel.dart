@@ -8,8 +8,8 @@ class TransferPanel extends StatelessWidget{
     this.onSelected
   });
   final bool isShow;
-  final List<ServiceUserModel> listData;
-  final ValueChanged<ServiceUserModel> onSelected;
+  final List<AdminModel> listData;
+  final ValueChanged<AdminModel> onSelected;
   @override
   Widget build(BuildContext context) {
     ThemeData themeData = Theme.of(context);
@@ -29,7 +29,7 @@ class TransferPanel extends StatelessWidget{
       ListView.builder(
         itemCount: listData.length,
         itemBuilder: (context, index){
-          ServiceUserModel user = listData[index];
+          AdminModel user = listData[index];
           return Column(
             children: <Widget>[
               Container(

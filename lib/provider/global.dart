@@ -64,7 +64,7 @@ class GlobalProvide with ChangeNotifier {
   List<ShortcutModel> shortcuts = [];
 
   /// 客服信息
-  ServiceUserModel serviceUser;
+  AdminModel serviceUser;
 
   /// 当前服务谁
   ContactModel currentContact;
@@ -142,7 +142,7 @@ class GlobalProvide with ChangeNotifier {
     String authorization = prefs.getString("Authorization");
     String serviceUserString = prefs.getString("serviceUser");
     if(serviceUserString != null){
-      serviceUser = ServiceUserModel.fromJson(json.decode(serviceUserString));
+      serviceUser = AdminModel.fromJson(json.decode(serviceUserString));
     }
     if(authorization != null && serviceUser != null){
       return true;
@@ -166,7 +166,7 @@ class GlobalProvide with ChangeNotifier {
   Future<void> getMe() async {
      Response response = await adminService.getMe();
     if (response.data["code"] == 200) {
-      serviceUser = ServiceUserModel.fromJson(response.data['data']);
+      serviceUser = AdminModel.fromJson(response.data['data']);
       setServiceUser(serviceUser);
       if(serviceUser.online != 0){
         flutterMImc?.login();
@@ -178,13 +178,13 @@ class GlobalProvide with ChangeNotifier {
 
 
   /// 可转接的客服
-  List<ServiceUserModel> serviceOnlineUsers = [];
+  List<AdminModel> serviceOnlineUsers = [];
 
    /// 获取客服
   void getOnlineAdmins() async{
     Response response = await  adminService.getAdmins(pageOn: 1, pageSize: 1000, online: 3);
     if (response.data["code"] == 200) {
-      serviceOnlineUsers = (response.data['data']['list'] as List).map((i) => ServiceUserModel.fromJson(i)).toList();
+      serviceOnlineUsers = (response.data['data']['list'] as List).map((i) => AdminModel.fromJson(i)).toList();
       notifyListeners();
     } else {
       UX.showToast(response.data['message']);
@@ -203,7 +203,7 @@ class GlobalProvide with ChangeNotifier {
   }
 
   /// 设置serviceUser
-  void setServiceUser(ServiceUserModel user){
+  void setServiceUser(AdminModel user){
     serviceUser = user;
     notifyListeners();
     if(user == null) return;
@@ -562,8 +562,8 @@ class GlobalProvide with ChangeNotifier {
         String _localServiceUserStr =
             prefs.getString("service_user_" + msg.fromAccount.toString());
         if (_localServiceUserStr != null) {
-          ServiceUserModel _localServiceUser =
-              ServiceUserModel.fromJson(json.decode(_localServiceUserStr));
+          AdminModel _localServiceUser =
+              AdminModel.fromJson(json.decode(_localServiceUserStr));
           msg.nickname = _localServiceUser.nickname ?? "客服";
           msg.avatar = _localServiceUser.avatar != null &&
                   _localServiceUser.avatar.isNotEmpty

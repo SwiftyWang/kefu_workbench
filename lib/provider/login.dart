@@ -39,7 +39,7 @@ class LoginProvide with ChangeNotifier {
     Response response = await authService.login(username: account, password: password);
     UX.hideLoading(context);
     if(response.statusCode == 200){
-      ServiceUserModel user = ServiceUserModel.fromJson(response.data['data']);
+      AdminModel user = AdminModel.fromJson(response.data['data']);
       GlobalProvide.getInstance().setServiceUser(user);
       GlobalProvide.getInstance().prefs.setString("serviceUser", json.encode(response.data['data']));
       GlobalProvide.getInstance().prefs.setString("Authorization", user.token);

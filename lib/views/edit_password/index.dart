@@ -8,7 +8,7 @@ class EditPasswordPage extends StatefulWidget {
   EditPasswordPageState createState() => EditPasswordPageState();
 }
 class EditPasswordPageState extends State<EditPasswordPage> {
-  ServiceUserModel serviceUser = GlobalProvide.getInstance().serviceUser;
+  AdminModel serviceUser = GlobalProvide.getInstance().serviceUser;
 
   TextEditingController oldPasswordCtr;
   TextEditingController newPasswordCtr;
@@ -81,7 +81,8 @@ class EditPasswordPageState extends State<EditPasswordPage> {
         TextEditingController controller,
         String placeholder,
         bool enabled = true,
-        bool obscureText = false
+        bool obscureText = false,
+        bool autofocus = false,
       }){
         return Container(
           height: ToPx.size(90),
@@ -101,6 +102,7 @@ class EditPasswordPageState extends State<EditPasswordPage> {
                 padding: EdgeInsets.symmetric(horizontal: ToPx.size(10)),
                 placeholder: "$placeholder",
                 showClear: true,
+                autofocus: autofocus,
                 controller: controller,
               ),
               )
@@ -124,7 +126,8 @@ class EditPasswordPageState extends State<EditPasswordPage> {
               _fromInput(
                 label: "旧密码：",
                 placeholder: "请输入旧密码",
-                controller: oldPasswordCtr
+                controller: oldPasswordCtr,
+                autofocus: true
               ),
               _fromInput(
                 label: "新密码：",

@@ -1,39 +1,39 @@
 import 'package:dio/dio.dart';
 import 'package:kefu_workbench/core_flutter.dart';
 import 'package:kefu_workbench/provider/global.dart';
-class EditProfilePage extends StatefulWidget {
+class AdminEditPage extends StatefulWidget {
   final Map<dynamic, dynamic> arguments;
-  EditProfilePage({this.arguments});
+  AdminEditPage({this.arguments});
   @override
-  EditProfilePageState createState() => EditProfilePageState();
+  _AdminEditPagePageState createState() => _AdminEditPagePageState();
 }
-class EditProfilePageState extends State<EditProfilePage> {
-  AdminModel serviceUser = GlobalProvide.getInstance().serviceUser;
-
+class _AdminEditPagePageState extends State<AdminEditPage> {
+  AdminModel admin;
+  String account = "";
+  String avatar = "";
   TextEditingController nicknameCtr;
   TextEditingController phoneCtr;
   TextEditingController autoReplyCtr;
-  TextEditingController usernameCtr;
 
   /// 选择图片上传
   void _pickerImage() async{
     String imgUser = await uploadImage<String>(context, maxWidth: 300.0);
     if(imgUser == null) return;
-    serviceUser.avatar = imgUser;
+    avatar = imgUser;
     setState(() {});
   }
 
 
   /// save
-  void saveUser() async{
+  void saveAdmin() async{
     String nickname = nicknameCtr.value.text.trim();
     AdminModel user = AdminModel(
       nickname: nickname,
       phone: phoneCtr.value.text.trim(),
       autoReply: autoReplyCtr.value.text.trim(),
-      id: serviceUser.id,
-      avatar: serviceUser.avatar,
-      username: usernameCtr.value.text.trim(),
+      id: admin.id,
+      avatar: admin.avatar,
+      username: account.trim(),
     );
     Map useMap = user.toJson();
     useMap.removeWhere((key, value) => value == null);
@@ -58,11 +58,12 @@ class EditProfilePageState extends State<EditProfilePage> {
   @override
   void initState() {
     super.initState();
-    if(mounted && serviceUser!= null){
-      usernameCtr = TextEditingController(text: serviceUser.username);
-      nicknameCtr = TextEditingController(text: serviceUser.nickname);
-      phoneCtr = TextEditingController(text: serviceUser.phone);
-      autoReplyCtr = TextEditingController(text: serviceUser.autoReply);
+    if(mounted && widget.arguments != null){
+      admin = (widget.arguments['admin'] as AdminModel);
+      account = admin.username;
+      nicknameCtr = TextEditingController(text: admin.nickname);
+      phoneCtr = TextEditingController(text: admin.phone);
+      autoReplyCtr = TextEditingController(text: admin.autoReply);
     }
   }
 
@@ -71,7 +72,6 @@ class EditProfilePageState extends State<EditProfilePage> {
     nicknameCtr?.dispose();
     autoReplyCtr?.dispose();
     phoneCtr?.dispose();
-    usernameCtr?.dispose();
     super.dispose();
   }
 
@@ -112,20 +112,31 @@ class EditProfilePageState extends State<EditProfilePage> {
           ),
         );
       }
+       Widget _fromItem({
+        String label,
+        String content
+      }){
+        return Container(
+          height: ToPx.size(90),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            border: Border(bottom: BorderSide(color: themeData.dividerColor,width: ToPx.size(2)))
+          ),
+          padding: EdgeInsets.symmetric(horizontal: ToPx.size(40)),
+          child: Row(
+          children: <Widget>[
+              Text("$label", style: themeData.textTheme.title,),
+              Expanded(
+                child: Text("$content")
+              )
+            ],
+          ),
+        );
+      }
       return Scaffold(
         appBar: customAppBar(
-          actions: [
-            Button(
-              height: ToPx.size(90),
-              useIosStyle: true,
-              color: Colors.transparent,
-              width: ToPx.size(150),
-              child: Text("修改密码"),
-              onPressed: () => Navigator.pushNamed(context, "/edit_password")
-            ),
-          ],
           title: Text(
-            "编辑个人资料",
+            "编辑客服资料",
             style: themeData.textTheme.display1,
           )),
         body: ListView(
@@ -144,7 +155,7 @@ class EditProfilePageState extends State<EditProfilePage> {
                     Center(
                       child: Avatar(
                           size: ToPx.size(150),
-                          imgUrl: serviceUser.avatar.isEmpty ? "http://qiniu.cmp520.com/avatar_default.png" : serviceUser?.avatar,
+                          imgUrl: admin.avatar.isEmpty ? "http://qiniu.cmp520.com/avatar_default.png" : admin?.avatar,
                           onPressed: _pickerImage
                         )
                     ),
@@ -158,14 +169,12 @@ class EditProfilePageState extends State<EditProfilePage> {
                 ),
               ),
               
-              _fromInput(
-                label: "        账号：",
-                placeholder: "请输入账号",
-                controller: usernameCtr,
-                enabled: false
+              _fromItem(
+                label: "客服账号：",
+                content: account
               ),
               _fromInput(
-                label: "用户昵称：",
+                label: "客服昵称：",
                 placeholder: "请输入昵称",
                 autofocus: true,
                 controller: nicknameCtr
@@ -205,7 +214,7 @@ class EditProfilePageState extends State<EditProfilePage> {
 
               Button(
                 margin: EdgeInsets.symmetric(horizontal: ToPx.size(40), vertical: ToPx.size(80)),
-                onPressed: saveUser,
+                onPressed: saveAdmin,
                 child: Text("保存"),
               )
 
