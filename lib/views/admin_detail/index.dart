@@ -161,6 +161,18 @@ class _AdminDetailPageState extends State<AdminDetailPage> {
                 style: themeData.textTheme.body1,
               ),
               _lineItem(
+                label: Text("联系电话："),
+                content: Text(admin.phone  ?? "未设置电话"),
+                contextCrossAxisAlignment: CrossAxisAlignment.center,
+                style: themeData.textTheme.body1,
+              ),
+              _lineItem(
+                label: Text("自动回复语："),
+                content: Text(admin.autoReply),
+                contextCrossAxisAlignment: CrossAxisAlignment.center,
+                style: themeData.textTheme.body1,
+              ),
+              _lineItem(
                 label: Text("最后活动时间："),
                 content: Text(Utils.epocFormat(admin.lastActivity)),
                 contextCrossAxisAlignment: CrossAxisAlignment.center,

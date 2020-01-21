@@ -40,6 +40,8 @@ class KnowledgePage extends StatelessWidget{
                 backgroundColor: themeData.primaryColor,
                 onRefresh: knowledgeProvide.onRefresh,
                 child: CustomScrollView(
+                scrollDirection: Axis.vertical,
+                physics: AlwaysScrollableScrollPhysics(),
                 controller: knowledgeProvide.scrollController,
                 slivers: <Widget>[
                     SliverToBoxAdapter(

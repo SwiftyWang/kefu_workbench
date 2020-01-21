@@ -124,6 +124,19 @@ class AdminProvide with ChangeNotifier {
     return true;
   }
 
+
+  /// add
+  void goAdd(BuildContext context) async{
+    Navigator.pushNamed(context, "/admin_add").then((isSuccess){
+      if(isSuccess == true){
+        pageOn = 0;
+        isLoadEnd = false;
+        notifyListeners();
+        getAdmins();
+      }
+    });
+  }
+
   @override
   void dispose() {
     instance = null;

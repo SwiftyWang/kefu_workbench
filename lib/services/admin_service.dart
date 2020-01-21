@@ -44,6 +44,16 @@ class AdminService extends BaseServices {
     }
   }
 
+  // 添加
+  Future<Response> add(data) async {
+    try {
+      Response response = await http.post(API_ADMIN, data: data);
+      return response;
+    } on DioError catch (e) {
+      return error(e, API_ADMIN);
+    }
+  }
+
   // 更新当前服务谁
   Future<Response> updateCurrentServiceUser({int accountId}) async {
     try {

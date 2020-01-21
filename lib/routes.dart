@@ -72,6 +72,7 @@ class Routers {
       case "/admin_detail":
         return AdminDetailPage(arguments: arguments);
       case "/admin_edit":
+      case "/admin_add":
         return AdminEditPage(arguments: arguments);
         break;
       default:

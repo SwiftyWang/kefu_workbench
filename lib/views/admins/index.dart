@@ -23,6 +23,16 @@ class AdminsPage extends StatelessWidget {
                     "客服列表(${adminState.usersTotal}人)",
                     style: themeData.textTheme.display1,
                   ),
+                  actions: [
+                    Button(
+                      height: ToPx.size(90),
+                      useIosStyle: true,
+                      color: Colors.transparent,
+                      width: ToPx.size(150),
+                      child: Text("新增"),
+                      onPressed: () => adminState.goAdd(context)
+                    ),
+                  ],
                 ),
               body: adminState.isLoading && adminState.admins.length == 0 ? Center(
                 child: loadingIcon(size: ToPx.size(50)),
@@ -32,6 +42,8 @@ class AdminsPage extends StatelessWidget {
                 backgroundColor: themeData.primaryColor,
                 onRefresh: adminState.onRefresh,
                 child: CustomScrollView(
+                scrollDirection: Axis.vertical,
+                physics: AlwaysScrollableScrollPhysics(),
                 controller: adminState.scrollController,
                 slivers: <Widget>[
                   SliverToBoxAdapter(

@@ -41,6 +41,8 @@ class RobotsPage extends StatelessWidget {
                 backgroundColor: themeData.primaryColor,
                 onRefresh: robotState.onRefresh,
                 child: CustomScrollView(
+                scrollDirection: Axis.vertical,
+                physics: AlwaysScrollableScrollPhysics(),
                 slivers: <Widget>[
                     SliverToBoxAdapter(
                       child: Offstage(
