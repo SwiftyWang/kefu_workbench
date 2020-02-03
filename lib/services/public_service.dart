@@ -14,7 +14,7 @@ class PublicService extends BaseServices {
     return instance;
   }
 
-    // 注册IM
+  // 注册IM
   Future<Response> registerImAccount({int accountId}) async {
     try {
       Response response = await http
@@ -44,6 +44,23 @@ class PublicService extends BaseServices {
       return response;
     } on DioError catch (e) {
       return error(e, API_RUN_LAST_ACTiIVITY);
+    }
+  }
+
+  // 获取服务记录
+  Future<Response> getServicesStatistical({int pageOn = 1, int pageSize = 20, int cid, String date, bool isDeWeighting = false}) async {
+    try {
+      Response response = await http
+        .post(API_SERVICES_STATISTICAL, data: {
+          "page_on": pageOn,
+          "page_size": pageSize,
+          "cid": cid,
+          "date": date,
+          "is_de_weighting": isDeWeighting
+        });
+      return response;
+    } on DioError catch (e) {
+      return error(e, API_SERVICES_STATISTICAL);
     }
   }
 

@@ -150,7 +150,7 @@ class DrawerMenu extends StatelessWidget {
               _listTile(
                   icon: Icons.featured_play_list,
                   title: "服务记录",
-                  onTap: () => Navigator.popAndPushNamed(context, "/services")),
+                  onTap: () => Navigator.popAndPushNamed(context, "/chat_record")),
               _listTile(
                   icon: Icons.assignment,
                   title: "快捷语设置",

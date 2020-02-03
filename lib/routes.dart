@@ -7,6 +7,7 @@ import 'views/admin_edit/index.dart';
 import 'views/admins/index.dart';
 import 'views/auth/index.dart';
 import 'views/chat/index.dart';
+import 'views/chat_record/index.dart';
 import 'views/edit_password/index.dart';
 import 'views/edit_profile/index.dart';
 import 'views/home/index.dart';
@@ -74,6 +75,9 @@ class Routers {
       case "/admin_edit":
       case "/admin_add":
         return AdminEditPage(arguments: arguments);
+        break;
+      case "/chat_record":
+        return ChatReCordPage(arguments: arguments);
         break;
       default:
         return Scaffold(

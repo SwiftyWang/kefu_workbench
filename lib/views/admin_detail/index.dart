@@ -41,7 +41,7 @@ class _AdminDetailPageState extends State<AdminDetailPage> {
   void _delete(BuildContext context){
     UX.alert(
       context,
-      content: Text("是否删除该用户吗！"),
+      content: Text("是否删除该客服吗！"),
       onConfirm: () async{
        Response response = await AdminService.getInstance().delete(id: admin.id);
        if (response.data["code"] == 200) {
@@ -185,7 +185,7 @@ class _AdminDetailPageState extends State<AdminDetailPage> {
                 style: themeData.textTheme.body1,
               ),
               Offstage(
-                offstage: GlobalProvide.getInstance().serviceUser.root != 1,
+                offstage: GlobalProvide.getInstance().serviceUser.root != 1 || admin.root == 1,
                 child: Button(
                 margin: EdgeInsets.symmetric(horizontal: ToPx.size(40), vertical: ToPx.size(50)),
                 child: Text("删除"),

@@ -92,6 +92,9 @@ const String API_GET_KNOWLEDGE =  "/knowledge/list/";
 /// 知识库操作
 const String API_KNOWLEDGE =  "/knowledge/";
 
+/// 服务记录
+const String API_SERVICES_STATISTICAL = "/services_statistical/list/";
+
 
 
 

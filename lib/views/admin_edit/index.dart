@@ -35,8 +35,8 @@ class _AdminEditPagePageState extends State<AdminEditPage> {
       nickname: nickname,
       phone: phoneCtr.value.text.trim(),
       autoReply: autoReplyCtr.value.text.trim(),
-      id: admin.id,
-      avatar: admin.avatar,
+      id: admin?.id ?? null,
+      avatar: avatar,
       password: null,
       username: username
     );

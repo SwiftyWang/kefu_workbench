@@ -8,3 +8,4 @@ export 'upload_secret_model.dart';
 export 'contact_model.dart';
 export 'shortcut_model.dart';
 export 'platform_model.dart';
+export  'services_statistical_model.dart';

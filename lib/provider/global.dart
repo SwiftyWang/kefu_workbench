@@ -411,7 +411,6 @@ class GlobalProvide with ChangeNotifier {
       "transfer_account": 0,
       "payload": "$content"
     };
-    printf(payloadMap);
     message.payload = base64Encode(utf8.encode(json.encode(payloadMap)));
     return MessageHandle(
         sendMessage: message,
