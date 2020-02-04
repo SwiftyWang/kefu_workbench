@@ -31,6 +31,7 @@ class ChatReCordProvide with ChangeNotifier {
 
   int pageOn = 0;
   int pageSize = 25;
+  int total = 0;
   bool isLoadEnd = false;
   bool isLoading = false;
   String date;
@@ -97,6 +98,7 @@ class ChatReCordProvide with ChangeNotifier {
     isLoading = false;
     notifyListeners();
     if (response.statusCode == 200) {
+      total = response.data['total'];
       List<ServicesStatisticalModel> _servicesStatisticals= (response.data['list'] as List).map((i) => ServicesStatisticalModel.fromJson(i)).toList();
       if(_servicesStatisticals.length < pageSize){
         isLoadEnd = true;

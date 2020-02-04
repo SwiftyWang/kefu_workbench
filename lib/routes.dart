@@ -17,6 +17,8 @@ import 'views/knowledge_edit/index.dart';
 import 'views/robot_detail/index.dart';
 import 'views/robot_edit/index.dart';
 import 'views/robots/index.dart';
+import 'views/shortcut_edit/index.dart';
+import 'views/shortcuts/index.dart';
 import 'views/user_detail/index.dart';
 import 'views/users/index.dart';
 
@@ -78,6 +80,13 @@ class Routers {
         break;
       case "/chat_record":
         return ChatReCordPage(arguments: arguments);
+        break;
+      case "/shortcuts":
+        return ShortcutsPage(arguments: arguments);
+        break;
+      case "/shortcut_edit":
+      case "/shortcut_add":
+        return ShortcutEditPage(arguments: arguments);
         break;
       default:
         return Scaffold(

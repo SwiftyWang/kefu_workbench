@@ -88,8 +88,8 @@ class GlobalProvide with ChangeNotifier {
   Map<dynamic, List<ImMessageModel>> messagesRecords = {};
 
   /// 当前聊天用户的消息记录
-  List<ImMessageModel> get currentUserMessagesRecords{
-    return messagesRecords[currentContact.fromAccount] ?? [];
+  List<ImMessageModel> currentUserMessagesRecords(int accountId){
+    return messagesRecords[accountId ?? currentContact.fromAccount] ?? [];
   }
 
   /// 是否显示loading
@@ -326,30 +326,34 @@ class GlobalProvide with ChangeNotifier {
   }
 
   /// 获取服务器消息列表
-  Future<void> getMessageRecord({int timestamp, int pageSize = 20, int account, bool isFirstLoad = false}) async {
+  Future<void> getMessageRecord({int timestamp, int pageSize = 20, int accountId, bool isFirstLoad = false, int serviceId}) async {
     try {
-      if(currentContact == null) return;
+      await Future.delayed(Duration(milliseconds: 200));
       int timer = timestamp ?? 0;
-      if(isFirstLoad && currentUserMessagesRecords.length <= 0){
+      if(isFirstLoad){
+         isLoadRecordEnd = false;
+         notifyListeners();
+      }
+      if(isFirstLoad && currentUserMessagesRecords(accountId).length <= 0){
         isChatFullLoading = true;
         notifyListeners();
       }
-      if(currentUserMessagesRecords.length > 0 && !isFirstLoad){
-        timer = currentUserMessagesRecords[0].timestamp;
+      if(currentUserMessagesRecords(accountId).length > 0 && !isFirstLoad){
+        timer = currentUserMessagesRecords(accountId)[0].timestamp;
         printf(timer);
       }
-      Response response = await messageService.getMessageRecord(timestamp: timer, pageSize: pageSize, account: account ?? currentContact.fromAccount);
+      Response response = await messageService.getMessageRecord(timestamp: timer, pageSize: pageSize, account: accountId ?? currentContact.fromAccount, service: serviceId ?? serviceUser.id);
       isChatFullLoading = false;
       notifyListeners();
       if (response.data["code"] == 200) {
         if(isFirstLoad){
-          messagesRecords[currentContact.fromAccount] = [];
+          messagesRecords[accountId ?? currentContact.fromAccount] = [];
           (response.data['data']['list'] as List).forEach((i){
-            pushLocalMessage(ImMessageModel.fromJson(i), currentContact.fromAccount, isInsert: !isFirstLoad);
+            pushLocalMessage(ImMessageModel.fromJson(i), accountId ?? currentContact.fromAccount, isInsert: !isFirstLoad);
           });
         }else{
           List<ImMessageModel>  messages = (response.data['data']['list'] as List).map((i) => _handlerMessage(ImMessageModel.fromJson(i))).toList();
-          messagesRecords[toAccount].insertAll(0, messages);
+          messagesRecords[accountId ?? currentContact.fromAccount].insertAll(0, messages);
           notifyListeners();
         }
 
@@ -452,8 +456,8 @@ class GlobalProvide with ChangeNotifier {
 
   // 更新某个消息
   void updateMessage(ImMessageModel msg) {
-    int index = currentUserMessagesRecords.indexWhere((i) => i.key == msg.key);
-    currentUserMessagesRecords[index] = msg;
+    int index = currentUserMessagesRecords(toAccount).indexWhere((i) => i.key == msg.key);
+    currentUserMessagesRecords(toAccount)[index] = msg;
     notifyListeners();
   }
 

@@ -39,7 +39,6 @@ class ChatReCordPage extends StatelessWidget {
                 physics: AlwaysScrollableScrollPhysics(),
                 controller: chatReCordState.scrollController,
                 slivers: <Widget>[
-                    
                     SliverToBoxAdapter(
                       child: Padding(
                         padding: EdgeInsets.symmetric(horizontal: ToPx.size(20)),
@@ -81,6 +80,15 @@ class ChatReCordPage extends StatelessWidget {
                     ),
                     SliverToBoxAdapter(
                       child: Offstage(
+                        offstage: chatReCordState.total == 0,
+                        child: Padding(
+                        padding: EdgeInsets.symmetric(vertical: ToPx.size(5)),
+                        child: Text("当天总服务人次（${chatReCordState.total}人）", style: themeData.textTheme.caption, textAlign: TextAlign.center,)
+                      )
+                      ),
+                    ),
+                    SliverToBoxAdapter(
+                      child: Offstage(
                         offstage: chatReCordState.servicesStatisticals.length > 0 || chatReCordState.isLoading,
                         child: Padding(
                           padding: EdgeInsets.only(top: ToPx.size(50)),
@@ -94,8 +102,11 @@ class ChatReCordPage extends StatelessWidget {
                         return Column(
                           children: <Widget>[
                             ListTile(
-                              onTap: () => Navigator.pushNamed(context, "/admin_detail",arguments: {
-                                "admin": _servicesStatistical
+                              onTap: () => Navigator.pushNamed(context, "/chat",arguments: {
+                                "isReadOnly": true,
+                                "accountId": int.parse(_servicesStatistical.userAccount),
+                                "serviceId": chatReCordState.selectedAdmin.id,
+                                "title": "${chatReCordState.selectedAdmin.nickname} 与 ${_servicesStatistical.nickname} 的聊天记录",
                               }),
                               subtitle: Row(
                                 children: <Widget>[

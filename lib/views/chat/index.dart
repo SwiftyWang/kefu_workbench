@@ -1,4 +1,3 @@
-import 'package:image_picker/image_picker.dart';
 import 'package:kefu_workbench/core_flutter.dart';
 import 'package:kefu_workbench/provider/chat.dart';
 import 'package:kefu_workbench/provider/global.dart';
@@ -18,30 +17,35 @@ import 'widget/transfer_panel.dart';
 class ChatPage extends StatelessWidget {
   final Map<dynamic, dynamic> arguments;
   ChatPage({this.arguments});
-
   void openDrawer(context) {
     Scaffold.of(context).openEndDrawer();
   }
 
   @override
   Widget build(_) {
+    bool isReadOnly = arguments['isReadOnly'] ?? false;
+    int accountId = arguments['accountId'];
+    int serviceId = arguments['serviceId'];
+    String title = arguments['title'];
+    ChatProvide chatProvide = ChatProvide.getInstance(isReadOnly: isReadOnly, accountId: accountId, serviceId: serviceId);
     return ChangeNotifierProvider<ChatProvide>(
-      create: (_) => ChatProvide.getInstance(),
+      create: (_) => chatProvide,
       child: Consumer<ChatProvide>(
         builder: (context, chatState , _){
         return PageContext(builder: (context){
           ThemeData themeData = Theme.of(context);
           return Consumer<GlobalProvide>(
           builder: (context, globalState, _){
+             List<ImMessageModel> messagesRecords = globalState.currentUserMessagesRecords(chatState.accountId);
             return Scaffold(
                 appBar: customAppBar(
                   title: Text(
-                    globalState.isPong ? "对方正在输入..." : "${globalState.currentContact?.nickname}",
+                    title ?? (globalState.isPong ? "对方正在输入..." : "${globalState.currentContact?.nickname}"),
                     style: themeData.textTheme.display1,
                   ),
                   actions: [
                     Offstage(
-                      offstage: globalState.currentContact.isSessionEnd == 1,
+                      offstage:chatState.isReadOnly || globalState.currentContact == null || globalState.currentContact?.isSessionEnd == 1,
                       child: Button(
                       useIosStyle: true,
                       width: ToPx.size(110),
@@ -52,13 +56,16 @@ class ChatPage extends StatelessWidget {
                       ),),
                     ),
                     ),
-                    Builder(
+                    Offstage(
+                      offstage: chatState.isReadOnly,
+                      child: Builder(
                       builder: (ctx) {
                         return IconButton(
                           icon: Icon(Icons.person_pin),
                           onPressed: ()=>openDrawer(ctx),
                         );
                     })
+                    )
                     
                   ]
                 ),
@@ -85,15 +92,10 @@ class ChatPage extends StatelessWidget {
                                 horizontal: 10.0, vertical: 20.0),
                             sliver: SliverList(
                                 delegate: SliverChildBuilderDelegate((ctx, i) {
-                              var currentUserMessagesRecords = globalState.currentUserMessagesRecords;
-                                int index = currentUserMessagesRecords.length - i - 1;
-                              ImMessageModel _msg = currentUserMessagesRecords[index];
-
+                                int index = messagesRecords.length - i - 1;
+                              ImMessageModel _msg = messagesRecords[index];
                               /// 判断是否需要显示时间
-                              if (i == currentUserMessagesRecords.length - 1 ||
-                                  (_msg.timestamp - 120) >
-                                      currentUserMessagesRecords[index - 1]
-                                          .timestamp) {
+                              if (i == messagesRecords.length - 1 || (_msg.timestamp - 120) > messagesRecords[index - 1].timestamp) {
                                 _msg.isShowDate = true;
                               }
                               switch (_msg.bizType) {
@@ -101,7 +103,7 @@ class ChatPage extends StatelessWidget {
                                 case "welcome":
                                   return TextMessage(
                                     message: _msg,
-                                    isSelf: _msg.fromAccount != globalState.currentContact.fromAccount,
+                                    isSelf: _msg.fromAccount != (accountId ?? globalState.currentContact.fromAccount),
                                     onCancel: () => chatState.onCancelMessage(_msg),
                                     onOperation: () => chatState.onOperation(context, _msg),
                                   );
@@ -130,7 +132,7 @@ class ChatPage extends StatelessWidget {
                                 default:
                                   return SizedBox();
                               }
-                            }, childCount: globalState.currentUserMessagesRecords.length)),
+                            }, childCount: messagesRecords.length)),
                           ),
                           SliverToBoxAdapter(
                             child: Offstage(
@@ -162,6 +164,8 @@ class ChatPage extends StatelessWidget {
                       ),
                     ),
                   ),
+                  chatState.isReadOnly ?
+                  SizedBox() :
                   Container(
                     color: Colors.white,
                     child: SafeArea(

@@ -16,11 +16,12 @@ class MessageService extends BaseServices {
 
   // 获取服务器消息列表
   Future<Response> getMessageRecord(
-      {int timestamp, int pageSize = 15, int account}) async {
+      {int timestamp, int pageSize = 15, int account, int service}) async {
     try {
       Response response = await http.post(API_GET_MESSAGE, data: {
         "timestamp": timestamp,
         "page_size": pageSize,
+        "service": service,
         "account": account
       });
       return response;

@@ -12,10 +12,11 @@ class PopupButton extends StatelessWidget{
         return PopupMenuButton<AdminModel>(
         onSelected: (AdminModel admin) => chatReCordState.onSelected(admin),
         child: Align(
-          alignment: Alignment.center,
+          alignment: Alignment.centerRight,
           child: Container(
-            width: ToPx.size(200),
-            child: Text("接待员：${chatReCordState?.selectedAdmin?.nickname ?? '选择客服'}",
+            alignment: Alignment.centerRight,
+            width: ToPx.size(250),
+            child: Text("客服：${chatReCordState?.selectedAdmin?.nickname ?? '选择客服'}    ",
               style: themeData.textTheme.caption.copyWith(
               color: Colors.amber,
               fontSize: ToPx.size(26)

@@ -14,37 +14,45 @@ class ChatProvide with ChangeNotifier {
   StreamSubscription _listener;
 
   // 单例
-  static ChatProvide getInstance() {
+  static ChatProvide getInstance({bool isReadOnly = false, int serviceId, int accountId}) {
     if (instance != null) {
       return instance;
     }
-    instance = ChatProvide();
+    instance = ChatProvide(isReadOnly: isReadOnly, serviceId: serviceId, accountId: accountId);
     return instance;
   }
 
-  ChatProvide(){
-    focusNode = FocusNode();
-    focusNode.addListener((){
-      if(focusNode.hasFocus){
-        onHideEmoJiPanel();
-        onToggleShortcutPanel(false);
-        onToggleTransferPanel(false);
-        toScrollEnd();
-      }
-    });
-    GlobalProvide globalProvide =GlobalProvide.getInstance();
-    globalProvide.chatProvideIsDispose = false;
-    if(globalProvide.shortcuts.length == 0){
-      globalProvide.getShortcuts();
-    }
+  ChatProvide({bool isReadOnly = false, int serviceId, int accountId}){
+    this.isReadOnly = isReadOnly;
+    this.serviceId = serviceId;
+    this.accountId = accountId;
     scrollController = ScrollController();
-    scrollController.addListener(() => _onScrollViewControllerAddListener());
-    _listener = globalProvide.flutterMImc.addEventListenerHandleMessage().listen((MIMCMessage msg) async{
-      ImMessageModel message = ImMessageModel.fromJson(json.decode(utf8.decode(base64Decode(msg.payload))));
-      if(!["pong", "contacts", "cancel"].contains(message.bizType)){
-        toScrollEnd();
+     GlobalProvide globalState =GlobalProvide.getInstance();
+    if(isReadOnly){
+      globalState.getMessageRecord(serviceId: serviceId, accountId: accountId, isFirstLoad: true);
+    }else{
+      focusNode = FocusNode();
+      focusNode.addListener((){
+        if(focusNode.hasFocus){
+          onHideEmoJiPanel();
+          onToggleShortcutPanel(false);
+          onToggleTransferPanel(false);
+          toScrollEnd();
+        }
+      });
+      GlobalProvide globalProvide =GlobalProvide.getInstance();
+      globalProvide.chatProvideIsDispose = false;
+      if(globalProvide.shortcuts.length == 0){
+        globalProvide.getShortcuts();
       }
-    });
+      _listener = globalProvide.flutterMImc.addEventListenerHandleMessage().listen((MIMCMessage msg) async{
+        ImMessageModel message = ImMessageModel.fromJson(json.decode(utf8.decode(base64Decode(msg.payload))));
+        if(!["pong", "contacts", "cancel"].contains(message.bizType)){
+          toScrollEnd();
+        }
+      });
+    }
+    scrollController.addListener(() => _onScrollViewControllerAddListener());
   } 
 
    // 监听滚动条
@@ -58,7 +66,7 @@ class ChatProvide with ChangeNotifier {
           !globalState.isLoadingMorRecord) {
         globalState.setIsLoadingMorRecord(true);
         await Future.delayed(Duration(milliseconds: 1000));
-        await globalState.getMessageRecord();
+        await globalState.getMessageRecord(serviceId: serviceId, accountId: accountId);
         globalState.setIsLoadingMorRecord(false);
       }
     } catch (e) {
@@ -91,6 +99,15 @@ class ChatProvide with ChangeNotifier {
     editingController.text = shortcut;
     editingController.selection = TextSelection.collapsed(offset: shortcut.length);
   }
+
+  // 是否是紧查看记录
+  bool isReadOnly = false;
+
+  // 客服ID账号
+  int serviceId;
+
+  // 用户ID账号
+  int accountId;
 
   /// 是否显示表情面板
   bool isShowEmoJiPanel = false;
@@ -271,7 +288,7 @@ class ChatProvide with ChangeNotifier {
 
     List<Widget> actions = [];
     if (message.isShowCancel) actions.add(_cancel());
-    actions.add(_delete());
+    if(!isReadOnly) actions.add(_delete());
     if (message.bizType == "text") actions.add(_copy());
     if (isPhoto && !isLocalImage) {
       actions.add(_copy());
