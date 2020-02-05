@@ -64,6 +64,34 @@ class PublicService extends BaseServices {
     }
   }
 
+  // 获取各渠道服务统计量
+  Future<Response> getCountStatistical({String dateStart, String dateEnd}) async {
+    try {
+      Response response = await http
+        .post(API_STATISTICAL, data: {
+          "date_start": dateStart,
+          "date_end": dateEnd
+        });
+      return response;
+    } on DioError catch (e) {
+      return error(e, API_STATISTICAL);
+    }
+  }
+
+  // 获取独立用户访问量
+  Future<Response> getIpStatistical({String dateStart, String dateEnd}) async {
+    try {
+      Response response = await http
+        .post(API_TODAY_STATISTICAL, data: {
+          "date_start": dateStart,
+          "date_end": dateEnd
+        });
+      return response;
+    } on DioError catch (e) {
+      return error(e, API_TODAY_STATISTICAL);
+    }
+  }
+
 
 
 

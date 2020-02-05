@@ -68,8 +68,7 @@ class _SystemPageState extends State<SystemPage> with SingleTickerProviderStateM
                   child: Text("客户端平台"),
                 ),
               ],
-            ),
-            ),
+            ),),
             Divider(height: 0.0,),
             Expanded(
               child: TabBarView(

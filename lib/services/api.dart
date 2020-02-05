@@ -117,6 +117,12 @@ const String API_QINIU = "/qiniu/";
 /// 渠道平台
 const String API_PLATFORM = "/platform/";
 
+/// 获取各渠道服务统计量
+const String API_STATISTICAL = "/home/statistical/";
+
+/// 获取独立用户访问量
+const String API_TODAY_STATISTICAL = "/home/today_statistical/";
+
 
 
 

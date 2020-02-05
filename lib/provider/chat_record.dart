@@ -134,13 +134,13 @@ class ChatReCordProvide with ChangeNotifier {
 
   // onRefresh
   Future<bool> onRefresh() async{
-    _reload();
+    await _reload();
     UX.showToast("刷新成功", position: ToastPosition.top);
     return true;
   }
 
   // reload
-  void _reload() async{
+  Future<void> _reload() async{
     pageOn = 0;
     isLoadEnd = false;
     DateTime _dateTime = DateTime.now();

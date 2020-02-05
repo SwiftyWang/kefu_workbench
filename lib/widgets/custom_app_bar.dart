@@ -7,6 +7,7 @@ PreferredSize customAppBar({
   List<Widget> actions,
   PreferredSizeWidget bottom,
   bool isShowLeading = true,
+  Widget flexibleSpace,
   Brightness brightness,
   double size
 }){
@@ -22,6 +23,7 @@ PreferredSize customAppBar({
       brightness: brightness,
       leading: isShowLeading ? leading == null ? CustomBackButton() : leading : null,
       bottom: bottom,
+      flexibleSpace: flexibleSpace,
     )
   );
 }

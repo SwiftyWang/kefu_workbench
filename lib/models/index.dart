@@ -13,3 +13,6 @@ export 'uploads_config_model.dart';
 export 'company_model.dart';
 export 'services_statistical_model.dart';
 export 'qiniu_model.dart';
+export 'flow_model.dart';
+export 'service_count_model.dart';
+export 'statistical_count_model.dart';
