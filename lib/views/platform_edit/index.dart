@@ -1,45 +1,33 @@
 import 'package:dio/dio.dart';
 import 'package:kefu_workbench/core_flutter.dart';
-class ShortcutEditPage extends StatefulWidget {
+class PlatformEditPage extends StatefulWidget {
   final Map<dynamic, dynamic> arguments;
-  ShortcutEditPage({this.arguments});
+  PlatformEditPage({this.arguments});
   @override
-  _ShortcutEditPageState createState() => _ShortcutEditPageState();
+  _PlatformEditPageState createState() => _PlatformEditPageState();
 }
-class _ShortcutEditPageState extends State<ShortcutEditPage> {
-  ShortcutModel shortcut;
+class _PlatformEditPageState extends State<PlatformEditPage> {
+  PlatformModel platform;
   bool isEdit = false;
+  bool isSystem = false;
   TextEditingController titleCtr;
-  TextEditingController contentCtr;
+  TextEditingController aliasCtr;
 
 
   /// save
   void _save() async{
     String title = titleCtr.value.text.trim();
-    String content =  contentCtr.value.text.trim();
-    /// 判断title不能为空
-    if(title.isEmpty || title == ""){
-      UX.showToast("标题不能为空");
-      return;
-    }
-    /// 判断content不能为空
-    if(content.isEmpty || content == ""){
-      UX.showToast("内容不能为空");
-      return;
-    }
-    FocusScope.of(context).requestFocus(FocusNode());
+    String alias =  aliasCtr.value.text.trim();
     UX.showLoading(context, content: "保存中...");
     Response response;
     if(isEdit){
-      response = await ShortcutService.getInstance().update({
-        "id": shortcut.id,
-         "title": title,
-        "content": content
-      });
+      platform.title = title;
+      platform.alias = alias;
+      response = await PlatformService.getInstance().update(platform.toJson());
     }else{
-      response = await ShortcutService.getInstance().add({
-         "title": title,
-        "content": content
+      response = await PlatformService.getInstance().add({
+        "title": title,
+        "alias": alias
       });
     }
     UX.hideLoading(context);
@@ -56,9 +44,9 @@ class _ShortcutEditPageState extends State<ShortcutEditPage> {
   void _delete(BuildContext context){
     UX.alert(
       context,
-      content: Text("是否删除该条快捷语吗！"),
+      content: Text("是否删除该平台吗！"),
       onConfirm: () async{
-       Response response = await ShortcutService.getInstance().delete(shortcut.id);
+       Response response = await PlatformService.getInstance().delete(platform.id);
        if (response.data["code"] == 200) {
          UX.showToast("删除成功");
          Navigator.pop(context, true);
@@ -74,18 +62,19 @@ class _ShortcutEditPageState extends State<ShortcutEditPage> {
     super.initState();
     if(mounted && widget.arguments != null){
       isEdit = true;
-      shortcut = (widget.arguments['shortcut'] as ShortcutModel);
-      titleCtr = TextEditingController(text: shortcut.title);
-      contentCtr = TextEditingController(text: shortcut.content);
+      platform = (widget.arguments['platform'] as PlatformModel);
+      isSystem = platform.system == 1;
+      titleCtr = TextEditingController(text: platform.title);
+      aliasCtr = TextEditingController(text: platform.alias);
     }else{
       titleCtr = TextEditingController();
-      contentCtr = TextEditingController();
+      aliasCtr = TextEditingController();
     }
   }
 
   @override
   void dispose() {
-    contentCtr?.dispose();
+    aliasCtr?.dispose();
     titleCtr?.dispose();
     super.dispose();
   }
@@ -98,7 +87,7 @@ class _ShortcutEditPageState extends State<ShortcutEditPage> {
       return Scaffold(
         appBar: customAppBar(
           title: Text(
-            isEdit ? "编辑快捷语" : "添加快捷语",
+            isEdit ? "编辑平台" : "添加平台",
             style: themeData.textTheme.display1,
           )),
         body: ListView(
@@ -116,13 +105,14 @@ class _ShortcutEditPageState extends State<ShortcutEditPage> {
                 padding: EdgeInsets.symmetric(horizontal: ToPx.size(40)),
                 child: Row(
                 children: <Widget>[
-                    Text("标题：", style: themeData.textTheme.title,),
+                    Text("平台名称：", style: themeData.textTheme.title,),
                     Expanded(
                       child: Input(
-                      autofocus: true,
+                      autofocus: !isSystem,
+                      enabled:  !isSystem,
                       border: Border.all(style: BorderStyle.none, color: Colors.transparent),
                       padding: EdgeInsets.symmetric(horizontal: ToPx.size(10)),
-                      placeholder: "请输入标题",
+                      placeholder: "请输入平台名称",
                       showClear: true,
                       controller: titleCtr,
                     ),
@@ -131,40 +121,50 @@ class _ShortcutEditPageState extends State<ShortcutEditPage> {
                 ),
               ),
 
-               Container(
+              Container(
+                height: ToPx.size(90),
                 decoration: BoxDecoration(
                   color: Colors.white,
                   border: Border(bottom: BorderSide(color: themeData.dividerColor,width: ToPx.size(2)))
                 ),
-                padding: EdgeInsets.symmetric(horizontal: ToPx.size(40), vertical: ToPx.size(10)),
+                padding: EdgeInsets.symmetric(horizontal: ToPx.size(40)),
                 child: Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
                 children: <Widget>[
-                    Text("内容：", style: themeData.textTheme.title,),
+                    Text("平台别名：", style: themeData.textTheme.title,),
                     Expanded(
                       child: Input(
-                      minLines: 10,
-                      maxLines: 10,
-                      textInputAction: TextInputAction.newline,
+                      enabled: !isSystem,
                       border: Border.all(style: BorderStyle.none, color: Colors.transparent),
                       padding: EdgeInsets.symmetric(horizontal: ToPx.size(10)),
-                      placeholder: "请输入内容",
-                      controller: contentCtr,
+                      placeholder: "请输入平台别名",
+                      showClear: true,
+                      controller: aliasCtr,
                     ),
                     )
                   ],
                 ),
               ),
 
+              Offstage(
+                offstage: !isSystem,
+                child: Padding(
+                  padding: EdgeInsets.symmetric(vertical: ToPx.size(15)),
+                  child: Text("系统内置，无法编辑或删除", style: themeData.textTheme.body2, textAlign: TextAlign.center,),
+                )
+              ),
 
-              Button(
+
+              Offstage(
+                offstage: isSystem,
+                child: Button(
                 margin: EdgeInsets.symmetric(horizontal: ToPx.size(40), vertical: ToPx.size(isEdit ? 25 : 50)),
                 onPressed: _save,
                  withAlpha: 200,
                 child: Text("保存"),
               ),
+              ),
               Offstage(
-                offstage: !isEdit,
+                offstage: !isEdit || isSystem,
                 child: Button(
                 color: Colors.red,
                 margin: EdgeInsets.symmetric(horizontal: ToPx.size(40)),

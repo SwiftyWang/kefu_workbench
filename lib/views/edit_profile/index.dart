@@ -206,6 +206,7 @@ class EditProfilePageState extends State<EditProfilePage> {
               Button(
                 margin: EdgeInsets.symmetric(horizontal: ToPx.size(40), vertical: ToPx.size(80)),
                 onPressed: saveUser,
+                 withAlpha: 200,
                 child: Text("保存"),
               )
 

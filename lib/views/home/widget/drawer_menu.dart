@@ -132,6 +132,10 @@ class DrawerMenu extends StatelessWidget {
                   selected: true,
                   onTap: () => Navigator.pop(context)),
               _listTile(
+                  icon: Icons.insert_chart,
+                  title: "流量统计",
+                  onTap: () => Navigator.popAndPushNamed(context, "/statistical")),
+              _listTile(
                   icon: Icons.library_books,
                   title: "知识库",
                   onTap: () => Navigator.popAndPushNamed(context, "/knowledge")),

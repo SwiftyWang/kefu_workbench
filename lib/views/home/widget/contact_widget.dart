@@ -14,6 +14,7 @@ class ContactWidget extends StatelessWidget{
      GlobalProvide globalProvide = Provider.of<GlobalProvide>(context);
       return Dismissible(
         dragStartBehavior: DragStartBehavior.down,
+        direction: DismissDirection.endToStart,
         confirmDismiss: (DismissDirection direction) async {
           if (direction.index != 2) return false;
           globalProvide.removeSingleContact(contact.cid);

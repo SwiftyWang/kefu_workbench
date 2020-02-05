@@ -124,7 +124,7 @@ class GlobalProvide with ChangeNotifier {
   Future<void> init() async {
     await _prefsInstance();
     await getMe();
-    await _getUploadSecret();
+    await getUploadSecret();
     await _getOnlineRobot();
     if(isLogin){
       await _registerImAccount();
@@ -380,13 +380,13 @@ class GlobalProvide with ChangeNotifier {
   }
 
   /// 获取上传文件配置
-  Future<void> _getUploadSecret() async {
+  Future<void> getUploadSecret() async {
     Response response = await publicService.getUploadSecret();
     if (response.data["code"] == 200) {
       uploadSecret = UploadSecretModel.fromJson(response.data["data"]);
     } else {
       await Future.delayed(Duration(milliseconds: 1000));
-      _getUploadSecret();
+      getUploadSecret();
     }
   }
 

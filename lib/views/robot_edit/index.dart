@@ -108,7 +108,6 @@ class _RobotEditPageState extends State<RobotEditPage> {
       "platform": globalProvide.getPlatformId(selectPlatform),
       "switch": isSwitch ? 1 : 0
     };
-    printf(data);
     Response response;
     if(isEdit){
        response = await RobotService.getInstance().update(data: data);

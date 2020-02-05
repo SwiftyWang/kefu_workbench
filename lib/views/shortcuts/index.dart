@@ -58,9 +58,7 @@ class ShortcutsPage extends StatelessWidget {
                         return Column(
                           children: <Widget>[
                             ListTile(
-                              onTap: () => Navigator.pushNamed(context, "/shortcut_edit",arguments: {
-                                "shortcut": shortcut
-                              }),
+                              onTap: () => shortcutState.goEdit(context, shortcut),
                               subtitle: Column(
                                 mainAxisAlignment: MainAxisAlignment.start,
                                 crossAxisAlignment: CrossAxisAlignment.start,

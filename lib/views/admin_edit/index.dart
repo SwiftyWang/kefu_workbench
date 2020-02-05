@@ -151,27 +151,6 @@ class _AdminEditPagePageState extends State<AdminEditPage> {
           ),
         );
       }
-       Widget _fromItem({
-        String label,
-        String content
-      }){
-        return Container(
-          height: ToPx.size(90),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            border: Border(bottom: BorderSide(color: themeData.dividerColor,width: ToPx.size(2)))
-          ),
-          padding: EdgeInsets.symmetric(horizontal: ToPx.size(40)),
-          child: Row(
-          children: <Widget>[
-              Text("$label", style: themeData.textTheme.title,),
-              Expanded(
-                child: Text("$content")
-              )
-            ],
-          ),
-        );
-      }
       return Scaffold(
         appBar: customAppBar(
           title: Text(
@@ -277,6 +256,7 @@ class _AdminEditPagePageState extends State<AdminEditPage> {
               Button(
                 margin: EdgeInsets.symmetric(horizontal: ToPx.size(40), vertical: ToPx.size(80)),
                 onPressed: _saveAdmin,
+                 withAlpha: 200,
                 child: Text("保存"),
               )
 

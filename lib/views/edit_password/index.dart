@@ -145,6 +145,7 @@ class EditPasswordPageState extends State<EditPasswordPage> {
               Button(
                 margin: EdgeInsets.symmetric(horizontal: ToPx.size(40), vertical: ToPx.size(80)),
                 onPressed: _save,
+                 withAlpha: 200,
                 child: Text("保存"),
               )
 

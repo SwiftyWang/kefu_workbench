@@ -66,6 +66,15 @@ class ShortcutProvide with ChangeNotifier {
     return true;
   }
 
+   /// edit
+  void goEdit(BuildContext context, ShortcutModel shortcut) async{
+    Navigator.pushNamed(context, "/shortcut_edit", arguments: {"shortcut": shortcut}).then((isSuccess){
+      if(isSuccess == true){
+        getShortcuts();
+      }
+    });
+  }
+
 
   /// add
   void goAdd(BuildContext context) async{

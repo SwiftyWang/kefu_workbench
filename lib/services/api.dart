@@ -16,6 +16,9 @@ const String API_CONTACTS = "/contact/list";
 /// 获取快捷语
 const String API_GET_SHORTCUT = "/shortcut/list";
 
+/// 快捷语
+const String API_SHORTCUT = "/shortcut/";
+
 /// 获取个人信息
 const String API_GET_ME = "/admin/me";
 
@@ -94,6 +97,25 @@ const String API_KNOWLEDGE =  "/knowledge/";
 
 /// 服务记录
 const String API_SERVICES_STATISTICAL = "/services_statistical/list/";
+
+
+/// 系统信息
+const String API_SYSTEM = "/system/";
+
+/// 获取上传配置
+const String API_UPLOADS_CONFIG =  "/uploads/config/";
+
+/// 获取公司信息
+const String API_COMPANY_INFO = "/public/company/";
+
+/// 公司信息接口
+const String API_COMPANY = "/company/";
+
+/// 七牛接口
+const String API_QINIU = "/qiniu/";
+
+/// 渠道平台
+const String API_PLATFORM = "/platform/";
 
 
 

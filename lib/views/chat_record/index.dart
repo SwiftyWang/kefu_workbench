@@ -83,7 +83,7 @@ class ChatReCordPage extends StatelessWidget {
                         offstage: chatReCordState.total == 0,
                         child: Padding(
                         padding: EdgeInsets.symmetric(vertical: ToPx.size(5)),
-                        child: Text("当天总服务人次（${chatReCordState.total}人）", style: themeData.textTheme.caption, textAlign: TextAlign.center,)
+                        child: Text("${chatReCordState.selectedAdmin.nickname} 当天总服务人次（${chatReCordState.total}人）", style: themeData.textTheme.caption, textAlign: TextAlign.center,)
                       )
                       ),
                     ),

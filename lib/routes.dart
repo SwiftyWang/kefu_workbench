@@ -14,11 +14,14 @@ import 'views/home/index.dart';
 import 'views/knowledge/index.dart';
 import 'views/knowledge_detail/index.dart';
 import 'views/knowledge_edit/index.dart';
+import 'views/platform_edit/index.dart';
 import 'views/robot_detail/index.dart';
 import 'views/robot_edit/index.dart';
 import 'views/robots/index.dart';
 import 'views/shortcut_edit/index.dart';
 import 'views/shortcuts/index.dart';
+import 'views/statistical/index.dart';
+import 'views/system/index.dart';
 import 'views/user_detail/index.dart';
 import 'views/users/index.dart';
 
@@ -35,6 +38,9 @@ class Routers {
         break;
       case "/home":
         return HomePage(arguments: arguments);
+        break;
+      case "/statistical":
+        return StatisticalPage(arguments: arguments);
         break;
       case "/chat":
         return ChatPage(arguments: arguments);
@@ -87,6 +93,13 @@ class Routers {
       case "/shortcut_edit":
       case "/shortcut_add":
         return ShortcutEditPage(arguments: arguments);
+        break;
+      case "/system":
+        return SystemPage(arguments: arguments);
+        break;
+      case "/platform_edit":
+      case "/platform_add":
+        return PlatformEditPage(arguments: arguments);
         break;
       default:
         return Scaffold(
