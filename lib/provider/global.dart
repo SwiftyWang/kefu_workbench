@@ -183,6 +183,7 @@ class GlobalProvide with ChangeNotifier {
 
   /// 获取个人信息
   Future<void> getMe() async {
+    try{
      Response response = await adminService.getMe();
     if (response.data["code"] == 200) {
       serviceUser = AdminModel.fromJson(response.data['data']);
@@ -192,6 +193,9 @@ class GlobalProvide with ChangeNotifier {
       }
     } else {
       applicationLogout();
+    }
+    }catch(_){
+       applicationLogout();
     }
   }
 
