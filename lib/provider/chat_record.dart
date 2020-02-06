@@ -143,8 +143,6 @@ class ChatReCordProvide with ChangeNotifier {
   Future<void> _reload() async{
     pageOn = 0;
     isLoadEnd = false;
-    DateTime _dateTime = DateTime.now();
-    date = "${_dateTime.year}-${_dateTime.month < 10 ? '0'+_dateTime.month.toString() : _dateTime.month}-${_dateTime.day < 10 ? '0'+_dateTime.day.toString() : _dateTime.day}";
     searchTextEditingController.clear();
     notifyListeners();
     await getAdmins();
