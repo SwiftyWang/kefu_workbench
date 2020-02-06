@@ -181,7 +181,7 @@ class _ServiceCountViewState  extends State<ServiceCountView> with AutomaticKeep
                                             Text("${index+1}、", style: themeData.textTheme.title,),
                                             Text("${statisticalItem.title}", style: themeData.textTheme.title,)
                                           ],),
-                                          trailing: Text("服务${statisticalItem.count}人", style: themeData.textTheme.title.copyWith(
+                                          trailing: Text("${statisticalItem.count}人", style: themeData.textTheme.title.copyWith(
                                             color: Colors.green
                                           ),),
                                         ),

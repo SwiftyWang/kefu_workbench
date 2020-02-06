@@ -275,12 +275,12 @@ class GlobalProvide with ChangeNotifier {
     notifyListeners();
     getMessageRecord(isFirstLoad: true);
     getContacts();
-    _updateCurrentServiceUser();
+    updateCurrentServiceUser(currentContact.fromAccount);
   }
 
   /// 更新当前服务谁
-  void _updateCurrentServiceUser(){
-    adminService.updateCurrentServiceUser(accountId: currentContact.fromAccount);
+  void updateCurrentServiceUser(int account){
+    adminService.updateCurrentServiceUser(accountId: account);
   }
 
   /// 更新客服上线状态
@@ -291,6 +291,7 @@ class GlobalProvide with ChangeNotifier {
       if(online == 0){
         UX.showToast("当前状态为离线");
         flutterMImc.logout();
+        updateCurrentServiceUser(0);
       }else if(online == 1){
         UX.showToast("当前状态为在线");
         flutterMImc.login();

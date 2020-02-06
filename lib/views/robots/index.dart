@@ -22,13 +22,16 @@ class RobotsPage extends StatelessWidget {
                     style: themeData.textTheme.display1,
                   ),
                   actions: [
-                    Button(
+                    Offstage(
+                      offstage: GlobalProvide.getInstance()?.serviceUser?.root != 1,
+                      child: Button(
                       height: ToPx.size(90),
                       useIosStyle: true,
                       color: Colors.transparent,
                       width: ToPx.size(150),
                       child: Text("新增"),
                       onPressed: () => robotState.goAdd(context)
+                    ),
                     ),
                   ],
                 ),

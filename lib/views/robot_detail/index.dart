@@ -102,14 +102,16 @@ class _RotobDetailPageState extends State<RobotDetailPage> {
               style: themeData.textTheme.display1,
             ),
             actions: [
-              Button(
+              Offstage(
+                offstage: GlobalProvide.getInstance()?.serviceUser?.root != 1,
+                child: Button(
                 height: ToPx.size(90),
                 useIosStyle: true,
                 color: Colors.transparent,
                 width: ToPx.size(150),
                 child: Text("编辑"),
                 onPressed: () => _goEdit(context)
-              ),
+              )),
             ],
           ),
         body: ListView(

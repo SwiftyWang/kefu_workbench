@@ -1,5 +1,6 @@
 import 'package:kefu_workbench/core_flutter.dart';
 import 'package:kefu_workbench/provider/admin.dart';
+import 'package:kefu_workbench/provider/global.dart';
 import 'package:provider/provider.dart';
 
 class AdminsPage extends StatelessWidget {
@@ -24,14 +25,16 @@ class AdminsPage extends StatelessWidget {
                     style: themeData.textTheme.display1,
                   ),
                   actions: [
-                    Button(
+                    Offstage(
+                      offstage: GlobalProvide.getInstance()?.serviceUser?.root != 1,
+                      child:  Button(
                       height: ToPx.size(90),
                       useIosStyle: true,
                       color: Colors.transparent,
                       width: ToPx.size(150),
                       child: Text("新增"),
                       onPressed: () => adminState.goAdd(context)
-                    ),
+                    )),
                   ],
                 ),
               body: adminState.isLoading && adminState.admins.length == 0 ? Center(

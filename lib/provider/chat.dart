@@ -353,6 +353,7 @@ class ChatProvide with ChangeNotifier {
   void dispose() {
     GlobalProvide globalProvide =GlobalProvide.getInstance();
     globalProvide.chatProvideIsDispose = true;
+    globalProvide.updateCurrentServiceUser(0);
     focusNode?.dispose();
     editingController?.dispose();
     scrollController?.dispose();

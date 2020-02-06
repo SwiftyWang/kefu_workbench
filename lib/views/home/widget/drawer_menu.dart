@@ -159,10 +159,13 @@ class DrawerMenu extends StatelessWidget {
                   icon: Icons.assignment,
                   title: "快捷语设置",
                   onTap: () => Navigator.popAndPushNamed(context, "/shortcuts")),
-              _listTile(
+              Offstage(
+                offstage: globalState?.serviceUser?.root != 1,
+                child: _listTile(
                   icon: Icons.settings,
                   title: "系统设置",
                   onTap: () => Navigator.popAndPushNamed(context, "/system")),
+              ),
             ],
           ),
           Expanded(
