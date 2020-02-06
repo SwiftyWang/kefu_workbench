@@ -132,7 +132,7 @@ class BottomBar extends StatelessWidget{
                         },
                       ))),
               Offstage(
-                offstage: Platform.isIOS && !isShowEmoJiPanel,
+                offstage: (Platform.isIOS && !isShowEmoJiPanel) && (Platform.isIOS && !isShowShortcutPanel),
                 child: Center(
                   child: SizedBox(
                     width: 60.0,
