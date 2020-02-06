@@ -16,8 +16,29 @@ Widget createApp() {
       child: _MyApp()
   );
 }
+class _MyApp extends StatefulWidget {
+  @override
+  _MyAppState createState() => _MyAppState();
+}
+class _MyAppState extends State<_MyApp>  with WidgetsBindingObserver {
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    GlobalProvide.getInstance().setAppLifecycleState(state);
+  }
 
-class _MyApp extends StatelessWidget {
+
+  @override
+  initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Consumer<GlobalProvide>(builder: (context, globalState, ___){

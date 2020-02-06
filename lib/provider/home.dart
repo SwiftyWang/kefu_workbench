@@ -14,6 +14,11 @@ class HomeProvide with ChangeNotifier {
     instance = HomeProvide();
     return instance;
   }
+  HomeProvide(){
+    /// 检测通知权限
+    checkPermission(GlobalProvide.getInstance().rooContext, permissionGroupType: PermissionGroup.notification);
+  }
+
 
   ///  所有未读消息
   int get contactReadCount{

@@ -79,7 +79,7 @@ class HomePage extends StatelessWidget {
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: <Widget>[
                         Text(
-                          "工作台",
+                          "工作台 ",
                           style: themeData.textTheme.display1,
                         ),
                         Offstage(

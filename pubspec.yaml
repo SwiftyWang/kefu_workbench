@@ -23,6 +23,7 @@ dependencies:
   provider: ^4.0.1
   flutter_mimc: ^1.0.1
   connectivity: ^0.4.6+2
+  flutter_local_notifications: ^1.1.5+1
   fluttertoast:
     git: 'https://github.com/chenxianqi/FlutterToast.git'
 

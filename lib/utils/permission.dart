@@ -43,6 +43,8 @@ Future<bool> checkPermission(context, {PermissionGroup permissionGroupType}) asy
         permissionName = "相机权限";
       if (permissionGroupType == PermissionGroup.photos)
         permissionName = "相册权限";
+      if (permissionGroupType == PermissionGroup.notification)
+        permissionName = "通知权限";
       if (permissionGroupType == PermissionGroup.storage)
         permissionName = "文件读写权限";
       if (permissionGroupType == PermissionGroup.locationWhenInUse)

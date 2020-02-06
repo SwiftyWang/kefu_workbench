@@ -6,3 +6,4 @@ export 'datetime_util.dart';
 export 'print_util.dart';
 export 'permission.dart';
 export 'upload_image.dart';
+export 'local_notifications.dart';

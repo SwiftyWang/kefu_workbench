@@ -29,6 +29,9 @@ class GlobalProvide with ChangeNotifier {
   /// root context
   BuildContext rooContext;
 
+  /// 当前路由路径
+  String currentRoutePath = "home";
+
   /// ChatProvide是否已销毁
   bool chatProvideIsDispose = true;
 
@@ -62,6 +65,9 @@ class GlobalProvide with ChangeNotifier {
 
   /// 快捷语
   List<ShortcutModel> shortcuts = [];
+
+  /// app运行状态
+  AppLifecycleState appLifecycleState;
 
   /// 客服信息
   AdminModel serviceUser;
@@ -105,6 +111,19 @@ class GlobalProvide with ChangeNotifier {
 
   /// 当前用户ID
   int toAccount;
+
+  /// 设置app运行状态
+  /// AppLifecycleState.paused 暂停
+  /// AppLifecycleState.inactive 不活跃
+  /// AppLifecycleState.resumed 已恢复
+  void setAppLifecycleState(AppLifecycleState state){
+    this.appLifecycleState = state;
+  }
+
+  /// 设置当前路由路径
+  void setCurrentRoutePath(String path){
+    this.currentRoutePath = path;
+  }
 
   /// set rooContext
   void setRooContext(BuildContext context){
@@ -550,12 +569,11 @@ class GlobalProvide with ChangeNotifier {
   ImMessageModel _handlerMessage(ImMessageModel msg) {
     const String defaultAvatar = 'http://qiniu.cmp520.com/avatar_degault_3.png';
     msg.avatar = defaultAvatar;
-    // 消息是我发的
     if (msg.fromAccount != serviceUser.id && msg.fromAccount != robot.id && msg.fromAccount > 5000) {
       /// 这里如果是接入业务平台可替换成用户头像和昵称
       /// if (uid == myUid)  msg.avatar = MyAvatar
       /// if (uid == myUid)  msg.nickname = MyNickname
-      msg.nickname = "我";
+      msg.nickname = msg.nickname ?? "访客${msg.fromAccount}";
     } else {
       if (serviceUser != null && serviceUser.id == msg.fromAccount) {
         msg.nickname = serviceUser.nickname ?? "客服";
@@ -635,9 +653,10 @@ class GlobalProvide with ChangeNotifier {
             break;
           case "text":
           case "photo":
-            if(currentContact != null && message.fromAccount != currentContact.fromAccount) return;
-            advanceText = "";
-            notifyListeners();
+            if(!(currentContact != null && message.fromAccount != currentContact.fromAccount)){
+              advanceText = "";
+              notifyListeners();
+            }
             break;
           case "end":
           case "timeout":
@@ -649,12 +668,13 @@ class GlobalProvide with ChangeNotifier {
             if(currentContact != null && message.fromAccount != currentContact.fromAccount) return;
             advanceText = message.payload;
             notifyListeners();
-            if (isPong) return;
-            isPong = true;
-            notifyListeners();
-            await Future.delayed(Duration(milliseconds: 1500));
-            isPong = false;
-            notifyListeners();
+            if (!isPong){
+              isPong = true;
+              notifyListeners();
+              await Future.delayed(Duration(milliseconds: 1500));
+              isPong = false;
+              notifyListeners();
+            }
             break;
           case "cancel":
             message.key = int.parse(message.payload);
@@ -663,6 +683,22 @@ class GlobalProvide with ChangeNotifier {
         }
         pushLocalMessage(message, message.fromAccount);
         notifyListeners();
+        /// 通知
+        if(currentRoutePath == "chat" && toAccount == message.fromAccount) return;
+        if(appLifecycleState == AppLifecycleState.paused || currentRoutePath != "home"){
+          if(!["text", "photo", "handshake"].contains(message.bizType)) return;
+          ImMessageModel newMsg = _handlerMessage(message);
+          String payload = message.payload;
+          String title = "${newMsg.nickname}发来消息";
+          if(message.bizType == "photo"){
+            payload = "图片文件";
+          }
+          if(message.bizType == "handshake"){
+            title = "系统消息";
+            payload = "${newMsg.nickname}接入人工...";
+          }
+          LocalNotifications.getInstance().showNotifications(title: "$title", body: "$payload", channelId: "${newMsg.fromAccount}");
+        }
       });
     } catch (e) {
       debugPrint(e);

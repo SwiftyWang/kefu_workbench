@@ -7,6 +7,6 @@ Widget loadingIcon({double size}){
     CircularProgressIndicator(
       strokeWidth: 2.0,
     ):
-    CupertinoActivityIndicator(radius: size ?? ToPx.size(15),)
+    CupertinoActivityIndicator(radius: ToPx.size(25),)
   );
 }

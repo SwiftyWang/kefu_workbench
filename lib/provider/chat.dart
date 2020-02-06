@@ -58,6 +58,7 @@ class ChatProvide with ChangeNotifier {
    // 监听滚动条
   void _onScrollViewControllerAddListener() async {
     try {
+      await Future.delayed(Duration(milliseconds: 300));
       GlobalProvide globalState = GlobalProvide.getInstance();
       ScrollPosition position = scrollController?.position;
       // 判断是否到底部

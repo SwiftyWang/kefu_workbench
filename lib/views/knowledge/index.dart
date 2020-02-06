@@ -62,6 +62,7 @@ class KnowledgePage extends StatelessWidget{
                               onTap: () => Navigator.pushNamed(context, "/knowledge_detail",arguments: {
                                 "knowledge": knowledge
                               }),
+                              subtitle: Text("${knowledge.content}", style: themeData.textTheme.caption, maxLines: 1, overflow: TextOverflow.ellipsis,),
                               trailing: Text("${Utils.formatDate(knowledge.createAt)}", style: themeData.textTheme.caption),
                               title: Row(children: <Widget>[
                                 Text("${index+1}、", style: themeData.textTheme.title),

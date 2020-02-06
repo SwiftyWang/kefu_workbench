@@ -27,11 +27,11 @@ import 'views/users/index.dart';
 
 class Routers {
   static Widget buildPage(String path, {Object arguments}) {
-
-    bool isLogin = GlobalProvide.getInstance().isLogin;
+    GlobalProvide globalProvide = GlobalProvide.getInstance();
+    bool isLogin = globalProvide.isLogin;
 
     if(!isLogin) return LoginPage(arguments: arguments);
-
+    globalProvide.setCurrentRoutePath(path.replaceAll("/", ""));
     switch (path) {
       case "/login":
         return LoginPage(arguments: arguments);
