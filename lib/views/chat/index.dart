@@ -218,7 +218,7 @@ class ChatPage extends StatelessWidget {
                     ),
                   )
                 ],),
-                endDrawer: Drawer(
+                endDrawer: globalState.currentContact == null ? null : Drawer(
                   child: ChatEndDrawer(),
                 ),
               );
