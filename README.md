@@ -30,4 +30,4 @@
   [5]: http://kf.aissz.com:666/static/app/app-release.apk
   [6]: https://github.com/chenxianqi/flutter_mimc
   [7]: https://github.com/chenxianqi/kefu_workbench
-  [8]: http://qiniu.cmp520.com/kefu_workbench.apk
+  [8]: http://kf.aissz.com:666/static/app/kefu_workbench.apk
