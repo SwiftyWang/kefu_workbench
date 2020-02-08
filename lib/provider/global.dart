@@ -640,8 +640,20 @@ class GlobalProvide with ChangeNotifier {
           ?.listen((MIMCMessage msg) async {
         ImMessageModel message = ImMessageModel.fromJson(
             json.decode(utf8.decode(base64Decode(msg.payload))));
-
+        if(message.fromAccount == serviceUser.id && message.bizType == "pong") return;
+        if(message.bizType == "into") return;
+        if(message.fromAccount == serviceUser.id){
+          pushLocalMessage(message, message.toAccount);
+          if(message.bizType == "cancel"){
+            message.key = int.parse(message.payload);
+            deleteMessage(message.toAccount, message.key);
+          }
+          return;
+        }
         switch (message.bizType) {
+          case "transfer":
+              getContacts();
+            break;
           case "contacts":
             contacts = (json.decode(message.payload) as List).map((i){
               ContactModel contact = ContactModel.fromJson(i);
@@ -650,10 +662,6 @@ class GlobalProvide with ChangeNotifier {
               }
               return ContactModel.fromJson(i);
             }).toList();
-            break;
-          case "handshake":
-            MessageHandle msgHandle = createMessage(toAccount: message.fromAccount, msgType: "text", content: serviceUser.autoReply);
-            sendMessage(msgHandle);
             break;
           case "text":
           case "photo":

@@ -18,7 +18,7 @@ class AuthService extends BaseServices {
   Future<Response> login({String username, String password}) async {
     try {
       Response response = await http
-          .post(API_LOGIN, data: {"username": username, "password": password});
+          .post(API_LOGIN, data: {"username": username, "password": password, "auth_type": 2});
       return response;
     } on DioError catch (e) {
       return error(e, API_LOGIN);
